@@ -1,0 +1,32 @@
+{
+  "$schema": "https://raw.githubusercontent.com/render-com/render/main/schema/render.schema.json",
+  "services": [
+    {
+      "type": "web",
+      "name": "deenflow",
+      "runtime": "node",
+      "plan": "starter",
+      "buildCommand": "npm install && npm run build",
+      "startCommand": "npm run start",
+      "envVars": [
+        {
+          "key": "NODE_VERSION",
+          "value": "20"
+        },
+        {
+          "key": "NEXT_PUBLIC_SUPABASE_URL",
+          "sync": false
+        },
+        {
+          "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+          "sync": false
+        },
+        {
+          "key": "OPENROUTER_API_KEY",
+          "sync": false
+        }
+      ],
+      "healthCheckPath": "/api/health"
+    }
+  ]
+}
