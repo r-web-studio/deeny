@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { usePrayerTimes, PrayerTimesData } from "@/lib/hooks/use-prayer-times";
 import { UZBEKISTAN_REGIONS, UzbekistanCity } from "@/lib/data/uzbekistan";
 import { useI18n } from "@/lib/i18n";
+import { AnalogClock } from "@/components/analog-clock";
 import toast from "react-hot-toast";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, addMonths, subMonths, isSameDay } from "date-fns";
 
@@ -183,17 +184,8 @@ export default function PrayersPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="glass border-islamic-green/20">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Current Time</CardTitle>
-            <Clock className="h-4 w-4 text-islamic-green" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl md:text-5xl font-bold text-islamic-green font-mono tabular-nums">
-              {currentTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {currentTime.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-            </p>
+          <CardContent className="pt-6">
+            <AnalogClock size={180} />
           </CardContent>
         </Card>
 

@@ -98,15 +98,21 @@ export default function AiPage() {
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({ content: null }));
+        if (res.status === 404) {
+          return "AI service is not available. The API endpoint could not be found. Please check the server configuration or try again later.";
+        }
         if (res.status === 429) {
           return "AI service is busy right now. Please wait a few seconds and try again.";
+        }
+        if (res.status === 500) {
+          return errData.content || "AI service is not configured. Please set the OPENROUTER_API_KEY environment variable.";
         }
         return errData.content || `Server error (${res.status}). Please try again.`;
       }
       const data = await res.json();
       return data.content || "No response generated.";
     } catch (err) {
-      return `Network error: ${err instanceof Error ? err.message : "Unknown error"}`;
+      return "Unable to connect to AI service. Please check your internet connection and try again.";
     }
   };
 
