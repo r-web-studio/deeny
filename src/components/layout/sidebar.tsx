@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, BookOpen, Clock, Target, ListTodo, MessageCircle,
   Shield, PenLine, Calendar, BookMarked, BarChart3, Trophy,
-  Settings, LogOut, X, ChevronLeft
+  Settings, LogOut, X, Star
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/lib/stores/sidebar-store";
@@ -27,6 +27,7 @@ const navItems = [
   { href: "/quran", label: "Quran", icon: BookMarked },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/achievements", label: "Achievements", icon: Trophy },
+  { href: "/reviews", label: "Reviews", icon: Star },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
