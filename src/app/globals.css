@@ -159,6 +159,15 @@
   .font-heading {
     font-family: var(--font-heading), var(--font-sans), system-ui, sans-serif;
   }
+  .islamic-pattern {
+    background-image: radial-gradient(circle at 25% 25%, var(--islamic-green) 1px, transparent 1px),
+                      radial-gradient(circle at 75% 75%, var(--gold) 0.5px, transparent 0.5px);
+    background-size: 60px 60px;
+    opacity: 0.04;
+  }
+  .islamic-border {
+    border-image: linear-gradient(to right, transparent, var(--islamic-green), var(--gold), var(--islamic-green), transparent) 1;
+  }
 }
 
 @keyframes float {

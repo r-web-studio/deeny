@@ -45,17 +45,20 @@ export function Sidebar() {
   const content = (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-4 border-b border-border/50">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-islamic-green to-islamic-green/80 flex items-center justify-center text-white text-sm font-bold">
-            {APP_NAME.charAt(0)}
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-islamic-green to-islamic-green/70 flex items-center justify-center text-white text-base font-bold shadow-lg shadow-islamic-green/20">
+            <BookOpen className="h-5 w-5" />
           </div>
-          <span className="font-bold text-lg">{APP_NAME}</span>
+          <div>
+            <span className="font-bold text-lg font-heading">{APP_NAME}</span>
+            <p className="text-[10px] text-muted-foreground -mt-0.5 font-arabic">بِسْمِ ٱللَّٰهِ</p>
+          </div>
         </Link>
         <Button variant="ghost" size="icon" className="md:hidden" onClick={close}>
           <X className="h-5 w-5" />
         </Button>
       </div>
-      <ScrollArea className="flex-1 py-2">
+      <ScrollArea className="flex-1 py-3">
         <nav className="space-y-1 px-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -65,9 +68,9 @@ export function Sidebar() {
                 href={item.href}
                 onClick={close}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                  "relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-islamic-green/10 text-islamic-green"
+                    ? "bg-islamic-green/10 text-islamic-green shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
               >
@@ -84,10 +87,10 @@ export function Sidebar() {
           })}
         </nav>
       </ScrollArea>
-      <div className="p-2 border-t border-border/50">
+      <div className="p-3 border-t border-border/50">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 w-full transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 w-full transition-colors"
         >
           <LogOut className="h-4 w-4" />
           Sign Out

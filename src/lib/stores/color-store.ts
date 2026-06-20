@@ -14,6 +14,10 @@ export interface ColorPreset {
     sidebarPrimary: string;
     sidebarAccent: string;
     sidebarRing: string;
+    background: string;
+    card: string;
+    muted: string;
+    sidebar: string;
   };
   dark: {
     primary: string;
@@ -26,6 +30,10 @@ export interface ColorPreset {
     sidebarPrimary: string;
     sidebarAccent: string;
     sidebarRing: string;
+    background: string;
+    card: string;
+    muted: string;
+    sidebar: string;
   };
 }
 
@@ -44,6 +52,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.38 0.16 155)",
       sidebarAccent: "oklch(0.95 0.01 155)",
       sidebarRing: "oklch(0.38 0.16 155)",
+      background: "oklch(0.97 0.005 155)",
+      card: "oklch(0.99 0.002 155)",
+      muted: "oklch(0.95 0.008 155)",
+      sidebar: "oklch(0.98 0.004 155)",
     },
     dark: {
       primary: "oklch(0.52 0.17 155)",
@@ -56,6 +68,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.56 0.18 155)",
       sidebarAccent: "oklch(0.20 0.03 155)",
       sidebarRing: "oklch(0.52 0.17 155)",
+      background: "oklch(0.14 0.02 155)",
+      card: "oklch(0.18 0.02 155)",
+      muted: "oklch(0.22 0.02 155)",
+      sidebar: "oklch(0.16 0.02 155)",
     },
   },
   {
@@ -72,6 +88,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.48 0.14 75)",
       sidebarAccent: "oklch(0.95 0.01 75)",
       sidebarRing: "oklch(0.48 0.14 75)",
+      background: "oklch(0.97 0.008 75)",
+      card: "oklch(0.99 0.004 75)",
+      muted: "oklch(0.95 0.01 75)",
+      sidebar: "oklch(0.98 0.006 75)",
     },
     dark: {
       primary: "oklch(0.62 0.16 75)",
@@ -84,6 +104,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.65 0.16 75)",
       sidebarAccent: "oklch(0.22 0.03 75)",
       sidebarRing: "oklch(0.62 0.16 75)",
+      background: "oklch(0.14 0.02 75)",
+      card: "oklch(0.18 0.02 75)",
+      muted: "oklch(0.22 0.02 75)",
+      sidebar: "oklch(0.16 0.02 75)",
     },
   },
   {
@@ -100,6 +124,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.45 0.10 55)",
       sidebarAccent: "oklch(0.95 0.01 55)",
       sidebarRing: "oklch(0.45 0.10 55)",
+      background: "oklch(0.97 0.006 55)",
+      card: "oklch(0.99 0.003 55)",
+      muted: "oklch(0.95 0.008 55)",
+      sidebar: "oklch(0.98 0.005 55)",
     },
     dark: {
       primary: "oklch(0.60 0.12 55)",
@@ -112,6 +140,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.62 0.12 55)",
       sidebarAccent: "oklch(0.22 0.03 55)",
       sidebarRing: "oklch(0.60 0.12 55)",
+      background: "oklch(0.14 0.015 55)",
+      card: "oklch(0.18 0.015 55)",
+      muted: "oklch(0.22 0.02 55)",
+      sidebar: "oklch(0.16 0.015 55)",
     },
   },
   {
@@ -128,6 +160,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.35 0.12 240)",
       sidebarAccent: "oklch(0.95 0.01 240)",
       sidebarRing: "oklch(0.35 0.12 240)",
+      background: "oklch(0.97 0.005 240)",
+      card: "oklch(0.99 0.002 240)",
+      muted: "oklch(0.95 0.008 240)",
+      sidebar: "oklch(0.98 0.004 240)",
     },
     dark: {
       primary: "oklch(0.50 0.14 240)",
@@ -140,6 +176,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.54 0.14 240)",
       sidebarAccent: "oklch(0.20 0.03 240)",
       sidebarRing: "oklch(0.50 0.14 240)",
+      background: "oklch(0.14 0.02 240)",
+      card: "oklch(0.18 0.02 240)",
+      muted: "oklch(0.22 0.02 240)",
+      sidebar: "oklch(0.16 0.02 240)",
     },
   },
   {
@@ -156,6 +196,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.30 0.10 260)",
       sidebarAccent: "oklch(0.95 0.01 260)",
       sidebarRing: "oklch(0.30 0.10 260)",
+      background: "oklch(0.97 0.004 260)",
+      card: "oklch(0.99 0.002 260)",
+      muted: "oklch(0.95 0.006 260)",
+      sidebar: "oklch(0.98 0.003 260)",
     },
     dark: {
       primary: "oklch(0.48 0.12 260)",
@@ -168,6 +212,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.52 0.12 260)",
       sidebarAccent: "oklch(0.18 0.03 260)",
       sidebarRing: "oklch(0.48 0.12 260)",
+      background: "oklch(0.13 0.02 260)",
+      card: "oklch(0.17 0.02 260)",
+      muted: "oklch(0.21 0.02 260)",
+      sidebar: "oklch(0.15 0.02 260)",
     },
   },
   {
@@ -184,6 +232,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.40 0.08 140)",
       sidebarAccent: "oklch(0.96 0.01 140)",
       sidebarRing: "oklch(0.40 0.08 140)",
+      background: "oklch(0.98 0.003 140)",
+      card: "oklch(0.995 0.001 140)",
+      muted: "oklch(0.96 0.005 140)",
+      sidebar: "oklch(0.985 0.002 140)",
     },
     dark: {
       primary: "oklch(0.55 0.12 140)",
@@ -196,6 +248,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.58 0.12 140)",
       sidebarAccent: "oklch(0.22 0.03 140)",
       sidebarRing: "oklch(0.55 0.12 140)",
+      background: "oklch(0.14 0.015 140)",
+      card: "oklch(0.18 0.015 140)",
+      muted: "oklch(0.22 0.02 140)",
+      sidebar: "oklch(0.16 0.015 140)",
     },
   },
   {
@@ -212,6 +268,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.42 0.14 350)",
       sidebarAccent: "oklch(0.95 0.01 350)",
       sidebarRing: "oklch(0.42 0.14 350)",
+      background: "oklch(0.97 0.006 350)",
+      card: "oklch(0.99 0.003 350)",
+      muted: "oklch(0.95 0.008 350)",
+      sidebar: "oklch(0.98 0.004 350)",
     },
     dark: {
       primary: "oklch(0.58 0.16 350)",
@@ -224,6 +284,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.60 0.16 350)",
       sidebarAccent: "oklch(0.22 0.03 350)",
       sidebarRing: "oklch(0.58 0.16 350)",
+      background: "oklch(0.14 0.015 350)",
+      card: "oklch(0.18 0.015 350)",
+      muted: "oklch(0.22 0.02 350)",
+      sidebar: "oklch(0.16 0.015 350)",
     },
   },
   {
@@ -240,6 +304,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.45 0.12 60)",
       sidebarAccent: "oklch(0.95 0.01 60)",
       sidebarRing: "oklch(0.45 0.12 60)",
+      background: "oklch(0.97 0.006 60)",
+      card: "oklch(0.99 0.003 60)",
+      muted: "oklch(0.95 0.008 60)",
+      sidebar: "oklch(0.98 0.005 60)",
     },
     dark: {
       primary: "oklch(0.60 0.14 60)",
@@ -252,6 +320,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
       sidebarPrimary: "oklch(0.63 0.14 60)",
       sidebarAccent: "oklch(0.22 0.03 60)",
       sidebarRing: "oklch(0.60 0.14 60)",
+      background: "oklch(0.14 0.015 60)",
+      card: "oklch(0.18 0.015 60)",
+      muted: "oklch(0.22 0.02 60)",
+      sidebar: "oklch(0.16 0.015 60)",
     },
   },
 ];
@@ -301,6 +373,10 @@ export function applyColorPreset(presetId: string) {
   root.style.setProperty("--sidebar-primary", colors.sidebarPrimary);
   root.style.setProperty("--sidebar-accent", colors.sidebarAccent);
   root.style.setProperty("--sidebar-ring", colors.sidebarRing);
+  root.style.setProperty("--background", colors.background);
+  root.style.setProperty("--card", colors.card);
+  root.style.setProperty("--muted", colors.muted);
+  root.style.setProperty("--sidebar", colors.sidebar);
 }
 
 export function initColors() {

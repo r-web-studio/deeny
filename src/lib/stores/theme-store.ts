@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { applyColorPreset } from "./color-store";
 
 interface ThemeStore {
   theme: "light" | "dark" | "system";
@@ -25,6 +26,8 @@ export function applyTheme(theme: "light" | "dark" | "system") {
   } else {
     root.classList.toggle("dark", theme === "dark");
   }
+  const saved = localStorage.getItem("deenflow-colors") || "madinah-green";
+  applyColorPreset(saved);
 }
 
 export function initTheme() {
