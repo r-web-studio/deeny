@@ -217,7 +217,7 @@ export default function DashboardPage() {
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
       <motion.div variants={item}>
         <h1 className="text-2xl md:text-3xl font-bold font-heading">
-          <span className="text-gradient">Assalamu Aleykum</span>{userName ? `, ${userName}` : ""}
+          Assalamu Aleykum{userName ? `, ${userName}` : ""}
         </h1>
         <p className="text-muted-foreground mt-1">{t("dashboard.subtitle")}</p>
       </motion.div>

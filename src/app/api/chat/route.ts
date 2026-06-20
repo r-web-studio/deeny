@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+export async function GET() {
+  return NextResponse.json({ status: "ok", route: "/api/chat" });
+}
+
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 2000;
 
