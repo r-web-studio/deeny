@@ -87,6 +87,8 @@ export default function AiPage() {
     setRenamingId(null);
   };
 
+  const lastSentRef = useRef<number>(0);
+
   const postChat = async (allMessages: Message[]): Promise<string> => {
     try {
       const res = await fetch("/api/chat", {
@@ -95,8 +97,11 @@ export default function AiPage() {
         body: JSON.stringify({ messages: allMessages }),
       });
       if (!res.ok) {
-        const errText = await res.text();
-        return `Server error (${res.status}): ${errText}`;
+        const errData = await res.json().catch(() => ({ content: null }));
+        if (res.status === 429) {
+          return "AI service is busy right now. Please wait a few seconds and try again.";
+        }
+        return errData.content || `Server error (${res.status}). Please try again.`;
       }
       const data = await res.json();
       return data.content || "No response generated.";
@@ -107,6 +112,12 @@ export default function AiPage() {
 
   const sendMessage = async () => {
     if (!input.trim() || !activeId || loading) return;
+
+    const now = Date.now();
+    if (now - lastSentRef.current < 3000) {
+      return;
+    }
+    lastSentRef.current = now;
     const userMsg: Message = { role: "user", content: input };
     const currentInput = input;
     setInput("");

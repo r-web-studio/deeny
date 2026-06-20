@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,31 @@ import { Badge } from "@/components/ui/badge";
 import { ISLAMIC_EVENTS } from "@/lib/constants";
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval, isToday,
-  addMonths, subMonths, startOfWeek, endOfWeek, isSameMonth,
+  addMonths, subMonths, startOfWeek, endOfWeek, isSameMonth, isSameDay,
 } from "date-fns";
+
+interface PrayerStatus {
+  [key: string]: "completed" | "delayed" | "missed" | undefined;
+}
+
+interface PrayerHistory {
+  [date: string]: PrayerStatus;
+}
+
+const PRAYER_HISTORY_KEY = "deenflow-prayer-history";
+const prayerNames = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [history, setHistory] = useState<PrayerHistory>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(PRAYER_HISTORY_KEY);
+      if (raw) setHistory(JSON.parse(raw));
+    } catch {}
+  }, []);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -29,6 +48,24 @@ export default function CalendarPage() {
     const hd = Math.floor(((h % 31557600000) % 2629800000) / 86400000);
     return `${hd + 1} / ${hm + 1} / ${hy + 1}`;
   };
+
+  const getDayCompletionRatio = useCallback(
+    (day: Date): { completed: number; total: number } | null => {
+      const key = format(day, "yyyy-MM-dd");
+      const dayStatuses = history[key];
+      if (!dayStatuses) return null;
+      const total = 5;
+      const completed = Object.values(dayStatuses).filter((s) => s === "completed").length;
+      return { completed, total };
+    },
+    [history]
+  );
+
+  const selectedDayDetail = useMemo(() => {
+    if (!selectedDate) return null;
+    const key = format(selectedDate, "yyyy-MM-dd");
+    return history[key] || null;
+  }, [selectedDate, history]);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -56,17 +93,40 @@ export default function CalendarPage() {
                 ))}
                 {days.map((day) => {
                   const inMonth = isSameMonth(day, currentDate);
-                  const selected = selectedDate?.toDateString() === day.toDateString();
+                  const selected = selectedDate && isSameDay(day, selectedDate);
+                  const dayIsToday = isToday(day);
+                  const ratio = getDayCompletionRatio(day);
+
+                  let bgClass = "";
+                  if (!inMonth) bgClass = "text-muted-foreground/40";
+                  else if (dayIsToday) bgClass = "bg-islamic-green text-white font-bold";
+                  else if (selected) bgClass = "bg-islamic-green/20 text-islamic-green";
+                  else if (ratio) {
+                    if (ratio.completed === ratio.total) bgClass = "bg-green-500/20 hover:bg-green-500/30";
+                    else if (ratio.completed > 0) bgClass = "bg-yellow-500/20 hover:bg-yellow-500/30";
+                    else bgClass = "bg-red-500/10 hover:bg-red-500/20";
+                  }
+
                   return (
                     <button
                       key={day.toISOString()}
                       onClick={() => setSelectedDate(day)}
-                      className={`p-2 rounded-lg text-sm transition-all relative ${
-                        !inMonth ? "text-muted-foreground/40" : ""
-                      } ${isToday(day) ? "bg-islamic-green text-white font-bold" : ""} ${selected && !isToday(day) ? "bg-islamic-green/20 text-islamic-green" : ""} hover:bg-accent`}
+                      className={`p-2 rounded-lg text-sm transition-all relative ${bgClass} hover:bg-accent`}
                     >
                       <div>{format(day, "d")}</div>
                       <div className="text-[10px] text-muted-foreground">{getHijriApprox(day)}</div>
+                      {ratio && (
+                        <div className="flex justify-center gap-0.5 mt-0.5">
+                          {Array.from({ length: ratio.total }).map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-1 h-1 rounded-full ${
+                                i < ratio.completed ? "bg-green-500" : "bg-muted-foreground/30"
+                              } ${dayIsToday ? "bg-white/80" : ""}`}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </button>
                   );
                 })}
@@ -95,16 +155,47 @@ export default function CalendarPage() {
             </CardContent>
           </Card>
 
-          {selectedDate && (
-            <Card className="glass border-islamic-green/20">
-              <CardHeader>
-                <CardTitle className="text-sm">{format(selectedDate, "EEEE, MMMM d, yyyy")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground">Hijri: {getHijriApprox(selectedDate)}</p>
-              </CardContent>
-            </Card>
-          )}
+          <AnimatePresence>
+            {selectedDate && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+              >
+                <Card className="glass border-islamic-green/20">
+                  <CardHeader>
+                    <CardTitle className="text-sm">{format(selectedDate, "EEEE, MMMM d, yyyy")}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-xs text-muted-foreground">Hijri: {getHijriApprox(selectedDate)}</p>
+
+                    {selectedDayDetail ? (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Prayer Progress</p>
+                        {prayerNames.map((name) => {
+                          const status = selectedDayDetail[name];
+                          return (
+                            <div key={name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                              <span className="font-medium text-sm">{name}</span>
+                              {status === "completed" && <Badge className="bg-green-500">&#10003; Completed</Badge>}
+                              {status === "delayed" && <Badge className="bg-yellow-500">Delayed</Badge>}
+                              {status === "missed" && <Badge className="bg-red-500">Missed</Badge>}
+                              {!status && <Badge variant="outline">Not marked</Badge>}
+                            </div>
+                          );
+                        })}
+                        <div className="text-xs text-muted-foreground text-right">
+                          {Object.values(selectedDayDetail).filter((s) => s === "completed").length}/5 completed
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No prayer data for this day.</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </motion.div>

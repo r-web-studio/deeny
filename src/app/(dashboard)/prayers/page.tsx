@@ -1,24 +1,61 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
-import { MapPin, Clock, Check, AlertCircle, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MapPin, Clock, Check, AlertCircle, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePrayerTimes, PrayerTimesData } from "@/lib/hooks/use-prayer-times";
 import { UZBEKISTAN_REGIONS, UzbekistanCity } from "@/lib/data/uzbekistan";
 import { useI18n } from "@/lib/i18n";
 import toast from "react-hot-toast";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, addMonths, subMonths } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, addMonths, subMonths, isSameDay } from "date-fns";
 
 interface PrayerStatus {
   [key: string]: "completed" | "delayed" | "missed" | undefined;
 }
 
+interface PrayerHistory {
+  [date: string]: PrayerStatus;
+}
+
 const STORAGE_KEY = "deenflow-prayer-location";
+const PRAYER_HISTORY_KEY = "deenflow-prayer-history";
 const PRAYER_STATUSES_KEY = "deenflow-prayer-statuses";
+
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadHistory(): PrayerHistory {
+  try {
+    const raw = localStorage.getItem(PRAYER_HISTORY_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return {};
+}
+
+function saveHistory(history: PrayerHistory) {
+  localStorage.setItem(PRAYER_HISTORY_KEY, JSON.stringify(history));
+}
+
+function migrateOldStatuses(history: PrayerHistory): PrayerHistory {
+  const todayKey = getTodayKey();
+  if (!history[todayKey]) {
+    try {
+      const raw = localStorage.getItem(PRAYER_STATUSES_KEY);
+      if (raw) {
+        const old = JSON.parse(raw);
+        if (old && typeof old === "object" && Object.keys(old).length > 0) {
+          history[todayKey] = old;
+          localStorage.removeItem(PRAYER_STATUSES_KEY);
+        }
+      }
+    } catch {}
+  }
+  return history;
+}
 
 export default function PrayersPage() {
   const { t } = useI18n();
@@ -28,9 +65,12 @@ export default function PrayersPage() {
     selectedCity?.apiRegion
   );
   const [statuses, setStatuses] = useState<PrayerStatus>({});
+  const [history, setHistory] = useState<PrayerHistory>({});
   const [currentDate, setCurrentDate] = useState(new Date());
   const [nextPrayerIdx, setNextPrayerIdx] = useState(-1);
   const [countdown, setCountdown] = useState("");
+  const [selectedCalDay, setSelectedCalDay] = useState<Date | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const prayerNames = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
@@ -41,12 +81,11 @@ export default function PrayersPage() {
         setSelectedCity(JSON.parse(saved));
       } catch {}
     }
-    const savedStatuses = localStorage.getItem(PRAYER_STATUSES_KEY);
-    if (savedStatuses) {
-      try {
-        setStatuses(JSON.parse(savedStatuses));
-      } catch {}
-    }
+    let h = loadHistory();
+    h = migrateOldStatuses(h);
+    setHistory(h);
+    const todayKey = getTodayKey();
+    setStatuses(h[todayKey] || {});
   }, []);
 
   const selectCity = (city: UzbekistanCity) => {
@@ -83,16 +122,42 @@ export default function PrayersPage() {
   }, [times]);
 
   const markPrayer = (name: string, status: "completed" | "delayed" | "missed") => {
+    const todayKey = getTodayKey();
     const updated = { ...statuses, [name]: status };
     setStatuses(updated);
-    localStorage.setItem(PRAYER_STATUSES_KEY, JSON.stringify(updated));
+    const newHistory = { ...history, [todayKey]: updated };
+    setHistory(newHistory);
+    saveHistory(newHistory);
   };
+
+  useEffect(() => {
+    const tick = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(tick);
+  }, []);
 
   const monthDays = useMemo(() => {
     const start = startOfMonth(currentDate);
     const end = endOfMonth(currentDate);
     return eachDayOfInterval({ start, end });
   }, [currentDate]);
+
+  const getDayCompletionRatio = useCallback(
+    (day: Date): { completed: number; total: number } | null => {
+      const key = format(day, "yyyy-MM-dd");
+      const dayStatuses = history[key];
+      if (!dayStatuses) return null;
+      const total = 5;
+      const completed = Object.values(dayStatuses).filter((s) => s === "completed").length;
+      return { completed, total };
+    },
+    [history]
+  );
+
+  const selectedDayDetail = useMemo(() => {
+    if (!selectedCalDay) return null;
+    const key = format(selectedCalDay, "yyyy-MM-dd");
+    return history[key] || null;
+  }, [selectedCalDay, history]);
 
   const allCities = UZBEKISTAN_REGIONS.flatMap((r) =>
     r.cities.map((c) => ({ ...c, region: r.region }))
@@ -114,6 +179,55 @@ export default function PrayersPage() {
             ? `${selectedCity.name} (${selectedCity.nameUz})`
             : t("prayers.selectCity")}
         </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card className="glass border-islamic-green/20">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Current Time</CardTitle>
+            <Clock className="h-4 w-4 text-islamic-green" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl md:text-5xl font-bold text-islamic-green font-mono tabular-nums">
+              {currentTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {currentTime.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+            </p>
+          </CardContent>
+        </Card>
+
+        {times && (
+          <Card className="glass">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Today&apos;s Prayer Schedule</CardTitle>
+              <Clock className="h-4 w-4 text-gold" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-5 gap-2 text-center">
+                {prayerNames.map((name, idx) => {
+                  const time = times[name as keyof PrayerTimesData];
+                  const status = statuses[name];
+                  const [h, m] = (time || "00:00").split(":").map(Number);
+                  const prayerDate = new Date(currentTime);
+                  prayerDate.setHours(h, m, 0, 0);
+                  const isPast = prayerDate < currentTime;
+                  const isNextPrayer = idx === nextPrayerIdx;
+
+                  return (
+                    <div key={name} className={`p-2 rounded-lg transition-all ${isNextPrayer ? "bg-islamic-green/20 ring-1 ring-islamic-green" : isPast ? "opacity-50" : "bg-muted/50"}`}>
+                      <div className={`text-xs font-medium mb-1 ${isNextPrayer ? "text-islamic-green" : ""}`}>{name}</div>
+                      <div className="text-sm font-bold">{time}</div>
+                      {status === "completed" && <div className="text-[10px] text-green-500 mt-1">&#10003;</div>}
+                      {status === "delayed" && <div className="text-[10px] text-yellow-500 mt-1">~</div>}
+                      {status === "missed" && <div className="text-[10px] text-red-500 mt-1">x</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <Card className="glass">
@@ -179,20 +293,6 @@ export default function PrayersPage() {
           )}
         </CardContent>
       </Card>
-
-      {selectedCity && Object.keys(statuses).length > 0 && (
-        <div className="flex justify-end">
-          <Button
-            variant="outline"
-            onClick={() => {
-              localStorage.setItem(PRAYER_STATUSES_KEY, JSON.stringify(statuses));
-              toast.success("Prayer progress saved!");
-            }}
-          >
-            Save Progress
-          </Button>
-        </div>
-      )}
 
       {selectedCity && (
         <>
@@ -329,23 +429,90 @@ export default function PrayersPage() {
                 }).map((_, i) => (
                   <div key={`empty-${i}`} />
                 ))}
-                {monthDays.map((day) => (
-                  <div
-                    key={day.toISOString()}
-                    className={`p-1 sm:p-2 rounded-lg text-[10px] sm:text-sm ${
-                      isToday(day)
-                        ? "bg-islamic-green text-white font-bold"
-                        : "hover:bg-accent"
-                    }`}
-                  >
-                    {format(day, "d")}
-                  </div>
-                ))}
+                {monthDays.map((day) => {
+                  const ratio = getDayCompletionRatio(day);
+                  const isSelected = selectedCalDay && isSameDay(day, selectedCalDay);
+                  const dayIsToday = isToday(day);
+                  let bgClass = "hover:bg-accent cursor-pointer";
+                  if (dayIsToday) bgClass = "bg-islamic-green text-white font-bold";
+                  else if (isSelected) bgClass = "bg-islamic-green/20 text-islamic-green ring-1 ring-islamic-green";
+                  else if (ratio) {
+                    if (ratio.completed === ratio.total) bgClass = "bg-green-500/20 hover:bg-green-500/30 cursor-pointer";
+                    else if (ratio.completed > 0) bgClass = "bg-yellow-500/20 hover:bg-yellow-500/30 cursor-pointer";
+                    else bgClass = "bg-red-500/10 hover:bg-red-500/20 cursor-pointer";
+                  }
+
+                  return (
+                    <button
+                      key={day.toISOString()}
+                      onClick={() => setSelectedCalDay(day)}
+                      className={`p-1 sm:p-2 rounded-lg text-[10px] sm:text-sm transition-all relative ${bgClass}`}
+                    >
+                      <div>{format(day, "d")}</div>
+                      {ratio && (
+                        <div className="flex justify-center gap-0.5 mt-0.5">
+                          {Array.from({ length: ratio.total }).map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-1 h-1 rounded-full ${
+                                i < ratio.completed ? "bg-green-500" : "bg-muted-foreground/30"
+                              } ${dayIsToday ? "bg-white/80" : ""}`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
         </>
       )}
+
+      <AnimatePresence>
+        {selectedCalDay && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+          >
+            <Card className="glass border-islamic-green/20">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-sm">
+                  {format(selectedCalDay, "EEEE, MMMM d, yyyy")}
+                </CardTitle>
+                <Button variant="ghost" size="icon" onClick={() => setSelectedCalDay(null)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {selectedDayDetail ? (
+                  <div className="space-y-2">
+                    {prayerNames.map((name) => {
+                      const status = selectedDayDetail[name];
+                      return (
+                        <div key={name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                          <span className="font-medium text-sm">{name}</span>
+                          {status === "completed" && <Badge className="bg-green-500">&#10003; Completed</Badge>}
+                          {status === "delayed" && <Badge className="bg-yellow-500">Delayed</Badge>}
+                          {status === "missed" && <Badge className="bg-red-500">Missed</Badge>}
+                          {!status && <Badge variant="outline">Not marked</Badge>}
+                        </div>
+                      );
+                    })}
+                    <div className="text-xs text-muted-foreground text-right mt-2">
+                      {Object.values(selectedDayDetail).filter((s) => s === "completed").length}/5 completed
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No prayer data recorded for this day.</p>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

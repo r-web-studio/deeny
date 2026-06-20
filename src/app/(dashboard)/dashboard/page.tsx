@@ -129,11 +129,20 @@ export default function DashboardPage() {
   useEffect(() => {
     const loadProgress = () => {
       try {
-        const prayerRaw = localStorage.getItem("deenflow-prayer-statuses");
-        if (prayerRaw) {
-          const statuses = JSON.parse(prayerRaw);
-          const completed = Object.values(statuses).filter((s) => s === "completed").length;
+        const todayKey = new Date().toISOString().slice(0, 10);
+        const prayerHistoryRaw = localStorage.getItem("deenflow-prayer-history");
+        if (prayerHistoryRaw) {
+          const history = JSON.parse(prayerHistoryRaw);
+          const todayStatuses = history[todayKey] || {};
+          const completed = Object.values(todayStatuses).filter((s: unknown) => s === "completed").length;
           setPrayerStats({ completed, total: 5 });
+        } else {
+          const prayerRaw = localStorage.getItem("deenflow-prayer-statuses");
+          if (prayerRaw) {
+            const statuses = JSON.parse(prayerRaw);
+            const completed = Object.values(statuses).filter((s: unknown) => s === "completed").length;
+            setPrayerStats({ completed, total: 5 });
+          }
         }
 
         const dhikrRaw = localStorage.getItem("deenflow-dhikr-sessions");
