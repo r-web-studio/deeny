@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 2000;
 
@@ -56,7 +58,7 @@ async function callOpenRouter(
   let data;
   try {
     data = JSON.parse(responseText);
-  } catch {
+  } catch (e) {
     return { ok: false, status: 500, modelIndex };
   }
 
