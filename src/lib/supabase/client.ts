@@ -1,8 +1,54 @@
 import { createBrowserClient } from "@supabase/ssr";
 
+let cachedUrl = "";
+let cachedKey = "";
+let fetchedConfig = false;
+
 export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || cachedUrl;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || cachedKey;
+
+  if (url && key) {
+    return createBrowserClient(url, key);
+  }
+
+  console.warn(
+    "[Supabase] NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY is missing. " +
+    "Make sure env vars are set and you triggered a Manual Deploy on Render."
   );
+
+  return createBrowserClient("", "");
+}
+
+export async function createClientAsync() {
+  const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const envKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (envUrl && envKey) {
+    return createBrowserClient(envUrl, envKey);
+  }
+
+  if (!fetchedConfig) {
+    try {
+      const res = await fetch("/api/config");
+      if (res.ok) {
+        const config = await res.json();
+        cachedUrl = config.url;
+        cachedKey = config.key;
+      }
+    } catch (err) {
+      console.error("[Supabase] Failed to fetch config from /api/config:", err);
+    }
+    fetchedConfig = true;
+  }
+
+  if (cachedUrl && cachedKey) {
+    return createBrowserClient(cachedUrl, cachedKey);
+  }
+
+  console.error(
+    "[Supabase] No config available. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Render dashboard and do a Manual Deploy."
+  );
+
+  return createBrowserClient("", "");
 }

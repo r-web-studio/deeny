@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { createClientAsync } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,7 +36,7 @@ export default function RegisterPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError("");
-    const supabase = createClient();
+    const supabase = await createClientAsync();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -58,7 +58,7 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const supabase = createClient();
+      const supabase = await createClientAsync();
       const { data: result, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
