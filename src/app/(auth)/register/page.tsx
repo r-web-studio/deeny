@@ -56,19 +56,28 @@ export default function RegisterPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     setError("");
-    const supabase = createClient();
-    const { data: result, error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: { full_name: data.fullName },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
+
+    try {
+      const supabase = createClient();
+      const { data: result, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: { full_name: data.fullName },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        const msg =
+          (error as any).message ||
+          (typeof error === "string" ? error : JSON.stringify(error)) ||
+          "An unknown error occurred. Please try again.";
+        setError(msg);
+        setLoading(false);
+        return;
+      }
+
       if (result.user) {
         useUserStore.getState().setUser({
           fullName: data.fullName,
@@ -79,7 +88,19 @@ export default function RegisterPage() {
           timezone: "UTC",
         });
       }
-      router.push("/login?message=Check your email for confirmation link");
+
+      if (result.session) {
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        router.push("/login?message=Check your email for confirmation link");
+      }
+    } catch (err: any) {
+      const msg =
+        err?.message ||
+        (typeof err === "string" ? err : "An unexpected error occurred. Please try again.");
+      setError(msg);
+      setLoading(false);
     }
   };
 
