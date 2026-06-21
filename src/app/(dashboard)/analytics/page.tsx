@@ -6,6 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line,
   PieChart, Pie, Cell, Legend,
 } from "recharts";
+import { useI18n } from "@/lib/i18n";
 
 const COLORS = [
   "oklch(0.55 0.18 155)",
@@ -16,6 +17,7 @@ const COLORS = [
 ];
 
 export default function AnalyticsPage() {
+  const { t } = useI18n();
   const weeklyPrayers = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => ({
     day: d,
     completed: Math.floor(Math.random() * 6),
@@ -54,48 +56,48 @@ export default function AnalyticsPage() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <h1 className="text-2xl md:text-3xl font-bold">Analytics</h1>
-      <p className="text-muted-foreground">Track your progress and consistency</p>
+      <h1 className="text-2xl md:text-3xl font-bold">{t("analytics.title")}</h1>
+      <p className="text-muted-foreground">{t("analytics.subtitle")}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="glass">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Avg Prayers/Day</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("analytics.avgPrayers")}</CardTitle>
             <CheckCircle className="h-4 w-4 text-islamic-green" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl md:text-3xl font-bold">4.2</div>
-            <p className="text-xs text-islamic-green">+0.5 from last week</p>
+            <p className="text-xs text-islamic-green">{t("analytics.fromLastWeek")}</p>
           </CardContent>
         </Card>
         <Card className="glass">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Tasks Done</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("analytics.tasksDone")}</CardTitle>
             <BarChart3 className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl md:text-3xl font-bold">67</div>
-            <p className="text-xs text-muted-foreground">this month</p>
+            <p className="text-xs text-muted-foreground">{t("analytics.thisMonth")}</p>
           </CardContent>
         </Card>
         <Card className="glass">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Dhikr</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("analytics.totalDhikr")}</CardTitle>
             <Target className="h-4 w-4 text-gold" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl md:text-3xl font-bold">1,247</div>
-            <p className="text-xs text-muted-foreground">this week</p>
+            <p className="text-xs text-muted-foreground">{t("analytics.thisWeek")}</p>
           </CardContent>
         </Card>
         <Card className="glass">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Clean Streak</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("analytics.cleanStreak")}</CardTitle>
             <Shield className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl md:text-3xl font-bold">14 days</div>
-            <p className="text-xs text-islamic-green">keep going!</p>
+            <p className="text-xs text-islamic-green">{t("analytics.keepGoing")}</p>
           </CardContent>
         </Card>
       </div>
@@ -104,7 +106,7 @@ export default function AnalyticsPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <CheckCircle className="h-4 w-4" /> Prayer Consistency (Weekly)
+              <CheckCircle className="h-4 w-4" /> {t("analytics.prayerConsistency")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -122,7 +124,7 @@ export default function AnalyticsPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <BarChart3 className="h-4 w-4" /> Task Completion (Monthly)
+              <BarChart3 className="h-4 w-4" /> {t("analytics.taskCompletion")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -141,7 +143,7 @@ export default function AnalyticsPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <Target className="h-4 w-4" /> Dhikr Statistics
+              <Target className="h-4 w-4" /> {t("analytics.dhikrStats")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -159,7 +161,7 @@ export default function AnalyticsPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <TrendingUp className="h-4 w-4" /> Mood Distribution
+              <TrendingUp className="h-4 w-4" /> {t("analytics.moodDistribution")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -189,7 +191,7 @@ export default function AnalyticsPage() {
       <Card className="glass">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-sm">
-            <Shield className="h-4 w-4" /> Streak History (30 Days)
+            <Shield className="h-4 w-4" /> {t("analytics.streakHistory")}
           </CardTitle>
         </CardHeader>
         <CardContent>

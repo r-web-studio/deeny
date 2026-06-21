@@ -10,6 +10,7 @@ import {
   format, startOfMonth, endOfMonth, eachDayOfInterval, isToday,
   addMonths, subMonths, startOfWeek, endOfWeek, isSameMonth, isSameDay,
 } from "date-fns";
+import { useI18n } from "@/lib/i18n";
 
 interface PrayerStatus {
   [key: string]: "completed" | "delayed" | "missed" | undefined;
@@ -23,6 +24,7 @@ const PRAYER_HISTORY_KEY = "deenflow-prayer-history";
 const prayerNames = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
 export default function CalendarPage() {
+  const { t } = useI18n();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [history, setHistory] = useState<PrayerHistory>({});
@@ -69,7 +71,7 @@ export default function CalendarPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <h1 className="text-2xl md:text-3xl font-bold">Calendar</h1>
+      <h1 className="text-2xl md:text-3xl font-bold">{t("calendar.title")}</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
@@ -80,7 +82,7 @@ export default function CalendarPage() {
                 <Button variant="ghost" size="icon" onClick={() => setCurrentDate(subMonths(currentDate, 1))}>
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => setCurrentDate(new Date())}>Today</Button>
+                <Button variant="ghost" size="icon" onClick={() => setCurrentDate(new Date())}>{t("calendar.today")}</Button>
                 <Button variant="ghost" size="icon" onClick={() => setCurrentDate(addMonths(currentDate, 1))}>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -138,7 +140,7 @@ export default function CalendarPage() {
         <div className="space-y-4">
           <Card className="glass">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Star className="h-4 w-4 text-gold" /> Islamic Events</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Star className="h-4 w-4 text-gold" /> {t("calendar.islamicEvents")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {ISLAMIC_EVENTS.map((event) => (
@@ -167,29 +169,29 @@ export default function CalendarPage() {
                     <CardTitle className="text-sm">{format(selectedDate, "EEEE, MMMM d, yyyy")}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <p className="text-xs text-muted-foreground">Hijri: {getHijriApprox(selectedDate)}</p>
+                    <p className="text-xs text-muted-foreground">{t("calendar.hijri")} {getHijriApprox(selectedDate)}</p>
 
                     {selectedDayDetail ? (
                       <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Prayer Progress</p>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("calendarExtra.prayerProgress")}</p>
                         {prayerNames.map((name) => {
                           const status = selectedDayDetail[name];
                           return (
                             <div key={name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
                               <span className="font-medium text-sm">{name}</span>
-                              {status === "completed" && <Badge className="bg-green-500">&#10003; Completed</Badge>}
-                              {status === "delayed" && <Badge className="bg-yellow-500">Delayed</Badge>}
-                              {status === "missed" && <Badge className="bg-red-500">Missed</Badge>}
-                              {!status && <Badge variant="outline">Not marked</Badge>}
+                              {status === "completed" && <Badge className="bg-green-500">&#10003; {t("calendarExtra.completed")}</Badge>}
+                              {status === "delayed" && <Badge className="bg-yellow-500">{t("calendarExtra.delayed")}</Badge>}
+                              {status === "missed" && <Badge className="bg-red-500">{t("calendarExtra.missed")}</Badge>}
+                              {!status && <Badge variant="outline">{t("calendarExtra.notMarked")}</Badge>}
                             </div>
                           );
                         })}
                         <div className="text-xs text-muted-foreground text-right">
-                          {Object.values(selectedDayDetail).filter((s) => s === "completed").length}/5 completed
+                          {Object.values(selectedDayDetail).filter((s) => s === "completed").length}{t("calendarExtra.completedCount")}
                         </div>
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">No prayer data for this day.</p>
+                      <p className="text-sm text-muted-foreground">{t("calendarExtra.noPrayerData")}</p>
                     )}
                   </CardContent>
                 </Card>

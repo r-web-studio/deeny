@@ -14,27 +14,29 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
-  { href: "/prayers", label: "Prayer Times", icon: Clock },
-  { href: "/dhikr", label: "Dhikr Counter", icon: Target },
-  { href: "/todos", label: "Tasks", icon: ListTodo },
-  { href: "/ai", label: "AI Companion", icon: MessageCircle },
-  { href: "/streak", label: "No-Porn Streak", icon: Shield },
-  { href: "/journal", label: "Journal", icon: PenLine },
-  { href: "/calendar", label: "Calendar", icon: Calendar },
-  { href: "/quran", label: "Quran", icon: BookMarked },
-  { href: "/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/achievements", label: "Achievements", icon: Trophy },
-  { href: "/reviews", label: "Reviews", icon: Star },
-  { href: "/settings", label: "Settings", icon: Settings },
-];
+import { useI18n } from "@/lib/i18n";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { isOpen, close } = useSidebarStore();
   const router = useRouter();
+  const { t } = useI18n();
+
+  const navItems = [
+    { href: "/dashboard", label: t("nav.dashboard"), icon: Home },
+    { href: "/prayers", label: t("nav.prayers"), icon: Clock },
+    { href: "/dhikr", label: t("nav.dhikr"), icon: Target },
+    { href: "/todos", label: t("nav.tasks"), icon: ListTodo },
+    { href: "/ai", label: t("nav.ai"), icon: MessageCircle },
+    { href: "/streak", label: t("nav.streak"), icon: Shield },
+    { href: "/journal", label: t("nav.journal"), icon: PenLine },
+    { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
+    { href: "/quran", label: t("nav.quran"), icon: BookMarked },
+    { href: "/analytics", label: t("nav.analytics"), icon: BarChart3 },
+    { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
+    { href: "/reviews", label: t("nav.reviews"), icon: Star },
+    { href: "/settings", label: t("nav.settings"), icon: Settings },
+  ];
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -94,7 +96,7 @@ export function Sidebar() {
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 w-full transition-colors"
         >
           <LogOut className="h-4 w-4" />
-          Sign Out
+          {t("nav.signOut")}
         </button>
       </div>
     </div>

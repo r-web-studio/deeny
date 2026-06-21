@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
+import { useI18n } from "@/lib/i18n";
 
 const REVIEWS_KEY = "deenflow-reviews";
 
@@ -48,6 +49,7 @@ function StarRating({ rating, onRate, interactive = false }: { rating: number; o
 }
 
 export default function ReviewsPage() {
+  const { t } = useI18n();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [name, setName] = useState("");
   const [rating, setRating] = useState(0);
@@ -105,12 +107,12 @@ export default function ReviewsPage() {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold font-heading">Reviews & Suggestions</h1>
-          <p className="text-muted-foreground mt-1">Share your feedback to help us improve DeenFlow</p>
+          <h1 className="text-2xl md:text-3xl font-bold font-heading">{t("reviews.title")}</h1>
+          <p className="text-muted-foreground mt-1">{t("reviews.subtitle")}</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)} className="bg-islamic-green hover:bg-islamic-green/90">
           <Send className="h-4 w-4 mr-2" />
-          Write Review
+          {t("reviews.writeReview")}
         </Button>
       </div>
 
@@ -118,18 +120,18 @@ export default function ReviewsPage() {
         <div className="lg:col-span-1 space-y-4">
           <Card className="glass">
             <CardHeader className="text-center pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Overall Rating</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("reviews.overallRating")}</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-2">
               <div className="text-5xl font-bold text-gradient">{avgRating}</div>
               <StarRating rating={Math.round(parseFloat(avgRating))} />
-              <p className="text-xs text-muted-foreground">{reviews.length} review{reviews.length !== 1 ? "s" : ""}</p>
+              <p className="text-xs text-muted-foreground">{reviews.length} {t("reviews.reviewCount")}{reviews.length !== 1 ? t("reviews.reviewCountPlural") : ""}</p>
             </CardContent>
           </Card>
 
           <Card className="glass">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Rating Breakdown</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("reviews.ratingBreakdown")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {ratingCounts.map(({ star, count, pct }) => (
@@ -152,26 +154,26 @@ export default function ReviewsPage() {
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
                 <Card className="glass border-islamic-green/20">
                   <CardHeader>
-                    <CardTitle className="text-sm">Write Your Review</CardTitle>
+                    <CardTitle className="text-sm">{t("reviews.writeYourReview")}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">Your Name</label>
+                      <label className="text-xs font-medium text-muted-foreground">{t("reviews.yourName")}</label>
                       <Input
-                        placeholder="Enter your name"
+                        placeholder={t("reviews.namePlaceholder")}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="max-w-sm"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">Your Rating</label>
+                      <label className="text-xs font-medium text-muted-foreground">{t("reviews.yourRating")}</label>
                       <StarRating rating={rating} onRate={setRating} interactive />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">Your Review</label>
+                      <label className="text-xs font-medium text-muted-foreground">{t("reviews.yourReview")}</label>
                       <Textarea
-                        placeholder="Share your experience, suggestions, or feedback..."
+                        placeholder={t("reviews.reviewPlaceholder")}
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
                         rows={4}
@@ -179,9 +181,9 @@ export default function ReviewsPage() {
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={submitReview} className="bg-islamic-green hover:bg-islamic-green/90">
-                        <Send className="h-4 w-4 mr-2" /> Submit
+                        <Send className="h-4 w-4 mr-2" /> {t("reviews.submit")}
                       </Button>
-                      <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+                      <Button variant="outline" onClick={() => setShowForm(false)}>{t("reviews.cancel")}</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -193,7 +195,7 @@ export default function ReviewsPage() {
             <Card className="glass">
               <CardContent className="text-center py-12">
                 <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
-                <p className="text-muted-foreground">No reviews yet. Be the first to share your feedback!</p>
+                <p className="text-muted-foreground">{t("reviews.noReviews")}</p>
               </CardContent>
             </Card>
           ) : (

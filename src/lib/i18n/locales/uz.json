@@ -12,6 +12,7 @@
     "quran": "Qur'on",
     "analytics": "Tahlil",
     "achievements": "Yutuqlar",
+    "reviews": "Sharhlar",
     "settings": "Sozlamalar",
     "signOut": "Chiqish"
   },
@@ -249,6 +250,52 @@
     "Grateful": "Minnatdor",
     "Tired": "Charchagan",
     "Excited": "Hayajonli"
+  },
+  "reviews": {
+    "title": "Sharhlar va takliflar",
+    "subtitle": "DeenFlow'ni yaxshilash uchun fikrlaringizni baham ko'ring",
+    "writeReview": "Sharh yozish",
+    "overallRating": "Umumiy baho",
+    "ratingBreakdown": "Baholar taqsimoti",
+    "writeYourReview": "Sharhingizni yozing",
+    "yourName": "Ismingiz",
+    "namePlaceholder": "Ismingizni kiriting",
+    "yourRating": "Bahongiz",
+    "yourReview": "Sharhingiz",
+    "reviewPlaceholder": "Tajribangiz, takliflaringiz yoki fikrlaringizni baham ko'ring...",
+    "submit": "Yuborish",
+    "cancel": "Bekor qilish",
+    "noReviews": "Hali sharhlar yo'q. Birinchi bo'lib fikrlaringizni baham ko'ring!",
+    "reviewCount": "ta sharh",
+    "reviewCountPlural": "ta sharh"
+  },
+  "calendarExtra": {
+    "prayerProgress": "Namoz jarayoni",
+    "completed": "Bajarildi",
+    "delayed": "Kechiktirildi",
+    "missed": "O'tkazib yuborildi",
+    "notMarked": "Belgilanmagan",
+    "noPrayerData": "Bu kun uchun namoz ma'lumoti yo'q.",
+    "completedCount": "/5 bajarildi"
+  },
+  "prayersExtra": {
+    "schedule": "Bugungi namoz jadvali",
+    "completed": "Bajarildi",
+    "delayed": "Kechiktirildi",
+    "missed": "O'tkazib yuborildi",
+    "notMarked": "Belgilanmagan",
+    "in": "keyin",
+    "noPrayerData": "Bu kun uchun namoz ma'lumoti yo'q."
+  },
+  "achievementsExtra": {
+    "all": "Barchasi",
+    "achievementUnlocked": "Yutuq ochildi!",
+    "moreAchievements": "+{count} ta yutuq{plural} ochildi!",
+    "awesome": "Ajoyib!"
+  },
+  "dashboardExtra": {
+    "journalEntries": "Kundalik yozuvlari",
+    "totalEntries": "jami yozuvlar"
   },
   "error": {
     "title": "Nimadir noto'g'ri ketdi",

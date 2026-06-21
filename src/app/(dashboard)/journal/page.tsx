@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { MOODS } from "@/lib/constants";
 import { format } from "date-fns";
+import { useI18n } from "@/lib/i18n";
 
 const JOURNAL_STORAGE_KEY = "deenflow-journal";
 
@@ -34,6 +35,7 @@ interface JournalEntry {
 }
 
 export default function JournalPage() {
+  const { t } = useI18n();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [showEditor, setShowEditor] = useState(false);
   const [title, setTitle] = useState("");
@@ -93,14 +95,14 @@ export default function JournalPage() {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Journal</h1>
-          <p className="text-muted-foreground">{entries.length} entries</p>
+          <h1 className="text-2xl md:text-3xl font-bold">{t("journal.title")}</h1>
+          <p className="text-muted-foreground">{entries.length} {t("journal.entries")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant={viewMode === "list" ? "default" : "outline"} size="sm" onClick={() => setViewMode("list")}>List</Button>
-          <Button variant={viewMode === "calendar" ? "default" : "outline"} size="sm" onClick={() => setViewMode("calendar")}><Calendar className="h-4 w-4 mr-1" />Calendar</Button>
+          <Button variant={viewMode === "list" ? "default" : "outline"} size="sm" onClick={() => setViewMode("list")}>{t("journal.list")}</Button>
+          <Button variant={viewMode === "calendar" ? "default" : "outline"} size="sm" onClick={() => setViewMode("calendar")}><Calendar className="h-4 w-4 mr-1" />{t("journal.calendar")}</Button>
           <Button onClick={() => setShowEditor(!showEditor)} className="bg-islamic-green hover:bg-islamic-green/90">
-            <Plus className="h-4 w-4 mr-1" />New Entry
+            <Plus className="h-4 w-4 mr-1" />{t("journal.newEntry")}
           </Button>
           <Button
             variant="outline"
@@ -119,12 +121,12 @@ export default function JournalPage() {
         {showEditor && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
             <Card className="glass">
-              <CardHeader><CardTitle>New Journal Entry</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{t("journal.newTitle")}</CardTitle></CardHeader>
               <CardContent className="space-y-4">
-                <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                <Textarea placeholder="Write your thoughts..." value={content} onChange={(e) => setContent(e.target.value)} rows={6} />
+                <Input placeholder={t("journal.titlePlaceholder")} value={title} onChange={(e) => setTitle(e.target.value)} />
+                <Textarea placeholder={t("journal.writePlaceholder")} value={content} onChange={(e) => setContent(e.target.value)} rows={6} />
                 <div>
-                  <p className="text-sm font-medium mb-2">How are you feeling?</p>
+                  <p className="text-sm font-medium mb-2">{t("journal.howFeeling")}</p>
                   <div className="flex gap-2">
                     {MOODS.map((m) => (
                       <button
@@ -140,7 +142,7 @@ export default function JournalPage() {
                 </div>
                 <div>
                   <div className="flex gap-2">
-                    <Input placeholder="Add tag..." value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())} className="flex-1" />
+                    <Input placeholder={t("journal.addTag")} value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())} className="flex-1" />
                     <Button variant="outline" onClick={addTag}><Tag className="h-4 w-4" /></Button>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-2">
@@ -152,8 +154,8 @@ export default function JournalPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button className="bg-islamic-green hover:bg-islamic-green/90" onClick={saveEntry}>Save Entry</Button>
-                  <Button variant="outline" onClick={() => setShowEditor(false)}>Cancel</Button>
+                  <Button className="bg-islamic-green hover:bg-islamic-green/90" onClick={saveEntry}>{t("journal.saveEntry")}</Button>
+                  <Button variant="outline" onClick={() => setShowEditor(false)}>{t("journal.cancel")}</Button>
                 </div>
               </CardContent>
             </Card>
@@ -163,7 +165,7 @@ export default function JournalPage() {
 
       <div className="relative">
         <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search entries..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+        <Input placeholder={t("journal.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
       </div>
 
       {viewMode === "calendar" ? (
@@ -192,7 +194,7 @@ export default function JournalPage() {
             <Card className="glass">
               <CardContent className="text-center py-12 text-muted-foreground">
                 <PenLine className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No journal entries yet. Start writing!</p>
+                <p>{t("journal.empty")}</p>
               </CardContent>
             </Card>
           ) : (

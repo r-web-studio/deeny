@@ -12,6 +12,7 @@
     "quran": "Quran",
     "analytics": "Analytics",
     "achievements": "Achievements",
+    "reviews": "Reviews",
     "settings": "Settings",
     "signOut": "Sign Out"
   },
@@ -249,6 +250,52 @@
     "Grateful": "Grateful",
     "Tired": "Tired",
     "Excited": "Excited"
+  },
+  "reviews": {
+    "title": "Reviews & Suggestions",
+    "subtitle": "Share your feedback to help us improve DeenFlow",
+    "writeReview": "Write Review",
+    "overallRating": "Overall Rating",
+    "ratingBreakdown": "Rating Breakdown",
+    "writeYourReview": "Write Your Review",
+    "yourName": "Your Name",
+    "namePlaceholder": "Enter your name",
+    "yourRating": "Your Rating",
+    "yourReview": "Your Review",
+    "reviewPlaceholder": "Share your experience, suggestions, or feedback...",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "noReviews": "No reviews yet. Be the first to share your feedback!",
+    "reviewCount": "review",
+    "reviewCountPlural": "reviews"
+  },
+  "calendarExtra": {
+    "prayerProgress": "Prayer Progress",
+    "completed": "Completed",
+    "delayed": "Delayed",
+    "missed": "Missed",
+    "notMarked": "Not marked",
+    "noPrayerData": "No prayer data for this day.",
+    "completedCount": "/5 completed"
+  },
+  "prayersExtra": {
+    "schedule": "Today's Prayer Schedule",
+    "completed": "Done",
+    "delayed": "Delayed",
+    "missed": "Missed",
+    "notMarked": "Not marked",
+    "in": "in",
+    "noPrayerData": "No prayer data recorded for this day."
+  },
+  "achievementsExtra": {
+    "all": "All",
+    "achievementUnlocked": "Achievement Unlocked!",
+    "moreAchievements": "+{count} more achievement{plural} unlocked!",
+    "awesome": "Awesome!"
+  },
+  "dashboardExtra": {
+    "journalEntries": "Journal Entries",
+    "totalEntries": "total entries"
   },
   "error": {
     "title": "Something went wrong",

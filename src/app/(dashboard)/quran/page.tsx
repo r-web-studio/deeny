@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/lib/i18n";
 
 interface Surah {
   number: number;
@@ -24,6 +25,7 @@ interface Ayah {
 }
 
 export default function QuranPage() {
+  const { t } = useI18n();
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [selectedSurah, setSelectedSurah] = useState<number | null>(null);
   const [ayahs, setAyahs] = useState<Ayah[]>([]);
@@ -117,12 +119,12 @@ export default function QuranPage() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <h1 className="text-2xl md:text-3xl font-bold">Quran</h1>
+      <h1 className="text-2xl md:text-3xl font-bold">{t("quran.title")}</h1>
 
       {dailyVerse && (
         <Card className="glass border-gold/20">
           <CardHeader>
-            <CardTitle className="text-sm text-gold">Verse of the Day</CardTitle>
+            <CardTitle className="text-sm text-gold">{t("quran.verseOfTheDay")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-lg md:text-xl leading-relaxed text-right mb-2">{dailyVerse.text}</p>
@@ -138,7 +140,7 @@ export default function QuranPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search surahs..."
+                  placeholder={t("quran.searchPlaceholder")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-9"
@@ -232,7 +234,7 @@ export default function QuranPage() {
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <BookMarked className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Select a surah to start reading</p>
+                  <p>{t("quran.selectSurah")}</p>
                 </div>
               )}
             </CardContent>
@@ -244,7 +246,7 @@ export default function QuranPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Bookmark className="h-4 w-4 text-gold" /> Bookmarks
+              <Bookmark className="h-4 w-4 text-gold" /> {t("quran.bookmarks")}
             </CardTitle>
           </CardHeader>
           <CardContent>

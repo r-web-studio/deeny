@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { ACHIEVEMENTS_LIST } from "@/lib/constants";
 import { checkAllAchievements, type AchievementStatus } from "@/lib/achievements";
+import { useI18n } from "@/lib/i18n";
 
 const iconMap: Record<string, React.ReactNode> = {
   Mosque: <Landmark className="h-5 w-5" />,
@@ -82,6 +83,7 @@ function fireBurst() {
 }
 
 export default function AchievementsPage() {
+  const { t } = useI18n();
   const [statuses, setStatuses] = useState<AchievementStatus[]>([]);
   const [newlyEarned, setNewlyEarned] = useState<AchievementStatus[]>([]);
   const [celebrationIndex, setCelebrationIndex] = useState<number | null>(null);
@@ -132,9 +134,9 @@ export default function AchievementsPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">Achievements</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">{t("achievements.title")}</h1>
         <p className="text-muted-foreground">
-          {earnedCount} of {total} unlocked
+          {earnedCount} {t("achievements.of")} {total} {t("achievements.unlocked")}
         </p>
         <Progress value={progress} className="mt-2 max-w-md" />
       </div>
@@ -148,7 +150,7 @@ export default function AchievementsPage() {
             onClick={() => setFilter(cat)}
             className={filter === cat ? "bg-islamic-green hover:bg-islamic-green/90 capitalize" : ""}
           >
-            {cat === "all" ? "All" : cat}
+            {cat === "all" ? t("achievementsExtra.all") : cat}
           </Button>
         ))}
       </div>
@@ -185,7 +187,7 @@ export default function AchievementsPage() {
                   </div>
                   {status.earned && (
                     <Badge className="bg-gold/20 text-gold shrink-0">
-                      <Star className="h-3 w-3 mr-1" /> Earned
+                      <Star className="h-3 w-3 mr-1" /> {t("achievements.earned")}
                     </Badge>
                   )}
                 </CardHeader>
@@ -199,7 +201,7 @@ export default function AchievementsPage() {
                   </div>
                   {status.earned && status.earned_at && (
                     <p className="text-[10px] text-muted-foreground">
-                      Earned {new Date(status.earned_at).toLocaleDateString()}
+                      {t("achievements.earned")} {new Date(status.earned_at).toLocaleDateString()}
                     </p>
                   )}
                 </CardContent>
@@ -250,7 +252,7 @@ export default function AchievementsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                   >
-                    <p className="text-gold font-bold text-lg mt-3">Achievement Unlocked!</p>
+                    <p className="text-gold font-bold text-lg mt-3">{t("achievementsExtra.achievementUnlocked")}</p>
                     <h2 className="text-xl font-bold mt-1">
                       {ACHIEVEMENTS_LIST[celebrationIndex]?.name}
                     </h2>
@@ -267,11 +269,11 @@ export default function AchievementsPage() {
                   >
                     {newlyEarned.length > 1 && (
                       <p className="text-xs text-muted-foreground mb-2">
-                        +{newlyEarned.length - 1} more achievement{newlyEarned.length > 2 ? "s" : ""} unlocked!
+                        +{newlyEarned.length - 1} {t("achievementsExtra.moreAchievements").replace("{count}", String(newlyEarned.length - 1)).replace("{plural}", newlyEarned.length > 2 ? "s" : "")}
                       </p>
                     )}
                     <Button onClick={closeCelebration} className="bg-gold hover:bg-gold/90 text-black">
-                      <Star className="h-4 w-4 mr-2" /> Awesome!
+                      <Star className="h-4 w-4 mr-2" /> {t("achievementsExtra.awesome")}
                     </Button>
                   </motion.div>
                 </CardContent>

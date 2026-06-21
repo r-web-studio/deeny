@@ -12,6 +12,7 @@
     "quran": "Коран",
     "analytics": "Аналитика",
     "achievements": "Достижения",
+    "reviews": "Отзывы",
     "settings": "Настройки",
     "signOut": "Выйти"
   },
@@ -249,6 +250,52 @@
     "Grateful": "Благодарен",
     "Tired": "Устал",
     "Excited": "Воодушевлён"
+  },
+  "reviews": {
+    "title": "Отзывы и предложения",
+    "subtitle": "Поделитесь отзывом, чтобы помочь нам улучшить DeenFlow",
+    "writeReview": "Написать отзыв",
+    "overallRating": "Общий рейтинг",
+    "ratingBreakdown": "Разбивка рейтинга",
+    "writeYourReview": "Напишите ваш отзыв",
+    "yourName": "Ваше имя",
+    "namePlaceholder": "Введите ваше имя",
+    "yourRating": "Ваша оценка",
+    "yourReview": "Ваш отзыв",
+    "reviewPlaceholder": "Поделитесь опытом, предложениями или отзывом...",
+    "submit": "Отправить",
+    "cancel": "Отмена",
+    "noReviews": "Пока нет отзывов. Будьте первым, кто поделится отзывом!",
+    "reviewCount": "отзыв",
+    "reviewCountPlural": "отзывов"
+  },
+  "calendarExtra": {
+    "prayerProgress": "Прогресс молитв",
+    "completed": "Выполнено",
+    "delayed": "Отложено",
+    "missed": "Пропущено",
+    "notMarked": "Не отмечено",
+    "noPrayerData": "Нет данных о молитвах за этот день.",
+    "completedCount": "/5 выполнено"
+  },
+  "prayersExtra": {
+    "schedule": "Расписание молитв на сегодня",
+    "completed": "Выполнено",
+    "delayed": "Отложено",
+    "missed": "Пропущено",
+    "notMarked": "Не отмечено",
+    "in": "через",
+    "noPrayerData": "Нет данных о молитвах за этот день."
+  },
+  "achievementsExtra": {
+    "all": "Все",
+    "achievementUnlocked": "Достижение открыто!",
+    "moreAchievements": "+{count} достижени{plural} открыто!",
+    "awesome": "Великолепно!"
+  },
+  "dashboardExtra": {
+    "journalEntries": "Записи дневника",
+    "totalEntries": "всего записей"
   },
   "error": {
     "title": "Что-то пошло не так",

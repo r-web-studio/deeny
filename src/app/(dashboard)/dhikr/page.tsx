@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DHIKR_PRESETS } from "@/lib/constants";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { useI18n } from "@/lib/i18n";
 
 const DHIKR_STORAGE_KEY = "deenflow-dhikr-sessions";
 
@@ -20,6 +21,7 @@ interface Session {
 }
 
 export default function DhikrPage() {
+  const { t } = useI18n();
   const [selectedPreset, setSelectedPreset] = useState(0);
   const [count, setCount] = useState(0);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -88,7 +90,7 @@ export default function DhikrPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <h1 className="text-2xl md:text-3xl font-bold">Dhikr Counter</h1>
+      <h1 className="text-2xl md:text-3xl font-bold">{t("dhikr.title")}</h1>
 
       <div className="flex gap-2 flex-wrap">
         {DHIKR_PRESETS.map((p, i) => (
@@ -106,7 +108,7 @@ export default function DhikrPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="md:col-span-2 glass flex flex-col items-center justify-center py-12">
           <p className="text-lg text-muted-foreground mb-2">{preset.arabic}</p>
-          <p className="text-sm text-muted-foreground mb-6">{preset.name} • Target: {preset.target}</p>
+          <p className="text-sm text-muted-foreground mb-6">{preset.name} • {t("dhikr.target")} {preset.target}</p>
           <motion.button
             ref={buttonRef}
             onClick={handleTap}
@@ -131,28 +133,28 @@ export default function DhikrPage() {
             </div>
           </div>
           <div className="flex gap-3 mt-6">
-            <Button variant="outline" onClick={handleReset}><RotateCcw className="h-4 w-4 mr-2" />Reset</Button>
-            <Button className="bg-islamic-green hover:bg-islamic-green/90" onClick={() => { handleSaveSession(); toast.success("Dhikr session saved!"); }}><Save className="h-4 w-4 mr-2" />Save</Button>
+            <Button variant="outline" onClick={handleReset}><RotateCcw className="h-4 w-4 mr-2" />{t("dhikr.reset")}</Button>
+            <Button className="bg-islamic-green hover:bg-islamic-green/90" onClick={() => { handleSaveSession(); toast.success("Dhikr session saved!"); }}><Save className="h-4 w-4 mr-2" />{t("dhikr.save")}</Button>
           </div>
         </Card>
 
         <div className="space-y-4">
           <Card className="glass">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Today</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("calendar.today")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{todayTotal}</div>
-              <p className="text-xs text-muted-foreground">total dhikr</p>
+              <p className="text-xs text-muted-foreground">{t("dhikr.total")}</p>
             </CardContent>
           </Card>
           <Card className="glass">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Sessions</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("dhikr.sessions")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{sessions.length}</div>
-              <p className="text-xs text-muted-foreground">completed</p>
+              <p className="text-xs text-muted-foreground">{t("dhikr.completed")}</p>
             </CardContent>
           </Card>
         </div>
@@ -160,7 +162,7 @@ export default function DhikrPage() {
 
       <Card className="glass">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Weekly Overview</CardTitle>
+          <CardTitle className="flex items-center gap-2"><TrendingUp className="h-4 w-4" /> {t("dhikr.weeklyOverview")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
@@ -177,7 +179,7 @@ export default function DhikrPage() {
       {sessions.length > 0 && (
         <Card className="glass">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><History className="h-4 w-4" /> Recent Sessions</CardTitle>
+            <CardTitle className="flex items-center gap-2"><History className="h-4 w-4" /> {t("dhikr.recentSessions")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">

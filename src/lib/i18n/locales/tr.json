@@ -12,6 +12,7 @@
     "quran": "Kur'an",
     "analytics": "Analitik",
     "achievements": "Başarılar",
+    "reviews": "Değerlendirmeler",
     "settings": "Ayarlar",
     "signOut": "Çıkış Yap"
   },
@@ -249,6 +250,52 @@
     "Grateful": "Minnetdar",
     "Tired": "Yorgun",
     "Excited": "Heyecanlı"
+  },
+  "reviews": {
+    "title": "Değerlendirmeler ve Öneriler",
+    "subtitle": "DeenFlow'u geliştirmek için geri bildiriminizi paylaşın",
+    "writeReview": "Değerlendirme Yaz",
+    "overallRating": "Genel Değerlendirme",
+    "ratingBreakdown": "Değerlendirme Dağılımı",
+    "writeYourReview": "Değerlendirmenizi Yazın",
+    "yourName": "Adınız",
+    "namePlaceholder": "Adınızı girin",
+    "yourRating": "Değerlendirmeniz",
+    "yourReview": "Değerlendirmeniz",
+    "reviewPlaceholder": "Deneyiminizi, önerilerinizi veya geri bildiriminizi paylaşın...",
+    "submit": "Gönder",
+    "cancel": "İptal",
+    "noReviews": "Henüz değerlendirme yok. İlk değerlendirmeyi siz yapın!",
+    "reviewCount": "değerlendirme",
+    "reviewCountPlural": "değerlendirme"
+  },
+  "calendarExtra": {
+    "prayerProgress": "Namaz İlerlemesi",
+    "completed": "Tamamlandı",
+    "delayed": "Ertelendi",
+    "missed": "Kaçırıldı",
+    "notMarked": "İşaretlenmemiş",
+    "noPrayerData": "Bu gün için namaz verisi yok.",
+    "completedCount": "/5 tamamlandı"
+  },
+  "prayersExtra": {
+    "schedule": "Bugünkü Namaz Programı",
+    "completed": "Tamamlandı",
+    "delayed": "Ertelendi",
+    "missed": "Kaçırıldı",
+    "notMarked": "İşaretlenmemiş",
+    "in": "içinde",
+    "noPrayerData": "Bu gün için namaz verisi kaydedilmemiş."
+  },
+  "achievementsExtra": {
+    "all": "Tümü",
+    "achievementUnlocked": "Başarı Açıldı!",
+    "moreAchievements": "+{count} başarı{plural} daha açıldı!",
+    "awesome": "Harika!"
+  },
+  "dashboardExtra": {
+    "journalEntries": "Günlük Yazıları",
+    "totalEntries": "toplam yazı"
   },
   "error": {
     "title": "Bir şeyler yanlış gitti",

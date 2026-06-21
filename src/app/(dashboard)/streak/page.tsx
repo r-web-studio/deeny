@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from "recharts";
+import { useI18n } from "@/lib/i18n";
 
 const MILESTONES = [7, 14, 30, 60, 90, 180, 365];
 const STREAK_STORAGE_KEY = "deenflow-streak";
@@ -24,6 +25,7 @@ interface StreakData {
 }
 
 export default function StreakPage() {
+  const { t } = useI18n();
   const [currentStreak, setCurrentStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
   const [relapses, setRelapses] = useState<RelapseEntry[]>([]);
@@ -73,7 +75,7 @@ export default function StreakPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h1 className="text-2xl md:text-3xl font-bold">No-Porn Streak</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">{t("streak.title")}</h1>
         <Button
           variant="outline"
           onClick={() => {
@@ -84,44 +86,44 @@ export default function StreakPage() {
           Save Progress
         </Button>
       </div>
-      <p className="text-muted-foreground">Stay strong on your path to purity</p>
+      <p className="text-muted-foreground">{t("streak.subtitle")}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="glass border-islamic-green/20">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Current Streak</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("streak.currentStreak")}</CardTitle>
             <Shield className="h-4 w-4 text-islamic-green" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl md:text-4xl font-bold text-islamic-green">{currentStreak}</div>
-            <p className="text-sm text-muted-foreground">days clean</p>
+            <p className="text-sm text-muted-foreground">{t("streak.daysClean")}</p>
           </CardContent>
         </Card>
         <Card className="glass">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Longest Streak</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("streak.longestStreak")}</CardTitle>
             <Trophy className="h-4 w-4 text-gold" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl md:text-4xl font-bold text-gold">{longestStreak}</div>
-            <p className="text-sm text-muted-foreground">personal best</p>
+            <p className="text-sm text-muted-foreground">{t("streak.personalBest")}</p>
           </CardContent>
         </Card>
         <Card className="glass">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Relapses</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("streak.totalRelapses")}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl md:text-4xl font-bold text-red-500">{relapses.length}</div>
-            <p className="text-sm text-muted-foreground">learning moments</p>
+            <p className="text-sm text-muted-foreground">{t("streak.learningMoments")}</p>
           </CardContent>
         </Card>
       </div>
 
       <Card className="glass">
         <CardHeader>
-          <CardTitle>Milestones</CardTitle>
+          <CardTitle>{t("streak.milestones")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3">
@@ -142,20 +144,20 @@ export default function StreakPage() {
         {showConfirm ? (
           <Card className="glass border-red-500/30 w-full max-w-md">
             <CardContent className="pt-6 space-y-4">
-              <p className="text-destructive font-medium">Are you sure? This will reset your streak.</p>
+              <p className="text-destructive font-medium">{t("streak.confirmReset")}</p>
               <div className="flex gap-3">
-                <Button variant="destructive" onClick={handleRelapse}>Yes, Relapse</Button>
-                <Button variant="outline" onClick={() => setShowConfirm(false)}>Cancel</Button>
+                <Button variant="destructive" onClick={handleRelapse}>{t("streak.yesRelapse")}</Button>
+                <Button variant="outline" onClick={() => setShowConfirm(false)}>{t("streak.cancel")}</Button>
               </div>
             </CardContent>
           </Card>
         ) : (
           <>
             <Button variant="destructive" onClick={() => setShowConfirm(true)}>
-              <AlertTriangle className="h-4 w-4 mr-2" />Relapse
+              <AlertTriangle className="h-4 w-4 mr-2" />{t("streak.relapse")}
             </Button>
             <Button variant="outline" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4 mr-2" />Reset Streak
+              <RotateCcw className="h-4 w-4 mr-2" />{t("streak.resetStreak")}
             </Button>
           </>
         )}
@@ -164,7 +166,7 @@ export default function StreakPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="glass">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Weekly Relapses</CardTitle>
+            <CardTitle className="flex items-center gap-2"><TrendingUp className="h-4 w-4" /> {t("streak.weeklyRelapses")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
@@ -179,14 +181,14 @@ export default function StreakPage() {
         </Card>
         <Card className="glass">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Shield className="h-4 w-4" /> Streak Progress</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Shield className="h-4 w-4" /> {t("streak.streakProgress")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>Current: {currentStreak} days</span>
-                  <span>Best: {longestStreak} days</span>
+                  <span>{t("streak.current")} {currentStreak} {t("dashboard.days")}</span>
+                  <span>{t("streak.best")} {longestStreak} {t("dashboard.days")}</span>
                 </div>
                 <div className="h-4 bg-muted rounded-full overflow-hidden">
                   <motion.div
@@ -197,8 +199,8 @@ export default function StreakPage() {
               </div>
               <div className="text-center py-4">
                 <p className="text-2xl font-bold text-islamic-green">{currentStreak}</p>
-                <p className="text-sm text-muted-foreground">days strong</p>
-                <p className="text-xs text-muted-foreground mt-2">Started {new Date(startDate).toLocaleDateString()}</p>
+                <p className="text-sm text-muted-foreground">{t("streak.daysStrong")}</p>
+                <p className="text-xs text-muted-foreground mt-2">{t("streak.started")} {new Date(startDate).toLocaleDateString()}</p>
               </div>
             </div>
           </CardContent>
@@ -207,7 +209,7 @@ export default function StreakPage() {
 
       {relapses.length > 0 && (
         <Card className="glass">
-          <CardHeader><CardTitle>Relapse History</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t("streak.relapseHistory")}</CardTitle></CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {relapses.slice().reverse().map((r, i) => (

@@ -282,12 +282,12 @@ export default function DashboardPage() {
 
         <Card className="glass">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Journal Entries</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboardExtra.journalEntries")}</CardTitle>
             <PenLine className="h-4 w-4 text-islamic-green" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{journalCount}</div>
-            <p className="text-xs text-muted-foreground mt-1">total entries</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("dashboardExtra.totalEntries")}</p>
           </CardContent>
         </Card>
 

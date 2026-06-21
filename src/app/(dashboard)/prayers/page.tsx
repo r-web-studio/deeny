@@ -192,7 +192,7 @@ export default function PrayersPage() {
         {times && (
           <Card className="glass">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Today&apos;s Prayer Schedule</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("prayersExtra.schedule")}</CardTitle>
               <Clock className="h-4 w-4 text-gold" />
             </CardHeader>
             <CardContent>
@@ -310,24 +310,24 @@ export default function PrayersPage() {
                         <CardTitle className="text-lg">{name}</CardTitle>
                         {isNext && (
                           <Badge className="bg-islamic-green text-white animate-pulse">
-                            <Clock className="h-3 w-3 mr-1" /> Next
+                            <Clock className="h-3 w-3 mr-1" /> {t("prayers.next")}
                           </Badge>
                         )}
                         {status === "completed" && (
-                          <Badge className="bg-green-500">&#10003; Done</Badge>
+                          <Badge className="bg-green-500">&#10003; {t("prayers.done")}</Badge>
                         )}
                         {status === "delayed" && (
-                          <Badge className="bg-yellow-500">Delayed</Badge>
+                          <Badge className="bg-yellow-500">{t("prayers.delayed")}</Badge>
                         )}
                         {status === "missed" && (
-                          <Badge className="bg-red-500">Missed</Badge>
+                          <Badge className="bg-red-500">{t("prayers.missed")}</Badge>
                         )}
                       </CardHeader>
                       <CardContent>
                         <div className="text-2xl md:text-3xl font-bold">{time}</div>
                         {isNext && (
                           <p className="text-sm text-islamic-green mt-1">
-                            in {countdown}
+                            {t("prayersExtra.in")} {countdown}
                           </p>
                         )}
                         <div className="flex gap-2 mt-3">
@@ -486,19 +486,19 @@ export default function PrayersPage() {
                       return (
                         <div key={name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
                           <span className="font-medium text-sm">{name}</span>
-                          {status === "completed" && <Badge className="bg-green-500">&#10003; Completed</Badge>}
-                          {status === "delayed" && <Badge className="bg-yellow-500">Delayed</Badge>}
-                          {status === "missed" && <Badge className="bg-red-500">Missed</Badge>}
-                          {!status && <Badge variant="outline">Not marked</Badge>}
+                          {status === "completed" && <Badge className="bg-green-500">&#10003; {t("calendarExtra.completed")}</Badge>}
+                          {status === "delayed" && <Badge className="bg-yellow-500">{t("calendarExtra.delayed")}</Badge>}
+                          {status === "missed" && <Badge className="bg-red-500">{t("calendarExtra.missed")}</Badge>}
+                          {!status && <Badge variant="outline">{t("calendarExtra.notMarked")}</Badge>}
                         </div>
                       );
                     })}
                     <div className="text-xs text-muted-foreground text-right mt-2">
-                      {Object.values(selectedDayDetail).filter((s) => s === "completed").length}/5 completed
+                      {Object.values(selectedDayDetail).filter((s) => s === "completed").length}{t("calendarExtra.completedCount")}
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No prayer data recorded for this day.</p>
+                  <p className="text-sm text-muted-foreground">{t("prayersExtra.noPrayerData")}</p>
                 )}
               </CardContent>
             </Card>

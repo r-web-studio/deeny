@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
+import { useI18n } from "@/lib/i18n";
 
 const AI_STORAGE_KEY = "deenflow-ai-conversations";
 
@@ -23,6 +24,7 @@ interface Conversation {
 }
 
 export default function AiPage() {
+  const { t } = useI18n();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -204,7 +206,7 @@ export default function AiPage() {
       <div className={`${sidebarOpen ? "fixed inset-y-0 left-0 z-50 w-64" : "hidden"} md:relative md:z-auto md:flex md:w-64 flex-col border-r border-border/50 bg-background`}>
         <div className="p-3">
           <Button onClick={createConvo} className="w-full bg-islamic-green hover:bg-islamic-green/90">
-            <Plus className="h-4 w-4 mr-2" />New Chat
+            <Plus className="h-4 w-4 mr-2" />{t("ai.newChat")}
           </Button>
         </div>
         <ScrollArea className="flex-1 px-2">
@@ -269,16 +271,16 @@ export default function AiPage() {
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-islamic-green to-islamic-green/70 flex items-center justify-center">
                     <Sparkles className="h-8 w-8 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold">DeenFlow AI Companion</h2>
+                  <h2 className="text-2xl font-bold">{t("ai.title")}</h2>
                   <p className="text-muted-foreground max-w-md">
-                    Ask me anything about Islam, productivity, or daily life. I am here to help!
+                    {t("ai.description")}
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-lg">
                     {[
-                      "How was your day?",
-                      "Did you pray today?",
-                      "What are your goals tomorrow?",
-                      "Share a daily reflection",
+                      t("ai.prompts.howWasYourDay"),
+                      t("ai.prompts.didYouPray"),
+                      t("ai.prompts.whatAreYourGoals"),
+                      t("ai.prompts.shareReflection"),
                     ].map((q) => (
                       <Button
                         key={q}
@@ -325,7 +327,7 @@ export default function AiPage() {
                   <Card className="glass">
                     <CardContent className="p-3 flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin text-islamic-green" />
-                      <span className="text-sm text-muted-foreground">Thinking...</span>
+                      <span className="text-sm text-muted-foreground">{t("ai.thinking")}</span>
                     </CardContent>
                   </Card>
                 </div>
@@ -343,7 +345,7 @@ export default function AiPage() {
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your message..."
+                  placeholder={t("ai.typeMessage")}
                   disabled={loading}
                   className="flex-1"
                 />
@@ -362,16 +364,15 @@ export default function AiPage() {
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-islamic-green to-islamic-green/70 flex items-center justify-center">
               <Sparkles className="h-10 w-10 text-white" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold">DeenFlow AI</h1>
+            <h1 className="text-2xl md:text-3xl font-bold">{t("ai.aiLabel")}</h1>
             <p className="text-muted-foreground max-w-md">
-              Your personal Islamic AI companion. Start a new conversation or use a
-              daily check-in prompt.
+              {t("ai.welcome")}
             </p>
             <Button
               onClick={createConvo}
               className="bg-islamic-green hover:bg-islamic-green/90"
             >
-              <Plus className="h-4 w-4 mr-2" />Start Chat
+              <Plus className="h-4 w-4 mr-2" />{t("ai.startChat")}
             </Button>
           </div>
         )}

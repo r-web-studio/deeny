@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { TASK_PRIORITIES, TASK_CATEGORIES_DEFAULT } from "@/lib/constants";
+import { useI18n } from "@/lib/i18n";
 
 const TASKS_STORAGE_KEY = "deenflow-tasks";
 
@@ -24,6 +25,7 @@ interface Task {
 }
 
 export default function TodosPage() {
+  const { t } = useI18n();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
@@ -104,8 +106,8 @@ export default function TodosPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">Tasks</h1>
-        <p className="text-muted-foreground">{completedCount} of {tasks.length} completed</p>
+        <h1 className="text-2xl md:text-3xl font-bold">{t("todos.title")}</h1>
+        <p className="text-muted-foreground">{completedCount} {t("todos.of")} {tasks.length} {t("todos.completed")}</p>
         <Progress value={progress} className="mt-2 max-w-md" />
       </div>
 
@@ -124,7 +126,7 @@ export default function TodosPage() {
       <Card className="glass">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-3">
-            <Input placeholder="Add a new task..." value={newTask} onChange={(e) => setNewTask(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTask()} className="flex-1" />
+            <Input placeholder={t("todos.addPlaceholder")} value={newTask} onChange={(e) => setNewTask(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTask()} className="flex-1" />
             <Select value={priority} onValueChange={(v) => setPriority((v ?? "medium") as "low" | "medium" | "high")}>
               <SelectTrigger className="w-full md:w-32"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -138,7 +140,7 @@ export default function TodosPage() {
               </SelectContent>
             </Select>
             <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full md:w-40" />
-            <Button onClick={addTask} className="bg-islamic-green hover:bg-islamic-green/90"><Plus className="h-4 w-4 mr-1" />Add</Button>
+            <Button onClick={addTask} className="bg-islamic-green hover:bg-islamic-green/90"><Plus className="h-4 w-4 mr-1" />{t("todos.add")}</Button>
           </div>
         </CardContent>
       </Card>
@@ -146,19 +148,19 @@ export default function TodosPage() {
       <div className="flex flex-col md:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search tasks..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          <Input placeholder={t("todos.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
         <Select value={filterCategory} onValueChange={(v) => setFilterCategory(v ?? "all")}>
           <SelectTrigger className="w-full md:w-40"><SelectValue placeholder="Category" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="all">{t("todos.allCategories")}</SelectItem>
             {TASK_CATEGORIES_DEFAULT.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterPriority} onValueChange={(v) => setFilterPriority(v ?? "all")}>
           <SelectTrigger className="w-full md:w-40"><SelectValue placeholder="Priority" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Priorities</SelectItem>
+            <SelectItem value="all">{t("todos.allPriorities")}</SelectItem>
             {TASK_PRIORITIES.map((p) => <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -170,7 +172,7 @@ export default function TodosPage() {
             <Card className="glass">
               <CardContent className="text-center py-12 text-muted-foreground">
                 <ListTodo className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No tasks yet. Add one above!</p>
+                <p>{t("todos.empty")}</p>
               </CardContent>
             </Card>
           ) : (
