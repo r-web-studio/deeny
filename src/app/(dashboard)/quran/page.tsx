@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, Bookmark, Search, BookMarked, ChevronDown } from "lucide-react";
+import { Play, Pause, Bookmark, Search, BookMarked } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,19 +24,12 @@ interface Ayah {
 }
 
 const RECITERS = [
-  { id: "xalil_xusoriy_hafs", name: "Mahmud Khalil Husari" },
-  { id: "abdul_basit_murattal", name: "Abdul Basit (Murattal)" },
-  { id: "abdul_basit_mujawwad", name: "Abdul Basit (Mujawwad)" },
-  { id: "mishary_rashid", name: "Mishary Rashid Alafasy" },
-  { id: "saad_al_ghamdi", name: "Saad Al-Ghamdi" },
-  { id: "abdurrahmaan_as_sudais", name: "Abdurrahmaan As-Sudais" },
-  { id: "muhammad_jibril", name: "Muhammad Jibril" },
-  { id: "yasser_aldosari", name: "Yasser Al-Dosari" },
+  { id: "default", name: "Quran.uz (Islom.uz)" },
 ];
 
-function getSurahAudioUrl(surahNumber: number, reciterId: string): string {
+function getSurahAudioUrl(surahNumber: number, _reciterId: string): string {
   const padded = String(surahNumber).padStart(3, "0");
-  return `https://islom.uz/mp3/surah/${reciterId}/${padded}.mp3`;
+  return `https://quran.uz/mp3/${padded}.mp3`;
 }
 
 export default function QuranPage() {
@@ -49,7 +42,6 @@ export default function QuranPage() {
   const [dailyVerse, setDailyVerse] = useState<Ayah | null>(null);
   const [selectedReciter, setSelectedReciter] = useState(RECITERS[0].id);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showReciterMenu, setShowReciterMenu] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -145,7 +137,6 @@ export default function QuranPage() {
   const handleReciterChange = (reciterId: string) => {
     setSelectedReciter(reciterId);
     localStorage.setItem("deenflow-quran-reciter", reciterId);
-    setShowReciterMenu(false);
     if (isPlaying && selectedSurah) {
       stopAudio();
     }
@@ -248,36 +239,9 @@ export default function QuranPage() {
                       )}
                     </div>
 
-                    <div className="relative">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowReciterMenu(!showReciterMenu)}
-                        className="gap-2"
-                      >
-                        <span className="truncate max-w-[150px]">{selectedReciterName}</span>
-                        <ChevronDown className="h-4 w-4" />
-                      </Button>
-                      {showReciterMenu && (
-                        <div className="absolute right-0 top-full mt-1 z-50 bg-background border border-border rounded-lg shadow-lg py-1 w-64 max-h-60 overflow-y-auto">
-                          {RECITERS.map((r) => (
-                            <button
-                              key={r.id}
-                              onClick={() => handleReciterChange(r.id)}
-                              className={`w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors ${
-                                selectedReciter === r.id ? "bg-islamic-green/10 text-islamic-green" : ""
-                              }`}
-                            >
-                              {r.name}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="text-xs text-muted-foreground">
-                    Audio source: islom.uz | Reciter: {selectedReciterName}
+                    <Badge variant="outline" className="text-xs">
+                      quran.uz (islom.uz)
+                    </Badge>
                   </div>
 
                   {ayahs.map((ayah) => {
