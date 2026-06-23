@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Play, Bookmark, Search, BookMarked } from "lucide-react";
+import { Play, Pause, Bookmark, Search, BookMarked, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,23 @@ interface Ayah {
   number: number;
   text: string;
   numberInSurah: number;
-  audio: string;
   translation: { text: string };
+}
+
+const RECITERS = [
+  { id: "xalil_xusoriy_hafs", name: "Mahmud Khalil Husari" },
+  { id: "abdul_basit_murattal", name: "Abdul Basit (Murattal)" },
+  { id: "abdul_basit_mujawwad", name: "Abdul Basit (Mujawwad)" },
+  { id: "mishary_rashid", name: "Mishary Rashid Alafasy" },
+  { id: "saad_al_ghamdi", name: "Saad Al-Ghamdi" },
+  { id: "abdurrahmaan_as_sudais", name: "Abdurrahmaan As-Sudais" },
+  { id: "muhammad_jibril", name: "Muhammad Jibril" },
+  { id: "yasser_aldosari", name: "Yasser Al-Dosari" },
+];
+
+function getSurahAudioUrl(surahNumber: number, reciterId: string): string {
+  const padded = String(surahNumber).padStart(3, "0");
+  return `https://islom.uz/mp3/surah/${reciterId}/${padded}.mp3`;
 }
 
 export default function QuranPage() {
@@ -30,16 +45,24 @@ export default function QuranPage() {
   const [selectedSurah, setSelectedSurah] = useState<number | null>(null);
   const [ayahs, setAyahs] = useState<Ayah[]>([]);
   const [bookmarks, setBookmarks] = useState<{ surah: number; ayah: number }[]>([]);
-  const [playingAudio, setPlayingAudio] = useState<HTMLAudioElement | null>(null);
-  const [playingAyah, setPlayingAyah] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [dailyVerse, setDailyVerse] = useState<Ayah | null>(null);
+  const [selectedReciter, setSelectedReciter] = useState(RECITERS[0].id);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showReciterMenu, setShowReciterMenu] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    const savedReciter = localStorage.getItem("deenflow-quran-reciter");
+    if (savedReciter && RECITERS.find((r) => r.id === savedReciter)) {
+      setSelectedReciter(savedReciter);
+    }
+
     fetch("https://api.alquran.cloud/v1/surah")
       .then((r) => r.json())
       .then((data) => setSurahs(data.data || []))
       .catch(() => {});
+
     const randomSurah = Math.floor(Math.random() * 114) + 1;
     Promise.all([
       fetch(`https://api.alquran.cloud/v1/surah/${randomSurah}`).then((r) => r.json()),
@@ -60,6 +83,7 @@ export default function QuranPage() {
   }, []);
 
   const loadSurah = async (num: number) => {
+    stopAudio();
     setSelectedSurah(num);
     try {
       const [arRes, enRes] = await Promise.all([
@@ -74,28 +98,56 @@ export default function QuranPage() {
         number: a.number,
         text: a.text as string,
         numberInSurah: a.numberInSurah,
-        audio: (a.audioSecondary as string[])?.[0] || "",
         translation: { text: enAyahs[i]?.text || "" },
       }));
       setAyahs(merged);
     } catch {}
   };
 
-  const playAudio = (ayah: Ayah) => {
-    if (playingAudio) {
-      playingAudio.pause();
-      setPlayingAudio(null);
-      setPlayingAyah(null);
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlaying(false);
     }
-    if (ayah.audio && playingAyah !== ayah.number) {
-      const audio = new Audio(ayah.audio);
-      audio.play();
-      audio.onended = () => {
-        setPlayingAudio(null);
-        setPlayingAyah(null);
-      };
-      setPlayingAudio(audio);
-      setPlayingAyah(ayah.number);
+  };
+
+  const playSurah = (surahNumber: number) => {
+    if (isPlaying && selectedSurah === surahNumber) {
+      stopAudio();
+      return;
+    }
+
+    stopAudio();
+
+    const url = getSurahAudioUrl(surahNumber, selectedReciter);
+    const audio = new Audio(url);
+    audioRef.current = audio;
+
+    audio.onended = () => {
+      setIsPlaying(false);
+      audioRef.current = null;
+    };
+
+    audio.onerror = () => {
+      setIsPlaying(false);
+      audioRef.current = null;
+    };
+
+    audio.play().then(() => {
+      setIsPlaying(true);
+    }).catch(() => {
+      setIsPlaying(false);
+      audioRef.current = null;
+    });
+  };
+
+  const handleReciterChange = (reciterId: string) => {
+    setSelectedReciter(reciterId);
+    localStorage.setItem("deenflow-quran-reciter", reciterId);
+    setShowReciterMenu(false);
+    if (isPlaying && selectedSurah) {
+      stopAudio();
     }
   };
 
@@ -112,6 +164,8 @@ export default function QuranPage() {
       s.englishName.toLowerCase().includes(search.toLowerCase()) ||
       String(s.number).includes(search)
   );
+
+  const selectedReciterName = RECITERS.find((r) => r.id === selectedReciter)?.name || "";
 
   return (
     <motion.div
@@ -174,6 +228,58 @@ export default function QuranPage() {
             <CardContent className="p-6">
               {selectedSurah ? (
                 <div className="space-y-4">
+                  <div className="flex items-center justify-between flex-wrap gap-3">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => playSurah(selectedSurah)}
+                        className="bg-islamic-green hover:bg-islamic-green/90"
+                      >
+                        {isPlaying ? (
+                          <Pause className="h-4 w-4 mr-2" />
+                        ) : (
+                          <Play className="h-4 w-4 mr-2" />
+                        )}
+                        {isPlaying ? "Pause" : "Play Surah"}
+                      </Button>
+                      {isPlaying && (
+                        <Badge variant="secondary" className="animate-pulse">
+                          Playing
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowReciterMenu(!showReciterMenu)}
+                        className="gap-2"
+                      >
+                        <span className="truncate max-w-[150px]">{selectedReciterName}</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                      {showReciterMenu && (
+                        <div className="absolute right-0 top-full mt-1 z-50 bg-background border border-border rounded-lg shadow-lg py-1 w-64 max-h-60 overflow-y-auto">
+                          {RECITERS.map((r) => (
+                            <button
+                              key={r.id}
+                              onClick={() => handleReciterChange(r.id)}
+                              className={`w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors ${
+                                selectedReciter === r.id ? "bg-islamic-green/10 text-islamic-green" : ""
+                              }`}
+                            >
+                              {r.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-muted-foreground">
+                    Audio source: islom.uz | Reciter: {selectedReciterName}
+                  </div>
+
                   {ayahs.map((ayah) => {
                     const isBookmarked = bookmarks.some(
                       (b) => b.surah === selectedSurah && b.ayah === ayah.numberInSurah
@@ -199,18 +305,6 @@ export default function QuranPage() {
                             >
                               {ayah.numberInSurah}
                             </Badge>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => playAudio(ayah)}
-                            >
-                              <Play
-                                className={`h-3 w-3 ${
-                                  playingAyah === ayah.number ? "text-islamic-green" : ""
-                                }`}
-                              />
-                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"

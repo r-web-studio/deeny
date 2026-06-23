@@ -9,32 +9,22 @@ export async function GET() {
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 2000;
 
-const MODELS = [
-  "google/gemma-4-26b-a4b-it:free",
-  "meta-llama/llama-3.1-8b-instruct:free",
-];
-
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function callOpenRouter(
+async function callOpenAI(
   apiKey: string,
-  messages: { role: string; content: string }[],
-  modelIndex: number
-): Promise<{ ok: true; content: string } | { ok: false; status: number; retryAfter?: number; modelIndex: number }> {
-  const model = MODELS[modelIndex] || MODELS[0];
-
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  messages: { role: string; content: string }[]
+): Promise<{ ok: true; content: string } | { ok: false; status: number; retryAfter?: number }> {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://deenflow.app",
-      "X-Title": "DeenFlow AI Companion",
     },
     body: JSON.stringify({
-      model,
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -50,25 +40,25 @@ async function callOpenRouter(
   if (response.status === 429) {
     const retryAfter = response.headers.get("Retry-After");
     const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : undefined;
-    return { ok: false, status: 429, retryAfter: waitMs, modelIndex };
+    return { ok: false, status: 429, retryAfter: waitMs };
   }
 
   const responseText = await response.text();
 
   if (!response.ok) {
-    return { ok: false, status: response.status, modelIndex };
+    return { ok: false, status: response.status };
   }
 
   let data;
   try {
     data = JSON.parse(responseText);
-  } catch (e) {
-    return { ok: false, status: 500, modelIndex };
+  } catch {
+    return { ok: false, status: 500 };
   }
 
   const content = data.choices?.[0]?.message?.content;
   if (!content) {
-    return { ok: false, status: 500, modelIndex };
+    return { ok: false, status: 500 };
   }
 
   return { ok: true, content };
@@ -76,11 +66,11 @@ async function callOpenRouter(
 
 export async function POST(request: NextRequest) {
   const { messages } = await request.json();
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(
-      { content: "AI service not configured. Please set OPENROUTER_API_KEY in your environment variables." },
+      { content: "AI service not configured. Please set OPENAI_API_KEY in your environment variables." },
       { status: 500 }
     );
   }
@@ -95,8 +85,7 @@ export async function POST(request: NextRequest) {
   let lastError: { status: number; retryAfter?: number } = { status: 500 };
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    const modelIdx = Math.min(Math.floor(attempt / 2), MODELS.length - 1);
-    const result = await callOpenRouter(apiKey, messages, modelIdx);
+    const result = await callOpenAI(apiKey, messages);
 
     if (result.ok) {
       return NextResponse.json({ content: result.content });
@@ -107,19 +96,19 @@ export async function POST(request: NextRequest) {
     if (result.status === 429) {
       const delay = result.retryAfter || BASE_DELAY_MS * Math.pow(2, attempt);
       const cappedDelay = Math.min(delay, 30000);
-      console.warn(`OpenRouter 429 rate limited. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${cappedDelay}ms...`);
+      console.warn(`OpenAI 429 rate limited. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${cappedDelay}ms...`);
       await sleep(cappedDelay);
       continue;
     }
 
     if (result.status === 502 || result.status === 503) {
       const delay = BASE_DELAY_MS * Math.pow(2, attempt);
-      console.warn(`OpenRouter ${result.status} server error. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${delay}ms...`);
+      console.warn(`OpenAI ${result.status} server error. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${delay}ms...`);
       await sleep(delay);
       continue;
     }
 
-    console.error("OpenRouter API error:", result.status);
+    console.error("OpenAI API error:", result.status);
     return NextResponse.json(
       { content: `AI service error (${result.status}). Please try again later.` },
       { status: result.status }

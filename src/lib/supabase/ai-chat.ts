@@ -1,20 +1,17 @@
 export async function sendChatMessage(
-  messages: { role: string; content: string }[],
-  model: string = "meta-llama/llama-3.1-8b-instruct:free"
+  messages: { role: string; content: string }[]
 ): Promise<string> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) return "AI service not configured. Please add OPENROUTER_API_KEY.";
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return "AI service not configured. Please add OPENAI_API_KEY.";
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://deenflow.app",
-      "X-Title": "DeenFlow AI Companion",
     },
     body: JSON.stringify({
-      model,
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",

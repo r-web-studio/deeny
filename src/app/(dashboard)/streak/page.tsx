@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, AlertTriangle, RotateCcw, Trophy, TrendingUp } from "lucide-react";
+import { Shield, AlertTriangle, RotateCcw, Trophy, TrendingUp, Check } from "lucide-react";
 import toast from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ export default function StreakPage() {
   const [relapses, setRelapses] = useState<RelapseEntry[]>([]);
   const [startDate, setStartDate] = useState(new Date().toISOString());
   const [showConfirm, setShowConfirm] = useState(false);
+  const [checkedInToday, setCheckedInToday] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(STREAK_STORAGE_KEY);
@@ -41,6 +42,15 @@ export default function StreakPage() {
         setLongestStreak(data.longestStreak || 0);
         setRelapses(data.relapses || []);
         if (data.startDate) setStartDate(data.startDate);
+      } catch {}
+    }
+
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
+    if (checkinsRaw) {
+      try {
+        const checkins = JSON.parse(checkinsRaw);
+        setCheckedInToday(!!checkins[todayKey]);
       } catch {}
     }
   }, []);
@@ -64,6 +74,25 @@ export default function StreakPage() {
     setRelapses([]);
     setLongestStreak(0);
     saveStreakData({ currentStreak: 0, longestStreak: 0, relapses: [], startDate });
+  };
+
+  const handleDailyCheckin = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
+    const checkins = checkinsRaw ? JSON.parse(checkinsRaw) : {};
+
+    if (checkins[today]) return;
+
+    checkins[today] = true;
+    localStorage.setItem("deenflow-daily-checkins", JSON.stringify(checkins));
+
+    const newStreak = currentStreak + 1;
+    const newLongest = Math.max(newStreak, longestStreak);
+    setCurrentStreak(newStreak);
+    setLongestStreak(newLongest);
+    setCheckedInToday(true);
+    saveStreakData({ currentStreak: newStreak, longestStreak: newLongest, relapses, startDate });
+    toast.success("MashaAllah! Day marked as clean. Keep going!");
   };
 
   const weeklyData = Array.from({ length: 7 }, (_, i) => {
@@ -136,6 +165,35 @@ export default function StreakPage() {
                 {m} days {currentStreak >= m ? "✓" : ""}
               </Badge>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="glass border-purple-500/20">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <p className="font-medium">Daily Check-in</p>
+              <p className="text-sm text-muted-foreground">Mark today as clean to continue your streak</p>
+            </div>
+            <Button
+              onClick={handleDailyCheckin}
+              disabled={checkedInToday}
+              className={
+                checkedInToday
+                  ? "bg-green-600/20 text-green-600 cursor-default"
+                  : "bg-purple-500 hover:bg-purple-600 text-white"
+              }
+            >
+              {checkedInToday ? (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Checked In Today
+                </>
+              ) : (
+                "Mark Today as Clean"
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>

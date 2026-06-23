@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Clock, CheckCircle, Target, ListTodo, Shield, Quote, Calendar, Sparkles, Smile, Heart, CloudRain, Flame, Wind, Moon, PartyPopper, PenLine } from "lucide-react";
+import { Clock, CheckCircle, Target, ListTodo, Shield, Quote, Calendar, Sparkles, Smile, Heart, CloudRain, Flame, Wind, Moon, PartyPopper, PenLine, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useIslamicDate } from "@/lib/hooks/use-islamic-date";
@@ -10,6 +11,7 @@ import { usePrayerTimes } from "@/lib/hooks/use-prayer-times";
 import { useI18n } from "@/lib/i18n";
 import { PRAYERS, MOODS } from "@/lib/constants";
 import { useUserStore } from "@/lib/stores/user-store";
+import toast from "react-hot-toast";
 
 const moodIcons: Record<string, React.ReactNode> = {
   smile: <Smile className="h-5 w-5" />,
@@ -56,6 +58,7 @@ export default function DashboardPage() {
   const [taskStats, setTaskStats] = useState({ completed: 0, total: 0 });
   const [currentStreak, setCurrentStreak] = useState(0);
   const [journalCount, setJournalCount] = useState(0);
+  const [checkedInToday, setCheckedInToday] = useState(false);
   const [userName, setUserName] = useState(() => {
     if (typeof window === "undefined") return "";
     const user = useUserStore.getState().user;
@@ -172,6 +175,12 @@ export default function DashboardPage() {
         if (journalRaw) {
           setJournalCount(JSON.parse(journalRaw).length);
         }
+
+        const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
+        if (checkinsRaw) {
+          const checkins = JSON.parse(checkinsRaw);
+          setCheckedInToday(!!checkins[todayKey]);
+        }
       } catch {}
     };
 
@@ -212,6 +221,36 @@ export default function DashboardPage() {
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [times]);
+
+  const handleDailyCheckin = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
+    const checkins = checkinsRaw ? JSON.parse(checkinsRaw) : {};
+
+    if (checkins[today]) return;
+
+    checkins[today] = true;
+    localStorage.setItem("deenflow-daily-checkins", JSON.stringify(checkins));
+
+    const streakRaw = localStorage.getItem("deenflow-streak");
+    const streakData = streakRaw ? JSON.parse(streakRaw) : {};
+    const newStreak = (streakData.currentStreak || 0) + 1;
+    const newLongest = Math.max(newStreak, streakData.longestStreak || 0);
+
+    localStorage.setItem(
+      "deenflow-streak",
+      JSON.stringify({
+        ...streakData,
+        currentStreak: newStreak,
+        longestStreak: newLongest,
+        startDate: streakData.startDate || new Date().toISOString(),
+      })
+    );
+
+    setCurrentStreak(newStreak);
+    setCheckedInToday(true);
+    toast.success("MashaAllah! Day marked as clean. Keep going!");
+  };
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
@@ -269,7 +308,7 @@ export default function DashboardPage() {
       </motion.div>
 
       <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="glass">
+        <Card className="glass border-purple-500/20">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.noPornStreak")}</CardTitle>
             <Shield className="h-4 w-4 text-purple-500" />
@@ -277,6 +316,25 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{currentStreak} days</div>
             <p className="text-xs text-muted-foreground mt-1">{t("dashboard.keepGoing")}</p>
+            <Button
+              onClick={handleDailyCheckin}
+              disabled={checkedInToday}
+              className={`mt-3 w-full ${
+                checkedInToday
+                  ? "bg-green-600/20 text-green-600 cursor-default"
+                  : "bg-purple-500 hover:bg-purple-600 text-white"
+              }`}
+              size="sm"
+            >
+              {checkedInToday ? (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Checked In Today
+                </>
+              ) : (
+                "Mark Today as Clean"
+              )}
+            </Button>
           </CardContent>
         </Card>
 
