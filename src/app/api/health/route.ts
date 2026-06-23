@@ -5,15 +5,15 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const openrouter = process.env.OPENROUTER_API_KEY;
+  const gemini = process.env.GEMINI_API_KEY;
 
   const config = {
-    NEXT_PUBLIC_SUPABASE_URL: url ? `${url.substring(0, 20)}...` : "MISSING",
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: key ? `${key.substring(0, 20)}...` : "MISSING",
-    OPENROUTER_API_KEY: openrouter ? "set" : "MISSING",
+    NEXT_PUBLIC_SUPABASE_URL: url ? "set" : "MISSING",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: key ? "set" : "MISSING",
+    GEMINI_API_KEY: gemini ? "set" : "MISSING",
   };
 
-  const allSet = !!url && !!key && !!openrouter;
+  const allSet = !!url && !!key && !!gemini;
 
   return NextResponse.json({
     status: allSet ? "ok" : "error",
