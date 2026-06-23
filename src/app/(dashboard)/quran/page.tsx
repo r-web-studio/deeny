@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/lib/i18n";
+import toast from "react-hot-toast";
 
 interface Surah {
   number: number;
@@ -23,13 +25,24 @@ interface Ayah {
   translation: { text: string };
 }
 
-const RECITERS = [
-  { id: "default", name: "Quran.uz (Islom.uz)" },
+interface Reciter {
+  id: number;
+  name: string;
+  link: string;
+}
+
+const DEFAULT_RECITERS: Reciter[] = [
+  { id: 1, name: "Махмуд Халил Хусари", link: "xalil_xusoriy" },
+  { id: 2, name: "Абдулбосит Абдулсамад", link: "abdulbosit_abdulsamad" },
+  { id: 3, name: "Абdurраҳим Башари", link: "abu_bakr_shatri" },
+  { id: 4, name: "Мишари Рашид Алафаси", link: "mishariy_alafasiy" },
+  { id: 5, name: "Саад Ал-Гамди", link: "saad_alghamdi" },
+  { id: 6, name: "Ахмад Ал-Аджми", link: "ahmad_alajmi" },
 ];
 
-function getSurahAudioUrl(surahNumber: number, _reciterId: string): string {
+function getSurahAudioUrl(surahNumber: number, reciterLink: string): string {
   const padded = String(surahNumber).padStart(3, "0");
-  return `https://quran.uz/mp3/${padded}.mp3`;
+  return `https://new.islom.uz/mp3/surah/${reciterLink}_hafs/${padded}.mp3`;
 }
 
 export default function QuranPage() {
@@ -40,15 +53,25 @@ export default function QuranPage() {
   const [bookmarks, setBookmarks] = useState<{ surah: number; ayah: number }[]>([]);
   const [search, setSearch] = useState("");
   const [dailyVerse, setDailyVerse] = useState<Ayah | null>(null);
-  const [selectedReciter, setSelectedReciter] = useState(RECITERS[0].id);
+  const [reciters, setReciters] = useState<Reciter[]>(DEFAULT_RECITERS);
+  const [selectedReciter, setSelectedReciter] = useState(DEFAULT_RECITERS[0].link);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const savedReciter = localStorage.getItem("deenflow-quran-reciter");
-    if (savedReciter && RECITERS.find((r) => r.id === savedReciter)) {
+    if (savedReciter) {
       setSelectedReciter(savedReciter);
     }
+
+    fetch("https://quran.uz/api/v1/quran/qorilar/1")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.data && data.data.length > 0) {
+          setReciters(data.data);
+        }
+      })
+      .catch(() => {});
 
     fetch("https://api.alquran.cloud/v1/surah")
       .then((r) => r.json())
@@ -113,7 +136,9 @@ export default function QuranPage() {
     stopAudio();
 
     const url = getSurahAudioUrl(surahNumber, selectedReciter);
-    const audio = new Audio(url);
+    const audio = new Audio();
+    audio.preload = "auto";
+    audio.src = url;
     audioRef.current = audio;
 
     audio.onended = () => {
@@ -121,14 +146,18 @@ export default function QuranPage() {
       audioRef.current = null;
     };
 
-    audio.onerror = () => {
+    audio.onerror = (e) => {
+      console.error("Audio error:", url, e);
+      toast.error("Failed to load audio. Please try again.");
       setIsPlaying(false);
       audioRef.current = null;
     };
 
     audio.play().then(() => {
       setIsPlaying(true);
-    }).catch(() => {
+    }).catch((err) => {
+      console.error("Audio play failed:", url, err);
+      toast.error("Unable to play audio. Check your connection and try again.");
       setIsPlaying(false);
       audioRef.current = null;
     });
@@ -156,7 +185,7 @@ export default function QuranPage() {
       String(s.number).includes(search)
   );
 
-  const selectedReciterName = RECITERS.find((r) => r.id === selectedReciter)?.name || "";
+  const selectedReciterName = reciters.find((r) => r.link === selectedReciter)?.name || "";
 
   return (
     <motion.div
@@ -221,6 +250,21 @@ export default function QuranPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-2">
+                      <Select
+                        value={selectedReciter}
+                        onValueChange={(v) => handleReciterChange(v ?? DEFAULT_RECITERS[0].link)}
+                      >
+                        <SelectTrigger className="w-[220px]">
+                          <SelectValue placeholder={selectedReciterName} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {reciters.map((reciter) => (
+                            <SelectItem key={reciter.link} value={reciter.link}>
+                              {reciter.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <Button
                         onClick={() => playSurah(selectedSurah)}
                         className="bg-islamic-green hover:bg-islamic-green/90"
