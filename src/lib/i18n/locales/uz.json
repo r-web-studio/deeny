@@ -35,7 +35,8 @@
   },
   "prayers": {
     "title": "Namoz vaqtlari",
-    "selectCity": "O'zbekistondagi shahringizni tanlang",
+    "selectCountry": "Mamlakatingizni tanlang",
+    "selectCity": "Shahringizni tanlang",
     "selectYourCity": "Shahringizni tanlang",
     "searchCities": "Shahrlarni qidirish...",
     "noCitiesFound": "Shahrlar topilmadi",

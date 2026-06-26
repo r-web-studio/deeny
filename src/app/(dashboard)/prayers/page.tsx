@@ -1,13 +1,15 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Check, AlertCircle, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { MapPin, Clock, Check, AlertCircle, ChevronLeft, ChevronRight, Search, X, Globe } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePrayerTimes, PrayerTimesData } from "@/lib/hooks/use-prayer-times";
 import { UZBEKISTAN_REGIONS, UzbekistanCity } from "@/lib/data/uzbekistan";
+import { COUNTRIES, Country, City } from "@/lib/data/countries";
 import { useI18n } from "@/lib/i18n";
 import { AnalogClock } from "@/components/analog-clock";
 import toast from "react-hot-toast";
@@ -21,7 +23,17 @@ interface PrayerHistory {
   [date: string]: PrayerStatus;
 }
 
+interface SelectedCity {
+  name: string;
+  lat: number;
+  lon: number;
+  apiRegion?: string;
+  region?: string;
+  countryId: string;
+}
+
 const STORAGE_KEY = "deenflow-prayer-location";
+const COUNTRY_STORAGE_KEY = "deenflow-selected-country";
 const PRAYER_HISTORY_KEY = "deenflow-prayer-history";
 const PRAYER_STATUSES_KEY = "deenflow-prayer-statuses";
 
@@ -60,11 +72,19 @@ function migrateOldStatuses(history: PrayerHistory): PrayerHistory {
 
 export default function PrayersPage() {
   const { t } = useI18n();
-  const [selectedCity, setSelectedCity] = useState<UzbekistanCity | null>(null);
+  const [selectedCountryId, setSelectedCountryId] = useState<string>("uzbekistan");
+  const [selectedCity, setSelectedCity] = useState<SelectedCity | null>(null);
   const [search, setSearch] = useState("");
+
+  const selectedCountry = COUNTRIES.find((c) => c.id === selectedCountryId);
+
   const { times, loading: prayerLoading } = usePrayerTimes(
-    selectedCity?.apiRegion
+    selectedCity?.apiRegion,
+    selectedCity?.countryId,
+    selectedCity?.lat,
+    selectedCity?.lon
   );
+
   const [statuses, setStatuses] = useState<PrayerStatus>({});
   const [history, setHistory] = useState<PrayerHistory>({});
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -76,10 +96,15 @@ export default function PrayersPage() {
   const prayerNames = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
   useEffect(() => {
+    const savedCountry = localStorage.getItem(COUNTRY_STORAGE_KEY);
     const saved = localStorage.getItem(STORAGE_KEY);
+    if (savedCountry) {
+      setSelectedCountryId(savedCountry);
+    }
     if (saved) {
       try {
-        setSelectedCity(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setSelectedCity(parsed);
       } catch {}
     }
     let h = loadHistory();
@@ -89,11 +114,44 @@ export default function PrayersPage() {
     setStatuses(h[todayKey] || {});
   }, []);
 
-  const selectCity = (city: UzbekistanCity) => {
+  const selectCountry = (countryId: string | null) => {
+    if (!countryId) return;
+    setSelectedCountryId(countryId);
+    setSelectedCity(null);
+    setSearch("");
+    localStorage.setItem(COUNTRY_STORAGE_KEY, countryId);
+    localStorage.removeItem(STORAGE_KEY);
+    setNextPrayerIdx(-1);
+    setCountdown("");
+  };
+
+  const selectCity = (city: SelectedCity) => {
     setSelectedCity(city);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(city));
     setNextPrayerIdx(-1);
     setCountdown("");
+  };
+
+  const selectUzbekCity = (city: UzbekistanCity) => {
+    const selected: SelectedCity = {
+      name: city.name,
+      lat: city.lat,
+      lon: city.lon,
+      apiRegion: city.apiRegion,
+      countryId: "uzbekistan",
+    };
+    selectCity(selected);
+  };
+
+  const selectGenericCity = (city: City, regionName: string) => {
+    const selected: SelectedCity = {
+      name: city.name,
+      lat: city.lat,
+      lon: city.lon,
+      countryId: selectedCountryId,
+      region: regionName,
+    };
+    selectCity(selected);
   };
 
   useEffect(() => {
@@ -160,14 +218,25 @@ export default function PrayersPage() {
     return history[key] || null;
   }, [selectedCalDay, history]);
 
-  const allCities = UZBEKISTAN_REGIONS.flatMap((r) =>
+  const isUzbekistan = selectedCountryId === "uzbekistan";
+
+  const allUzbekCities = UZBEKISTAN_REGIONS.flatMap((r) =>
     r.cities.map((c) => ({ ...c, region: r.region }))
   );
-  const filteredCities = allCities.filter(
+  const filteredUzbekCities = allUzbekCities.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.nameUz.toLowerCase().includes(search.toLowerCase()) ||
       c.region.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const allGenericCities = selectedCountry?.regions.flatMap((r) =>
+    r.cities.map((c) => ({ ...c, region: r.name }))
+  ) || [];
+  const filteredGenericCities = allGenericCities.filter(
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      (c.region && c.region.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -177,10 +246,137 @@ export default function PrayersPage() {
         <p className="text-muted-foreground flex items-center gap-1 mt-1">
           <MapPin className="h-4 w-4" />
           {selectedCity
-            ? `${selectedCity.name} (${selectedCity.nameUz})`
+            ? `${selectedCity.name}${selectedCity.region ? ` (${selectedCity.region})` : ""}`
             : t("prayers.selectCity")}
         </p>
       </div>
+
+      <Card className="glass">
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                {t("prayers.selectCountry")}
+              </label>
+              <Select value={selectedCountryId} onValueChange={selectCountry}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRIES.map((country) => (
+                    <SelectItem key={country.id} value={country.id}>
+                      <span className="mr-2">{country.flag}</span>
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedCountry && (
+              <div className="space-y-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={t("prayers.searchCities")}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+
+                {search ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto">
+                    {isUzbekistan ? (
+                      filteredUzbekCities.map((c) => (
+                        <button
+                          key={`${c.name}-${c.lat}`}
+                          onClick={() => selectUzbekCity(c)}
+                          className={`p-2 rounded-lg text-left text-sm transition-all ${
+                            selectedCity?.name === c.name && selectedCity?.lat === c.lat
+                              ? "bg-islamic-green text-white font-medium"
+                              : "bg-muted/50 hover:bg-accent"
+                          }`}
+                        >
+                          <div className="font-medium">{c.name}</div>
+                          {c.region && <div className="text-xs opacity-70">{c.region}</div>}
+                        </button>
+                      ))
+                    ) : (
+                      filteredGenericCities.map((c) => (
+                        <button
+                          key={`${c.name}-${c.lat}`}
+                          onClick={() => selectGenericCity(c, c.region || "")}
+                          className={`p-2 rounded-lg text-left text-sm transition-all ${
+                            selectedCity?.name === c.name && selectedCity?.lat === c.lat
+                              ? "bg-islamic-green text-white font-medium"
+                              : "bg-muted/50 hover:bg-accent"
+                          }`}
+                        >
+                          <div className="font-medium">{c.name}</div>
+                          {c.region && <div className="text-xs opacity-70">{c.region}</div>}
+                        </button>
+                      ))
+                    )}
+                    {(isUzbekistan ? filteredUzbekCities : filteredGenericCities).length === 0 && (
+                      <p className="text-muted-foreground text-sm col-span-full text-center py-4">
+                        {t("prayers.noCitiesFound")}
+                      </p>
+                    )}
+                  </div>
+                ) : isUzbekistan ? (
+                  UZBEKISTAN_REGIONS.map((region) => (
+                    <div key={region.region}>
+                      <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
+                        {region.region}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {region.cities.map((city) => (
+                          <button
+                            key={city.name}
+                            onClick={() => selectUzbekCity(city)}
+                            className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                              selectedCity?.name === city.name && selectedCity?.lat === city.lat
+                                ? "bg-islamic-green text-white font-medium"
+                                : "bg-muted/50 hover:bg-accent text-foreground"
+                            }`}
+                          >
+                            {city.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  selectedCountry.regions.map((region) => (
+                    <div key={region.name}>
+                      <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
+                        {region.name}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {region.cities.map((city) => (
+                          <button
+                            key={city.name}
+                            onClick={() => selectGenericCity(city, region.name)}
+                            className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                              selectedCity?.name === city.name && selectedCity?.lat === city.lat
+                                ? "bg-islamic-green text-white font-medium"
+                                : "bg-muted/50 hover:bg-accent text-foreground"
+                            }`}
+                          >
+                            {city.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="glass border-islamic-green/20">
@@ -221,70 +417,6 @@ export default function PrayersPage() {
           </Card>
         )}
       </div>
-
-      <Card className="glass">
-        <CardHeader>
-          <CardTitle className="text-sm">{t("prayers.selectYourCity")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={t("prayers.searchCities")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          {search ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto">
-              {filteredCities.map((c) => (
-                <button
-                  key={`${c.name}-${c.lat}`}
-                  onClick={() => selectCity(c)}
-                  className={`p-2 rounded-lg text-left text-sm transition-all ${
-                    selectedCity?.name === c.name && selectedCity?.lat === c.lat
-                      ? "bg-islamic-green text-white font-medium"
-                      : "bg-muted/50 hover:bg-accent"
-                  }`}
-                >
-                  <div className="font-medium">{c.name}</div>
-                  <div className="text-xs opacity-70">{c.nameUz} &middot; {c.region}</div>
-                </button>
-              ))}
-              {filteredCities.length === 0 && (
-                <p className="text-muted-foreground text-sm col-span-full text-center py-4">
-                  {t("prayers.noCitiesFound")}
-                </p>
-              )}
-            </div>
-          ) : (
-            UZBEKISTAN_REGIONS.map((region) => (
-              <div key={region.region}>
-                <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
-                  {region.region}
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {region.cities.map((city) => (
-                    <button
-                      key={city.name}
-                      onClick={() => selectCity(city)}
-                      className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                        selectedCity?.name === city.name && selectedCity?.lat === city.lat
-                          ? "bg-islamic-green text-white font-medium"
-                          : "bg-muted/50 hover:bg-accent text-foreground"
-                      }`}
-                    >
-                      {city.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
 
       {selectedCity && (
         <>

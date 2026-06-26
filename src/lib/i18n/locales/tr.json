@@ -35,7 +35,8 @@
   },
   "prayers": {
     "title": "Namaz Vakitleri",
-    "selectCity": "Özbekistan'daki şehrinizi seçin",
+    "selectCountry": "Ülkenizi seçin",
+    "selectCity": "Şehrinizi seçin",
     "selectYourCity": "Şehrinizi Seçin",
     "searchCities": "Şehir ara...",
     "noCitiesFound": "Şehir bulunamadı",

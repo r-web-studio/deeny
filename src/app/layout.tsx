@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { Toaster } from "react-hot-toast";
 import { Providers } from "@/components/providers";
+import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -143,12 +145,34 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
+
+        {/* PWA Core */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#059669" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="DeenFlow" />
+
+        {/* Apple Touch Icons (required for iOS home screen) */}
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png" />
+
+        {/* Splash screens for iOS */}
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/splash-1170x2532.png"
+          media="(device-width: 390px) and (-webkit-device-pixel-ratio: 3)"
+        />
       </head>
       <body className="min-h-full flex flex-col">
         <Providers>
           {children}
           <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
         </Providers>
+        <ServiceWorkerRegister />
+        <InstallPrompt />
       </body>
     </html>
   );

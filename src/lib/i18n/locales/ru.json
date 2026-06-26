@@ -35,7 +35,8 @@
   },
   "prayers": {
     "title": "Время молитвы",
-    "selectCity": "Выберите город в Узбекистане",
+    "selectCountry": "Выберите вашу страну",
+    "selectCity": "Выберите ваш город",
     "selectYourCity": "Выберите ваш город",
     "searchCities": "Поиск городов...",
     "noCitiesFound": "Города не найдены",

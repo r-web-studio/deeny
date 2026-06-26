@@ -35,7 +35,8 @@
   },
   "prayers": {
     "title": "Prayer Times",
-    "selectCity": "Select your city in Uzbekistan",
+    "selectCountry": "Select your country",
+    "selectCity": "Select your city",
     "selectYourCity": "Select Your City",
     "searchCities": "Search cities...",
     "noCitiesFound": "No cities found",

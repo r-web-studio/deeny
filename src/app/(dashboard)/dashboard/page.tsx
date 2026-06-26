@@ -49,7 +49,10 @@ export default function DashboardPage() {
   const { hijri, gregorian } = useIslamicDate();
   const { t } = useI18n();
   const [apiRegion, setApiRegion] = useState<string | undefined>(undefined);
-  const { times } = usePrayerTimes(apiRegion);
+  const [countryId, setCountryId] = useState<string | undefined>(undefined);
+  const [cityLat, setCityLat] = useState<number | undefined>(undefined);
+  const [cityLon, setCityLon] = useState<number | undefined>(undefined);
+  const { times } = usePrayerTimes(apiRegion, countryId, cityLat, cityLon);
   const [nextPrayer, setNextPrayer] = useState("");
   const [countdown, setCountdown] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
@@ -120,11 +123,20 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    const savedCountry = localStorage.getItem("deenflow-selected-country");
     const saved = localStorage.getItem("deenflow-prayer-location");
+    if (savedCountry) {
+      setCountryId(savedCountry);
+    }
     if (saved) {
       try {
         const city = JSON.parse(saved);
         setApiRegion(city.apiRegion);
+        setCityLat(city.lat);
+        setCityLon(city.lon);
+        if (city.countryId) {
+          setCountryId(city.countryId);
+        }
       } catch {}
     }
   }, []);

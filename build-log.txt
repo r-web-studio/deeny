@@ -1,0 +1,35 @@
+﻿
+> deenflow@0.1.0 build
+> next build
+
+тЦ▓ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+node.exe : тЪа The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.o
+rg/docs/messages/middleware-to-proxy
+строка:1 знак:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (тЪа The "middle...leware-to-proxy:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  Creating an optimized production build ...
+тЬУ Compiled successfully in 77s
+  Running TypeScript ...
+  Finished TypeScript in 53s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/24) ...
+  Generating static pages using 3 workers (6/24) 
+  Generating static pages using 3 workers (12/24) 
+Error occurred prerendering page "/offline". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Attempted to call createMotionComponent() from the server but createMotionComponent is on the client. It's not p
+ossible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Cli
+ent Component.
+    at <unknown> (D:\codes and etc\myownapp\deenflow\.next\server\chunks\ssr\_1nho84f._.js:1:1654)
+    at Object.get (D:\codes and etc\myownapp\deenflow\.next\server\chunks\ssr\_1nho84f._.js:1:107267)
+    at <unknown> (D:\codes and etc\myownapp\deenflow\.next\server\chunks\ssr\_1nho84f._.js:1:116093)
+    at stringify (<anonymous>) {
+  digest: '1875967046'
+}
+Export encountered an error on /offline/page: /offline, exiting the build.
+тип Next.js build worker exited with code: 1 and signal: null

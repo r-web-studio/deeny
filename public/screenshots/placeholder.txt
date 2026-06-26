@@ -1,0 +1,1 @@
+Move screenshots here from /public/images/ or keep them in /public/images/ and reference accordingly.

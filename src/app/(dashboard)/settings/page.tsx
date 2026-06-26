@@ -17,16 +17,19 @@ import toast from "react-hot-toast";
 
 const TIMEZONES = [
   "UTC", "America/New_York", "America/Chicago", "America/Denver",
-  "America/Los_Angeles", "Europe/London", "Europe/Paris", "Europe/Berlin",
-  "Asia/Dubai", "Asia/Riyadh", "Asia/Istanbul", "Asia/Karachi",
-  "Asia/Dhaka", "Asia/Jakarta", "Asia/Kuala_Lumpur", "Africa/Cairo",
-  "Africa/Lagos", "Australia/Sydney",
+  "America/Los_Angeles", "America/Toronto", "Europe/London", "Europe/Paris",
+  "Europe/Berlin", "Europe/Istanbul", "Asia/Dubai", "Asia/Riyadh",
+  "Asia/Karachi", "Asia/Tashkent", "Asia/Almaty", "Asia/Bishkek",
+  "Asia/Dushanbe", "Asia/Kabul", "Asia/Tehran", "Asia/Jakarta",
+  "Asia/Kuala_Lumpur", "Africa/Cairo", "Africa/Casablanca", "Africa/Lagos",
+  "Australia/Sydney",
 ];
 
 const COUNTRIES = [
-  "United States", "United Kingdom", "Canada", "Saudi Arabia", "UAE",
-  "Turkey", "Pakistan", "India", "Bangladesh", "Indonesia", "Malaysia",
-  "Egypt", "Nigeria", "France", "Germany", "Australia", "Morocco", "Jordan",
+  "Uzbekistan", "Turkey", "Saudi Arabia", "UAE", "Pakistan",
+  "Indonesia", "Malaysia", "Egypt", "Kazakhstan", "Russia",
+  "Kyrgyzstan", "Tajikistan", "Afghanistan", "Iran", "Morocco",
+  "Jordan", "Germany", "France", "United Kingdom", "United States", "Canada",
 ];
 
 export default function SettingsPage() {
