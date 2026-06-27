@@ -103,10 +103,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ content: result.content });
     }
 
-    lastError = { status: result.status, retryAfter: result.retryAfter };
+    // After the early return above, result is narrowed to { ok: false; ... }
+    const errResult = result as { ok: false; status: number; retryAfter?: number };
+    lastError = { status: errResult.status, retryAfter: errResult.retryAfter };
 
-    if (result.status === 429) {
-      const delay = result.retryAfter || BASE_DELAY_MS * Math.pow(2, attempt);
+    if (errResult.status === 429) {
+      const delay = errResult.retryAfter || BASE_DELAY_MS * Math.pow(2, attempt);
       const cappedDelay = Math.min(delay, 30000);
       console.warn(
         `OpenRouter 429 rate limited. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${cappedDelay}ms...`
@@ -115,19 +117,19 @@ export async function POST(request: NextRequest) {
       continue;
     }
 
-    if (result.status === 502 || result.status === 503) {
+    if (errResult.status === 502 || errResult.status === 503) {
       const delay = BASE_DELAY_MS * Math.pow(2, attempt);
       console.warn(
-        `OpenRouter ${result.status} server error. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${delay}ms...`
+        `OpenRouter ${errResult.status} server error. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${delay}ms...`
       );
       await sleep(delay);
       continue;
     }
 
-    console.error("OpenRouter API error:", result.status);
+    console.error("OpenRouter API error:", errResult.status);
     return NextResponse.json(
-      { content: `AI service error (${result.status}). Please try again later.` },
-      { status: result.status }
+      { content: `AI service error (${errResult.status}). Please try again later.` },
+      { status: errResult.status }
     );
   }
 
