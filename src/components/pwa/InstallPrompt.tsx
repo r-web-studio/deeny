@@ -8,6 +8,10 @@ export default function InstallPrompt() {
   const deferredPrompt = useRef<any>(null);
 
   useEffect(() => {
+    // Don't show if already dismissed or already installed
+    if (localStorage.getItem('pwa-install-dismissed') === 'true') return;
+    if (window.matchMedia('(display-mode: standalone)').matches) return;
+
     const handler = (e: Event) => {
       e.preventDefault();
       deferredPrompt.current = e;

@@ -73,15 +73,10 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": [
-    "productivity",
-    "lifestyle",
-    "utilities"
-  ],
   "shortcuts": [
     {
       "name": "Prayer Times",
-      "url": "/dashboard/prayer",
+      "url": "/prayers",
       "icons": [
         {
           "src": "/icons/shortcut-prayer.png",
@@ -91,7 +86,7 @@
     },
     {
       "name": "Dhikr Counter",
-      "url": "/dashboard/dhikr",
+      "url": "/dhikr",
       "icons": [
         {
           "src": "/icons/shortcut-dhikr.png",
@@ -101,7 +96,7 @@
     },
     {
       "name": "Journal",
-      "url": "/dashboard/journal",
+      "url": "/journal",
       "icons": [
         {
           "src": "/icons/shortcut-journal.png",
@@ -111,27 +106,13 @@
     },
     {
       "name": "Quran",
-      "url": "/dashboard/quran",
+      "url": "/quran",
       "icons": [
         {
           "src": "/icons/shortcut-quran.png",
           "sizes": "96x96"
         }
       ]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/dashboard.PNG",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "/screenshots/prayer-times.PNG",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "narrow"
     }
   ]
 }

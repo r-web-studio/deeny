@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Clock, CheckCircle, Target, ListTodo, Shield, Quote, Calendar, Sparkles, Smile, Heart, CloudRain, Flame, Wind, Moon, PartyPopper, PenLine, Check } from "lucide-react";
+import { Clock, CheckCircle, Target, ListTodo, Shield, Quote, Calendar, Sparkles, Smile, Heart, CloudRain, Flame, Wind, Moon, PartyPopper, PenLine, Check, Download, Smartphone } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -51,6 +51,8 @@ export default function DashboardPage() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [journalCount, setJournalCount] = useState(0);
   const [checkedInToday, setCheckedInToday] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
   const [userName, setUserName] = useState(() => {
     if (typeof window === "undefined") return "";
     const user = useUserStore.getState().user;
@@ -250,6 +252,30 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [times]);
 
+  useEffect(() => {
+    if (localStorage.getItem('pwa-install-dismissed') === 'true') return;
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+      return;
+    }
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+      setIsInstalled(true);
+    }
+  };
+
   const handleDailyCheckin = () => {
     const today = new Date().toISOString().slice(0, 10);
     const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
@@ -429,6 +455,34 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {!isInstalled && (
+        <motion.div variants={item}>
+          <Card className="glass border-islamic-green/30 bg-gradient-to-br from-islamic-green/5 to-transparent">
+            <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-5 px-6">
+              <div className="flex items-center gap-4">
+                <div className="rounded-xl bg-islamic-green/10 p-3">
+                  <Smartphone className="h-6 w-6 text-islamic-green" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Install DeenFlow</h3>
+                  <p className="text-sm text-muted-foreground">Add to your home screen for quick access and offline use</p>
+                </div>
+              </div>
+              {deferredPrompt ? (
+                <Button onClick={handleInstall} className="bg-islamic-green hover:bg-islamic-green/90 shrink-0">
+                  <Download className="h-4 w-4 mr-2" />
+                  Install App
+                </Button>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center sm:text-right shrink-0">
+                  Use your browser&apos;s<br />menu &rarr; &ldquo;Add to Home Screen&rdquo;
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
