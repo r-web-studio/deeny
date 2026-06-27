@@ -8,9 +8,6 @@ export default function InstallPrompt() {
   const deferredPrompt = useRef<any>(null);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    if (dismissed) return;
-
     const handler = (e: Event) => {
       e.preventDefault();
       deferredPrompt.current = e;

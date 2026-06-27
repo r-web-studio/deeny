@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Search, Sun, Moon, Monitor } from "lucide-react";
+import { Menu, Search, Sun, Moon, Monitor, Download, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebarStore } from "@/lib/stores/sidebar-store";
 import { useThemeStore, applyTheme } from "@/lib/stores/theme-store";
@@ -18,6 +18,34 @@ export function Topbar() {
   const { toggle } = useSidebarStore();
   const { theme, setTheme } = useThemeStore();
   const [themeKey, setThemeKey] = useState(0);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  // Listen for beforeinstallprompt event
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    
+    window.addEventListener('beforeinstallprompt', handler);
+    
+    // Check if app is installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+    }
+    
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   const cycleTheme = () => {
     const next = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
@@ -40,9 +68,20 @@ export function Topbar() {
           <Input placeholder="Search..." className="pl-9 bg-muted/50" />
         </div>
       </div>
-      <div className="flex items-center gap-2 ml-4">
-        <LanguageSwitcher />
-        <div className="relative group">
+<div className="flex items-center gap-2 ml-4">
+          <LanguageSwitcher />
+          {(!isInstalled && deferredPrompt) && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleInstall}
+              className="h-9 w-9 rounded-full hover:bg-emerald-500/10"
+              title="Install DeenFlow"
+            >
+              <Download className="h-4 w-4 text-emerald-600" />
+            </Button>
+          )}
+          <div className="relative group">
           <Button
             variant="ghost"
             size="icon"
