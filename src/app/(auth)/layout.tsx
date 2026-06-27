@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { APP_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: `Auth | ${APP_NAME}`,
+  title: "Auth",
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

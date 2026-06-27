@@ -16,6 +16,7 @@ const STORAGE_KEY = "deenflow-locale";
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("en");
   const [translations, setTranslations] = useState<Record<string, string>>({});
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY) as Locale | null;
@@ -29,18 +30,26 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       .then((mod) => {
         const flat = flattenObject(mod.default);
         setTranslations(flat);
+        setLoaded(true);
       })
-      .catch(() => {});
+      .catch(() => {
+        setLoaded(true);
+      });
   }, [locale]);
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
     localStorage.setItem(STORAGE_KEY, newLocale);
+    setLoaded(false);
   };
 
   const t = (key: string): string => {
     return translations[key] || key;
   };
+
+  if (!loaded) {
+    return null;
+  }
 
   return (
     <I18nContext.Provider value={{ locale, setLocale, t }}>
