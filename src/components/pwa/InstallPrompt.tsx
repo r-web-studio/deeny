@@ -11,8 +11,6 @@ export default function InstallPrompt() {
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     if (dismissed) return;
 
-    if (window.innerWidth >= 768) return;
-
     const handler = (e: Event) => {
       e.preventDefault();
       deferredPrompt.current = e;

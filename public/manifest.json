@@ -9,6 +9,26 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en",
+  "prefer_related_applications": false,
+  "categories": [
+    "productivity",
+    "lifestyle",
+    "utilities"
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard.PNG",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshots/prayer-times.PNG",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
