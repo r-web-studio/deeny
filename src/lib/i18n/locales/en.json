@@ -27,8 +27,20 @@
     "noPornStreak": "No-Porn Streak",
     "days": "days",
     "keepGoing": "Keep going!",
+    "checkedInToday": "Checked In Today",
+    "markClean": "Mark Today as Clean",
     "howAreYou": "How are you?",
     "dailyQuote": "Daily Quote",
+    "quotes": [
+      "The best of people are those who are most beneficial to people.",
+      "Seek knowledge from the cradle to the grave.",
+      "Trust in Allah, but tie your camel.",
+      "The strong person is not the one who can wrestle, but the one who controls himself when angry.",
+      "Do not waste time, for it is the most precious thing a person can spend.",
+      "Verily, with hardship comes ease.",
+      "The eyes of the believer are on the heart.",
+      "Whoever believes in Allah and the Last Day, let him speak good or remain silent."
+    ],
     "islamicDate": "Islamic Date",
     "gregorianDate": "Gregorian Date",
     "loading": "Loading..."

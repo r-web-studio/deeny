@@ -13,32 +13,40 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const SYSTEM_PROMPT = "You are a helpful Islamic AI companion named DeenFlow Assistant. You help users with daily check-ins, Islamic guidance, productivity tips, and spiritual growth. Be warm, supportive, and knowledgeable about Islam. Keep responses concise and actionable. Use markdown formatting when helpful.";
+const SYSTEM_PROMPT =
+  "You are a helpful Islamic AI companion named DeenFlow Assistant. You help users with daily check-ins, Islamic guidance, productivity tips, and spiritual growth. Be warm, supportive, and knowledgeable about Islam. Keep responses concise and actionable. Use markdown formatting when helpful.";
 
-async function callGemini(
+async function callOpenRouter(
   apiKey: string,
-  messages: { role: string; content: string }[]
-): Promise<{ ok: true; content: string } | { ok: false; status: number; retryAfter?: number }> {
-  const contents = messages.map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content }],
-  }));
+  messages: { role: string; content: string }[],
+  model?: string
+): Promise<
+  | { ok: true; content: string }
+  | { ok: false; status: number; retryAfter?: number }
+> {
+  const fullMessages = [
+    { role: "system", content: SYSTEM_PROMPT },
+    ...messages.map((m) => ({
+      role: m.role === "assistant" ? "assistant" : "user",
+      content: m.content,
+    })),
+  ];
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents,
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
-        },
-      }),
-    }
-  );
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://deenflow.app",
+      "X-Title": "DeenFlow",
+    },
+    body: JSON.stringify({
+      model: model || "google/gemini-2.0-flash-001",
+      messages: fullMessages,
+      temperature: 0.7,
+      max_tokens: 1024,
+    }),
+  });
 
   if (response.status === 429) {
     const retryAfter = response.headers.get("Retry-After");
@@ -49,6 +57,7 @@ async function callGemini(
   const responseText = await response.text();
 
   if (!response.ok) {
+    console.error("OpenRouter API error:", response.status, responseText);
     return { ok: false, status: response.status };
   }
 
@@ -59,7 +68,7 @@ async function callGemini(
     return { ok: false, status: 500 };
   }
 
-  const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const content = data.choices?.[0]?.message?.content;
   if (!content) {
     return { ok: false, status: 500 };
   }
@@ -68,27 +77,27 @@ async function callGemini(
 }
 
 export async function POST(request: NextRequest) {
-  const { messages } = await request.json();
-  const apiKey = process.env.GEMINI_API_KEY;
+  const { messages, model } = await request.json();
+  const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(
-      { content: "AI service not configured. Please set GEMINI_API_KEY in your environment variables." },
+      {
+        content:
+          "AI service not configured. Please set OPENROUTER_API_KEY in your environment variables. Get a key at https://openrouter.ai/keys",
+      },
       { status: 500 }
     );
   }
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    return NextResponse.json(
-      { content: "No messages provided." },
-      { status: 400 }
-    );
+    return NextResponse.json({ content: "No messages provided." }, { status: 400 });
   }
 
   let lastError: { status: number; retryAfter?: number } = { status: 500 };
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    const result = await callGemini(apiKey, messages);
+    const result = await callOpenRouter(apiKey, messages, model);
 
     if (result.ok) {
       return NextResponse.json({ content: result.content });
@@ -99,19 +108,23 @@ export async function POST(request: NextRequest) {
     if (result.status === 429) {
       const delay = result.retryAfter || BASE_DELAY_MS * Math.pow(2, attempt);
       const cappedDelay = Math.min(delay, 30000);
-      console.warn(`Gemini 429 rate limited. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${cappedDelay}ms...`);
+      console.warn(
+        `OpenRouter 429 rate limited. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${cappedDelay}ms...`
+      );
       await sleep(cappedDelay);
       continue;
     }
 
     if (result.status === 502 || result.status === 503) {
       const delay = BASE_DELAY_MS * Math.pow(2, attempt);
-      console.warn(`Gemini ${result.status} server error. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${delay}ms...`);
+      console.warn(
+        `OpenRouter ${result.status} server error. Attempt ${attempt + 1}/${MAX_RETRIES}. Retrying in ${delay}ms...`
+      );
       await sleep(delay);
       continue;
     }
 
-    console.error("Gemini API error:", result.status);
+    console.error("OpenRouter API error:", result.status);
     return NextResponse.json(
       { content: `AI service error (${result.status}). Please try again later.` },
       { status: result.status }
@@ -120,13 +133,18 @@ export async function POST(request: NextRequest) {
 
   if (lastError.status === 429) {
     return NextResponse.json(
-      { content: "AI service is busy right now. Please wait a moment and try again." },
+      {
+        content:
+          "AI service is busy right now. Please wait a moment and try again.",
+      },
       { status: 429 }
     );
   }
 
   return NextResponse.json(
-    { content: `AI service temporarily unavailable (${lastError.status}). Please try again later.` },
+    {
+      content: `AI service temporarily unavailable (${lastError.status}). Please try again later.`,
+    },
     { status: lastError.status }
   );
 }

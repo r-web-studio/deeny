@@ -27,8 +27,20 @@
     "noPornStreak": "Pornosuz Seri",
     "days": "gün",
     "keepGoing": "Devam edin!",
+    "checkedInToday": "Bugün işaretlendi",
+    "markClean": "Bugünü temiz olarak işaretle",
     "howAreYou": "Nasılsınız?",
     "dailyQuote": "Günün Sözü",
+    "quotes": [
+      "İnsanların en hayırlısı insanlara en faydalı olandır.",
+      "Bilgiyi beşikten mezara kadar arayın.",
+      "Allah'a güvenin, deveyinizi de bağlayın.",
+      "Güçlü kişi güreşebilen değil, öfkelendiğinde kendini kontrol edebilendir.",
+      "Zamanı harcamayın, çünkü o bir insanın harcayabileceği en değerli şeydir.",
+      "Şüphesiz zorlukla beraber kolaylık vardır.",
+      "Müminin gözleri kalbindedir.",
+      "Allah'a ve ahiret gününe inanan kimse ya hayır söylesin ya da sussun."
+    ],
     "islamicDate": "İslami Tarih",
     "gregorianDate": "Miladi Tarih",
     "loading": "Yükleniyor..."

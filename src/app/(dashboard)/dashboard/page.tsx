@@ -24,17 +24,6 @@ const moodIcons: Record<string, React.ReactNode> = {
   "party-popper": <PartyPopper className="h-5 w-5" />,
 };
 
-const quotes = [
-  "The best of people are those who are most beneficial to people.",
-  "Seek knowledge from the cradle to the grave.",
-  "Trust in Allah, but tie your camel.",
-  "The strong person is not the one who can wrestle, but the one who controls himself when angry.",
-  "Do not waste time, for it is the most precious thing a person can spend.",
-  "Verily, with hardship comes ease.",
-  "The eyes of the believer are on the heart.",
-  "Whoever believes in Allah and the Last Day, let him speak good or remain silent.",
-];
-
 const container = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.1 } },
@@ -82,8 +71,35 @@ export default function DashboardPage() {
     for (let i = 0; i < today.length; i++) {
       hash = ((hash << 5) - hash + today.charCodeAt(i)) | 0;
     }
-    return quotes[Math.abs(hash) % quotes.length];
+    // Default English quotes - will be overridden by translated ones
+    const fallbackQuotes = [
+      "The best of people are those who are most beneficial to people.",
+      "Seek knowledge from the cradle to the grave.",
+      "Trust in Allah, but tie your camel.",
+      "The strong person is not the one who can wrestle, but the one who controls himself when angry.",
+      "Do not waste time, for it is the most precious thing a person can spend.",
+      "Verily, with hardship comes ease.",
+      "The eyes of the believer are on the heart.",
+      "Whoever believes in Allah and the Last Day, let him speak good or remain silent.",
+    ];
+    return fallbackQuotes[Math.abs(hash) % fallbackQuotes.length];
   });
+
+  // Get translated quote (overrides the useState default after locale loads)
+  const translatedQuotesRaw = t("dashboard.quotes");
+  const translatedQuotes = translatedQuotesRaw.includes("|||")
+    ? translatedQuotesRaw.split("|||")
+    : null;
+  const displayQuote = translatedQuotes
+    ? translatedQuotes[Math.abs(
+        (() => {
+          const today = new Date().toISOString().slice(0, 10);
+          let h = 0;
+          for (let i = 0; i < today.length; i++) h = ((h << 5) - h + today.charCodeAt(i)) | 0;
+          return h;
+        })()
+      ) % translatedQuotes.length]
+    : quote;
 
   useEffect(() => {
     const unsub = useUserStore.subscribe((state) => {
@@ -326,7 +342,7 @@ export default function DashboardPage() {
             <Shield className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentStreak} days</div>
+            <div className="text-2xl font-bold">{currentStreak} {t("dashboard.days")}</div>
             <p className="text-xs text-muted-foreground mt-1">{t("dashboard.keepGoing")}</p>
             <Button
               onClick={handleDailyCheckin}
@@ -341,10 +357,10 @@ export default function DashboardPage() {
               {checkedInToday ? (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Checked In Today
+                  {t("dashboard.checkedInToday")}
                 </>
               ) : (
-                "Mark Today as Clean"
+                t("dashboard.markClean")
               )}
             </Button>
           </CardContent>
@@ -388,7 +404,7 @@ export default function DashboardPage() {
             <Quote className="h-4 w-4 text-gold" />
           </CardHeader>
           <CardContent>
-            <p className="text-sm italic text-muted-foreground line-clamp-4 break-words">&ldquo;{quote}&rdquo;</p>
+            <p className="text-sm italic text-muted-foreground line-clamp-4 break-words">&ldquo;{displayQuote}&rdquo;</p>
           </CardContent>
         </Card>
       </motion.div>

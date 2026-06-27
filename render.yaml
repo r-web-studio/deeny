@@ -22,7 +22,7 @@
           "sync": false
         },
         {
-          "key": "GEMINI_API_KEY",
+          "key": "OPENROUTER_API_KEY",
           "sync": false
         }
       ],

@@ -27,8 +27,20 @@
     "noPornStreak": "Pornosiz seriya",
     "days": "kun",
     "keepGoing": "Davom eting!",
+    "checkedInToday": "Bugun belgilandi",
+    "markClean": "Bugunni toza deb belgilang",
     "howAreYou": "Qalaysiz?",
     "dailyQuote": "Kun iqtibosi",
+    "quotes": [
+      "Odamlarning eng yaxshilari - odamlarga eng ko'p foyda keltiradiganlar.",
+      "Bilimni beshikdan qabr topguncha qidiring.",
+      "Allohga ishoning, lekin tuya bog'lang.",
+      "Kuchli kishi - kurashuvchi emas, balki g'azablanganda o'zini boshqara oladigan kishi.",
+      "Vaqtni sarflamang, chunki u odam sarflaydigan eng qimmat narsa.",
+      "Albatta, mashaqqat bilan birga yengillik keladi.",
+      "Mo'minning ko'zlari yurakdadur.",
+      "Kim Allohga va oxirat kuniga ishonsa, yaxshi so'z aytsin yoki jim tursin."
+    ],
     "islamicDate": "Islom sanasi",
     "gregorianDate": "Milodiy sana",
     "loading": "Yuklanmoqda..."
