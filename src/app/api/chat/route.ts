@@ -41,7 +41,7 @@ async function callOpenRouter(
       "X-Title": "DeenFlow",
     },
     body: JSON.stringify({
-      model: model || "google/gemini-2.0-flash-001",
+      model: model || "google/gemini-2.5-flash-lite",
       messages: fullMessages,
       temperature: 0.7,
       max_tokens: 1024,
@@ -126,11 +126,11 @@ export async function POST(request: NextRequest) {
       continue;
     }
 
-    console.error("OpenRouter API error:", errResult.status);
-    return NextResponse.json(
-      { content: `AI service error (${errResult.status}). Please try again later.` },
-      { status: errResult.status }
-    );
+      console.error("OpenRouter API error:", errResult.status);
+      return NextResponse.json(
+        { content: `AI service error (${errResult.status}). Please try again later.` },
+        { status: 200 }
+      );
   }
 
   if (lastError.status === 429) {
