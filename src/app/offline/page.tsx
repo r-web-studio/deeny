@@ -39,9 +39,7 @@ export default function OfflinePage() {
         className="relative z-10 flex flex-col items-center gap-6"
       >
         {/* Logo */}
-        <h1 className="text-3xl font-bold tracking-tight text-emerald-500">
-          DeenFlow
-        </h1>
+        <img src="/icons/icon-192x192.png" alt="DeenFlow Logo" className="w-20 h-20 rounded-2xl shadow-lg" />
 
         {/* WiFi-off icon */}
         <div className="rounded-full bg-emerald-500/10 p-6">
