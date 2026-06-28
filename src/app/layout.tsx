@@ -147,6 +147,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
 
+        {/* Favicon */}
+        <link rel="icon" href="/icons/icon-192x192.png" type="image/png" />
+
         {/* PWA Core */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#059669" />
