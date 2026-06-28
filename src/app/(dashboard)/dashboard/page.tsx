@@ -38,7 +38,7 @@ const item = {
 export default function DashboardPage() {
   const { hijri, gregorian } = useIslamicDate();
   const { t } = useI18n();
-  const { canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt, promptInstall, dismiss } = usePWAInstall();
+  const { canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt, triggerInstall, dismiss } = usePWAInstall();
   const [apiRegion, setApiRegion] = useState<string | undefined>(undefined);
   const [countryId, setCountryId] = useState<string | undefined>(undefined);
   const [cityLat, setCityLat] = useState<number | undefined>(undefined);
@@ -458,11 +458,11 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2 shrink-0">
                 {!isIOS ? (
                   <Button
-                    onClick={hasNativePrompt ? promptInstall : undefined}
+                    onClick={triggerInstall}
                     className="bg-gradient-to-r from-islamic-green to-islamic-green/90 text-white shadow-md shadow-islamic-green/20 hover:shadow-lg hover:shadow-islamic-green/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    {hasNativePrompt ? 'Install App' : 'How to Install'}
+                    Install App
                   </Button>
                 ) : (
                   <div className="inline-flex items-center gap-1.5 rounded-md bg-islamic-green/10 px-4 py-2 text-sm font-semibold text-islamic-green">

@@ -6,9 +6,8 @@ import { Download, X, Smartphone, Share, Globe, Menu } from 'lucide-react';
 import { usePWAInstall } from './install-context';
 
 export default function InstallPrompt() {
-  const { canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt, promptInstall, dismiss } = usePWAInstall();
+  const { canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt, showInstructions, triggerInstall, dismiss, closeInstructions } = usePWAInstall();
   const [isInstalling, setIsInstalling] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(false);
 
   if (isInstalled || isDismissed || !canInstall) return null;
 
@@ -16,12 +15,12 @@ export default function InstallPrompt() {
     if (hasNativePrompt) {
       setIsInstalling(true);
       try {
-        await promptInstall();
+        await triggerInstall();
       } finally {
         setIsInstalling(false);
       }
     } else {
-      setShowInstructions(!showInstructions);
+      triggerInstall();
     }
   };
 
@@ -56,9 +55,7 @@ export default function InstallPrompt() {
                 <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                   {isIOS
                     ? 'Tap the share button then "Add to Home Screen"'
-                    : hasNativePrompt
-                      ? 'Add to your home screen for quick access & offline use'
-                      : 'Install as an app for quick access & offline use'}
+                    : 'Add to your home screen for quick access & offline use'}
                 </p>
               </div>
 

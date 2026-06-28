@@ -19,7 +19,7 @@ export function Topbar() {
   const { toggle } = useSidebarStore();
   const { theme, setTheme } = useThemeStore();
   const [themeKey, setThemeKey] = useState(0);
-  const { canInstall, isInstalled, isIOS, hasNativePrompt, promptInstall } = usePWAInstall();
+  const { canInstall, isInstalled, isIOS, hasNativePrompt, triggerInstall } = usePWAInstall();
 
   const cycleTheme = () => {
     const next = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
@@ -49,7 +49,7 @@ export function Topbar() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={isIOS ? undefined : promptInstall}
+              onClick={isIOS ? undefined : triggerInstall}
               className="h-9 w-9 rounded-full bg-gradient-to-br from-islamic-green/10 to-islamic-green/5 border border-islamic-green/20 text-islamic-green hover:from-islamic-green/20 hover:to-islamic-green/10 hover:border-islamic-green/30 transition-all duration-300"
               title={isIOS ? "Share → Add to Home Screen" : "Install DeenFlow"}
             >

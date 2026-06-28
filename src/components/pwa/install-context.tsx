@@ -8,9 +8,12 @@ interface PWAInstallContextType {
   isIOS: boolean;
   isDismissed: boolean;
   hasNativePrompt: boolean;
+  showInstructions: boolean;
   promptInstall: () => Promise<void>;
+  triggerInstall: () => void;
   dismiss: () => void;
   resetDismissed: () => void;
+  closeInstructions: () => void;
 }
 
 const PWAInstallContext = createContext<PWAInstallContextType | null>(null);
@@ -33,6 +36,7 @@ export function PWAInstallProvider({ children }: { children: ReactNode }) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
   const isIOS = getIsIOS();
 
   useEffect(() => {
@@ -68,9 +72,22 @@ export function PWAInstallProvider({ children }: { children: ReactNode }) {
     }
   }, [deferredPrompt]);
 
+  const triggerInstall = useCallback(() => {
+    if (deferredPrompt) {
+      promptInstall();
+    } else {
+      setShowInstructions(true);
+    }
+  }, [deferredPrompt, promptInstall]);
+
+  const closeInstructions = useCallback(() => {
+    setShowInstructions(false);
+  }, []);
+
   const dismiss = useCallback(() => {
     localStorage.setItem(DISMISS_KEY, 'true');
     setIsDismissed(true);
+    setShowInstructions(false);
   }, []);
 
   const resetDismissed = useCallback(() => {
@@ -78,11 +95,10 @@ export function PWAInstallProvider({ children }: { children: ReactNode }) {
     setIsDismissed(false);
   }, []);
 
-  // Always show install for non-installed users (iOS gets share instructions, others get manual or native)
   const canInstall = !isInstalled;
 
   return (
-    <PWAInstallContext.Provider value={{ canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt: !!deferredPrompt, promptInstall, dismiss, resetDismissed }}>
+    <PWAInstallContext.Provider value={{ canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt: !!deferredPrompt, showInstructions, promptInstall, triggerInstall, dismiss, resetDismissed, closeInstructions }}>
       {children}
     </PWAInstallContext.Provider>
   );

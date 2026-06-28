@@ -2,6 +2,7 @@
   "name": "DeenFlow",
   "short_name": "DeenFlow",
   "description": "Islamic productivity app — prayer tracking, dhikr, journaling, Quran",
+  "id": "/",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0F172A",
@@ -17,13 +18,13 @@
   "screenshots": [
     {
       "src": "/screenshots/dashboard.PNG",
-      "sizes": "1920x1080",
+      "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow"
     },
     {
       "src": "/screenshots/prayer-times.PNG",
-      "sizes": "1920x1080",
+      "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow"
     }

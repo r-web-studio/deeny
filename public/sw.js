@@ -7,6 +7,7 @@
  *   - Aladhan prayer API: Stale-While-Revalidate
  *   - JS/CSS bundles: Cache-First
  *   - Images: Cache-First
+ *   - Google Fonts: Cache-First (for offline)
  *
  * Excluded from interception:
  *   - Supabase (*.supabase.co)
@@ -14,24 +15,30 @@
  *   - OpenRouter (openrouter.ai)
  */
 
-const CACHE_NAME = 'deenflow-v2';
+const CACHE_VERSION = 'v3';
+const CACHE_NAME = `deenflow-${CACHE_VERSION}`;
 const PRAYER_CACHE = 'prayer-api';
-const STATIC_CACHE = 'static-resources';
-const IMAGE_CACHE = 'images';
+const STATIC_CACHE = `static-${CACHE_VERSION}`;
+const IMAGE_CACHE = `images-${CACHE_VERSION}`;
+const FONT_CACHE = `fonts-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline';
 
-// Assets to precache on install
-const PRECACHE_ASSETS = [
+// Core routes to precache
+const PRECACHE_ROUTES = [
   '/',
   '/offline',
   '/login',
-  '/_next/static/',
+  '/dashboard',
+  '/prayers',
+  '/dhikr',
+  '/journal',
+  '/quran',
+  '/settings',
 ];
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function shouldSkipRequest(url) {
-  // Skip Supabase, Next.js API routes, and OpenRouter
   if (url.hostname.includes('supabase')) return true;
   if (url.pathname.startsWith('/api/')) return true;
   if (url.hostname.includes('openrouter.ai')) return true;
@@ -46,6 +53,11 @@ function isSameOrigin(url) {
   return url.origin === self.location.origin;
 }
 
+function isFontRequest(url) {
+  return url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com');
+}
+
 // ─── INSTALL ────────────────────────────────────────────────────────────────
 
 self.addEventListener('install', (event) => {
@@ -53,37 +65,70 @@ self.addEventListener('install', (event) => {
     (async () => {
       const cache = await caches.open(CACHE_NAME);
 
-      // Precache known static routes
-      for (const asset of PRECACHE_ASSETS) {
+      // Precache core routes
+      for (const route of PRECACHE_ROUTES) {
         try {
-          const response = await fetch(asset);
+          const response = await fetch(route);
           if (response.ok) {
-            await cache.put(asset, response);
+            await cache.put(route, response);
           }
         } catch (err) {
-          // Offline during install — skip this asset, it'll be fetched on first visit
-          console.warn(`[SW] Could not precache ${asset}:`, err.message);
+          console.warn(`[SW] Could not precache ${route}:`, err.message);
         }
       }
 
-      // Attempt to warm the _next/static cache with a broad match
-      // We can't enumerate every file here, so we rely on runtime caching for _next/static.
-      // However, we can try fetching the root page and its linked scripts.
+      // Warm the _next/static cache by extracting scripts from root HTML
       try {
         const rootResponse = await fetch('/');
         if (rootResponse.ok) {
           const html = await rootResponse.text();
-          // Extract /_next/static/... script and link hrefs
           const matches = html.match(/\/_next\/static\/[^"'\s)]+/g) || [];
+          const staticCache = await caches.open(STATIC_CACHE);
           for (const match of matches) {
             try {
               const res = await fetch(match);
               if (res.ok) {
-                await cache.put(match, res);
+                await staticCache.put(match, res);
               }
             } catch (_) {
               // skip individual failures
             }
+          }
+        }
+      } catch (_) {
+        // skip
+      }
+
+      // Pre-cache Google Fonts for offline use
+      try {
+        const fontCache = await caches.open(FONT_CACHE);
+        const fontUrls = [
+          'https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap',
+        ];
+        for (const url of fontUrls) {
+          try {
+            const response = await fetch(url);
+            if (response.ok) {
+              await fontCache.put(url, response);
+              // Parse CSS to find font file URLs and cache them
+              const css = await response.text();
+              const fontFileUrls = css.match(/url\(([^)]+)\)/g) || [];
+              for (const fontFileMatch of fontFileUrls) {
+                const fontFileUrl = fontFileMatch.replace(/url\(|\)/g, '').replace(/['"]/g, '');
+                if (fontFileUrl.startsWith('http')) {
+                  try {
+                    const fontResponse = await fetch(fontFileUrl);
+                    if (fontResponse.ok) {
+                      await fontCache.put(fontFileUrl, fontResponse);
+                    }
+                  } catch (_) {
+                    // skip
+                  }
+                }
+              }
+            }
+          } catch (_) {
+            // skip
           }
         }
       } catch (_) {
@@ -103,6 +148,7 @@ self.addEventListener('activate', (event) => {
     PRAYER_CACHE,
     STATIC_CACHE,
     IMAGE_CACHE,
+    FONT_CACHE,
   ]);
 
   event.waitUntil(
@@ -131,43 +177,55 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   if (shouldSkipRequest(url)) return;
 
-  // 1. Aladhan prayer API — Stale-While-Revalidate
+  // 1. Google Fonts — Cache-First (critical for offline)
+  if (isFontRequest(url)) {
+    event.respondWith(cacheFirst(request, FONT_CACHE));
+    return;
+  }
+
+  // 2. Aladhan prayer API — Stale-While-Revalidate
   if (url.hostname === 'api.aladhan.com') {
     event.respondWith(staleWhileRevalidate(request, PRAYER_CACHE));
     return;
   }
 
-  // 2. Navigation requests — Network-First with offline fallback
+  // 3. Navigation requests — Network-First with offline fallback
   if (isNavigationRequest(event)) {
     event.respondWith(networkFirstWithOffline(request));
     return;
   }
 
-  // 3. JS/CSS bundles — Cache-First
+  // 4. JS/CSS bundles — Cache-First
   if (/\.(js|css)$/.test(url.pathname)) {
     event.respondWith(cacheFirst(request, STATIC_CACHE));
     return;
   }
 
-  // 4. Images — Cache-First
-  if (/\.(png|jpg|jpeg|svg|ico|webp)$/.test(url.pathname)) {
+  // 5. Images — Cache-First
+  if (/\.(png|jpg|jpeg|svg|ico|webp|gif)$/.test(url.pathname)) {
     event.respondWith(cacheFirst(request, IMAGE_CACHE));
     return;
   }
 
-  // 5. _next/static/ path — Cache-First (catches hashed bundles not ending in .js/.css)
+  // 6. _next/static/ path — Cache-First (catches hashed bundles)
   if (url.pathname.startsWith('/_next/static/')) {
     event.respondWith(cacheFirst(request, STATIC_CACHE));
     return;
   }
 
-  // 6. All other same-origin navigations — Network-First
+  // 7. Manifest and icons — Cache-First
+  if (url.pathname === '/manifest.json' || url.pathname.startsWith('/icons/')) {
+    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    return;
+  }
+
+  // 8. All other same-origin requests — Network-First
   if (isSameOrigin(url)) {
     event.respondWith(networkFirstWithOffline(request));
     return;
   }
 
-  // 7. Cross-origin requests (not excluded above) — Network-First
+  // 9. Cross-origin requests — Network-First
   event.respondWith(networkFirstWithOffline(request));
 });
 
@@ -188,7 +246,6 @@ async function cacheFirst(request, cacheName) {
     }
     return response;
   } catch (err) {
-    // Return a basic offline response for critical assets
     return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
   }
 }
@@ -257,9 +314,6 @@ async function staleWhileRevalidate(request, cacheName) {
 
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-user-data') {
-    console.log('[SW] Background sync triggered — implement Supabase sync here');
-    // TODO: Implement actual Supabase sync logic here
-    // Example:
-    //   event.waitUntil(syncUserDataToSupabase());
+    console.log('[SW] Background sync triggered');
   }
 });
