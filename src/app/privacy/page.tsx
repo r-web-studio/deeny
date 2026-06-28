@@ -142,8 +142,6 @@ export default function PrivacyPolicyPage() {
               <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
                 <li><strong>Supabase</strong> &ndash; Authentication and database (supabase.com)</li>
                 <li><strong>OpenAI</strong> &ndash; AI companion processing (openai.com)</li>
-                <li><strong>Al-Quran Cloud</strong> &ndash; Quran text API (api.alquran.cloud)</li>
-                <li><strong>Quran.com</strong> &ndash; Quran audio recitations</li>
                 <li><strong>Aladhan API</strong> &ndash; Prayer times calculation</li>
               </ul>
               <p className="text-muted-foreground leading-relaxed">

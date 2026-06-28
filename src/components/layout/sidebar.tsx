@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, BookOpen, Clock, Target, ListTodo, MessageCircle,
-  Shield, PenLine, Calendar, BookMarked, BarChart3, Trophy,
+  Shield, PenLine, Calendar, BarChart3, Trophy,
   Settings, LogOut, X, Star, Download, Share, Smartphone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,6 @@ export function Sidebar() {
     { href: "/streak", label: t("nav.streak"), icon: Shield },
     { href: "/journal", label: t("nav.journal"), icon: PenLine },
     { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
-    { href: "/quran", label: t("nav.quran"), icon: BookMarked },
     { href: "/analytics", label: t("nav.analytics"), icon: BarChart3 },
     { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
     { href: "/reviews", label: t("nav.reviews"), icon: Star },
