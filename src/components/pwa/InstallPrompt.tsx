@@ -2,22 +2,26 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, X, Smartphone, Share } from 'lucide-react';
+import { Download, X, Smartphone, Share, Globe, Menu } from 'lucide-react';
 import { usePWAInstall } from './install-context';
 
 export default function InstallPrompt() {
-  const { canInstall, isInstalled, isIOS, isDismissed, promptInstall, dismiss } = usePWAInstall();
+  const { canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt, promptInstall, dismiss } = usePWAInstall();
   const [isInstalling, setIsInstalling] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   if (isInstalled || isDismissed || !canInstall) return null;
 
   const handleInstall = async () => {
-    setIsInstalling(true);
-    try {
-      if (isIOS) return;
-      await promptInstall();
-    } finally {
-      setIsInstalling(false);
+    if (hasNativePrompt) {
+      setIsInstalling(true);
+      try {
+        await promptInstall();
+      } finally {
+        setIsInstalling(false);
+      }
+    } else {
+      setShowInstructions(!showInstructions);
     }
   };
 
@@ -52,13 +56,20 @@ export default function InstallPrompt() {
                 <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                   {isIOS
                     ? 'Tap the share button then "Add to Home Screen"'
-                    : 'Add to your home screen for quick access & offline use'}
+                    : hasNativePrompt
+                      ? 'Add to your home screen for quick access & offline use'
+                      : 'Install as an app for quick access & offline use'}
                 </p>
               </div>
 
               {/* Actions */}
               <div className="flex items-center gap-2 flex-shrink-0">
-                {!isIOS && (
+                {isIOS ? (
+                  <div className="inline-flex items-center gap-1.5 rounded-xl bg-islamic-green/10 px-4 py-2 text-xs font-semibold text-islamic-green">
+                    <Share className="h-3.5 w-3.5" />
+                    Share
+                  </div>
+                ) : (
                   <button
                     onClick={handleInstall}
                     disabled={isInstalling}
@@ -67,12 +78,6 @@ export default function InstallPrompt() {
                     <Download className="h-3.5 w-3.5" />
                     {isInstalling ? 'Installing...' : 'Install'}
                   </button>
-                )}
-                {isIOS && (
-                  <div className="inline-flex items-center gap-1.5 rounded-xl bg-islamic-green/10 px-4 py-2 text-xs font-semibold text-islamic-green">
-                    <Share className="h-3.5 w-3.5" />
-                    Share
-                  </div>
                 )}
                 <button
                   onClick={dismiss}
@@ -83,6 +88,43 @@ export default function InstallPrompt() {
                 </button>
               </div>
             </div>
+
+            {/* Manual install instructions (when native prompt not available) */}
+            {showInstructions && !isIOS && !hasNativePrompt && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden border-t border-border/50"
+              >
+                <div className="p-4 space-y-3">
+                  <p className="text-xs font-medium text-foreground">How to install:</p>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <div className="flex items-start gap-2">
+                      <Globe className="h-4 w-4 mt-0.5 text-islamic-green flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Chrome / Edge</p>
+                        <p>Click the install icon <Download className="inline h-3 w-3" /> in the address bar, or use the menu <Menu className="inline h-3 w-3" /> → "Install app"</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <svg className="h-4 w-4 mt-0.5 text-islamic-green flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                      <div>
+                        <p className="font-medium text-foreground">Firefox</p>
+                        <p>Click the three-dot menu → "Install DeenFlow"</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <svg className="h-4 w-4 mt-0.5 text-islamic-green flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                      <div>
+                        <p className="font-medium text-foreground">Safari (macOS)</p>
+                        <p>Click the share button → "Add to Dock"</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
       </motion.div>

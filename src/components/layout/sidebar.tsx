@@ -22,7 +22,7 @@ export function Sidebar() {
   const { isOpen, close } = useSidebarStore();
   const router = useRouter();
   const { t } = useI18n();
-  const { canInstall, isInstalled, isIOS, isDismissed, promptInstall, dismiss } = usePWAInstall();
+  const { canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt, promptInstall, dismiss } = usePWAInstall();
 
   const navItems = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: Home },
@@ -113,11 +113,11 @@ export function Sidebar() {
             </div>
             {!isIOS && (
               <button
-                onClick={promptInstall}
+                onClick={hasNativePrompt ? promptInstall : undefined}
                 className="mt-2.5 w-full flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-islamic-green to-islamic-green/90 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm shadow-islamic-green/20 transition-all hover:shadow-md hover:shadow-islamic-green/30 hover:scale-[1.01] active:scale-[0.99]"
               >
                 <Smartphone className="h-3 w-3" />
-                Install Now
+                {hasNativePrompt ? 'Install Now' : 'How to Install'}
               </button>
             )}
             <button

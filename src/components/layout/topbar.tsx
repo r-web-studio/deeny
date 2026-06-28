@@ -19,7 +19,7 @@ export function Topbar() {
   const { toggle } = useSidebarStore();
   const { theme, setTheme } = useThemeStore();
   const [themeKey, setThemeKey] = useState(0);
-  const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
+  const { canInstall, isInstalled, isIOS, hasNativePrompt, promptInstall } = usePWAInstall();
 
   const cycleTheme = () => {
     const next = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";

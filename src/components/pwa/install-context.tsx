@@ -7,8 +7,10 @@ interface PWAInstallContextType {
   isInstalled: boolean;
   isIOS: boolean;
   isDismissed: boolean;
+  hasNativePrompt: boolean;
   promptInstall: () => Promise<void>;
   dismiss: () => void;
+  resetDismissed: () => void;
 }
 
 const PWAInstallContext = createContext<PWAInstallContextType | null>(null);
@@ -71,10 +73,16 @@ export function PWAInstallProvider({ children }: { children: ReactNode }) {
     setIsDismissed(true);
   }, []);
 
-  const canInstall = !!(deferredPrompt || isIOS);
+  const resetDismissed = useCallback(() => {
+    localStorage.removeItem(DISMISS_KEY);
+    setIsDismissed(false);
+  }, []);
+
+  // Always show install for non-installed users (iOS gets share instructions, others get manual or native)
+  const canInstall = !isInstalled;
 
   return (
-    <PWAInstallContext.Provider value={{ canInstall, isInstalled, isIOS, isDismissed, promptInstall, dismiss }}>
+    <PWAInstallContext.Provider value={{ canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt: !!deferredPrompt, promptInstall, dismiss, resetDismissed }}>
       {children}
     </PWAInstallContext.Provider>
   );
