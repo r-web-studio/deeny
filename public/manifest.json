@@ -1,35 +1,30 @@
 {
-  "name": "DeenFlow",
+  "name": "DeenFlow — Islamic Productivity",
   "short_name": "DeenFlow",
-  "description": "Islamic productivity app — prayer tracking, dhikr, journaling, Quran",
+  "description": "Premium Islamic productivity app for prayer tracking, dhikr, journaling, and spiritual growth.",
   "id": "/",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0F172A",
+  "orientation": "portrait",
+  "background_color": "#0a0f0a",
   "theme_color": "#059669",
   "scope": "/",
-  "lang": "en",
+  "lang": "uz",
   "prefer_related_applications": false,
-  "categories": [
-    "productivity",
-    "lifestyle",
-    "utilities"
-  ],
-  "screenshots": [
+  "categories": ["lifestyle", "productivity"],
+  "icons": [
     {
-      "src": "/screenshots/dashboard.PNG",
-      "sizes": "1080x1920",
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "form_factor": "narrow"
+      "purpose": "any maskable"
     },
     {
-      "src": "/screenshots/prayer-times.PNG",
-      "sizes": "1080x1920",
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
-  "icons": [
+      "purpose": "any maskable"
+    },
     {
       "src": "/icons/icon-72x72.png",
       "sizes": "72x72",
@@ -64,7 +59,7 @@
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-384x384.png",
@@ -76,49 +71,24 @@
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "shortcuts": [
     {
-      "name": "Prayer Times",
+      "name": "Namoz",
       "url": "/prayers",
-      "icons": [
-        {
-          "src": "/icons/shortcut-prayer.png",
-          "sizes": "96x96"
-        }
-      ]
+      "description": "Namoz kuzatuvi"
     },
     {
-      "name": "Dhikr Counter",
+      "name": "Zikr",
       "url": "/dhikr",
-      "icons": [
-        {
-          "src": "/icons/shortcut-dhikr.png",
-          "sizes": "96x96"
-        }
-      ]
+      "description": "Zikr hisoblagich"
     },
     {
-      "name": "Journal",
+      "name": "Kundalik",
       "url": "/journal",
-      "icons": [
-        {
-          "src": "/icons/shortcut-journal.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Quran",
-      "url": "/quran",
-      "icons": [
-        {
-          "src": "/icons/shortcut-quran.png",
-          "sizes": "96x96"
-        }
-      ]
+      "description": "Ruhiy kundalik"
     }
   ]
 }

@@ -1,4 +1,36 @@
 import type { NextConfig } from "next";
+import withPWA from "next-pwa";
+
+const pwaConfig = withPWA({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
+  register: true,
+  skipWaiting: true,
+  runtimeCaching: [
+    {
+      urlPattern: /^https:\/\/deeny-4ty6\.onrender\.com\/api\/.*/i,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "api-cache",
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 60 * 60,
+        },
+      },
+    },
+    {
+      urlPattern: /\.(?:js|css|woff2|png|jpg|svg|ico)$/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "static-assets",
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 60 * 24 * 30,
+        },
+      },
+    },
+  ],
+});
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -37,4 +69,4 @@ const nextConfig: NextConfig = {
   ],
 };
 
-export default nextConfig;
+export default pwaConfig(nextConfig);
