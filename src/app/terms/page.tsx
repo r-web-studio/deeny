@@ -195,8 +195,8 @@ export default function TermsOfServicePage() {
                 If you have any questions about these Terms, please contact us:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
-                <li>Email: admin@islom.uz</li>
-                <li>Telegram: @portalislomuzadmin_bot</li>
+                <li>Email: admin@deenflow.com</li>
+                <li>Telegram: @deenflowbot</li>
               </ul>
             </section>
           </CardContent>

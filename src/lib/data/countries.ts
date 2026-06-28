@@ -6,7 +6,7 @@ export interface City {
 
 export interface Region {
   name: string;
-  cities: City[];
+  cities: { name: string; lat: number; lon: number }[];
 }
 
 export interface Country {
@@ -15,7 +15,7 @@ export interface Country {
   flag: string;
   timezone: string;
   prayerMethod: number;
-  api: "aladhan" | "islomapi";
+  api: "aladhan";
   regions: Region[];
 }
 
@@ -25,9 +25,16 @@ export const COUNTRIES: Country[] = [
     name: "Uzbekistan",
     flag: "🇺🇿",
     timezone: "Asia/Tashkent",
-    prayerMethod: 2,
-    api: "islomapi",
-    regions: [],
+    prayerMethod: 3,
+    api: "aladhan",
+    regions: [
+      {
+        name: "Tashkent",
+        cities: [
+          { name: "Tashkent", lat: 41.3028, lon: 69.2785 },
+        ],
+      },
+    ],
   },
   {
     id: "turkey",

@@ -143,9 +143,8 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Supabase</strong> &ndash; Authentication and database (supabase.com)</li>
                 <li><strong>OpenAI</strong> &ndash; AI companion processing (openai.com)</li>
                 <li><strong>Al-Quran Cloud</strong> &ndash; Quran text API (api.alquran.cloud)</li>
-                <li><strong>islom.uz</strong> &ndash; Quran audio recitations</li>
-                <li><strong>Aladhan API</strong> &ndash; Islamic/Hijri date conversion</li>
-                <li><strong>islomapi.uz</strong> &ndash; Prayer times for Uzbekistan</li>
+                <li><strong>Quran.com</strong> &ndash; Quran audio recitations</li>
+                <li><strong>Aladhan API</strong> &ndash; Prayer times calculation</li>
               </ul>
               <p className="text-muted-foreground leading-relaxed">
                 Each third-party service has its own privacy policy. We encourage you to review them.
@@ -177,8 +176,8 @@ export default function PrivacyPolicyPage() {
                 If you have any questions about this Privacy Policy, please contact us:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
-                <li>Email: admin@islom.uz</li>
-                <li>Telegram: @portalislomuzadmin_bot</li>
+                <li>Email: admin@deenflow.com</li>
+                <li>Telegram: @deenflowbot</li>
               </ul>
             </section>
           </CardContent>

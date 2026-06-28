@@ -28,21 +28,34 @@ interface Ayah {
 interface Reciter {
   id: number;
   name: string;
-  link: string;
+  quranComId: number;
 }
 
-const DEFAULT_RECITERS: Reciter[] = [
-  { id: 1, name: "Махмуд Халил Хусари", link: "xalil_xusoriy" },
-  { id: 2, name: "Абдулбосит Абдулсамад", link: "abdulbosit_abdulsamad" },
-  { id: 3, name: "Абdurраҳим Башари", link: "abu_bakr_shatri" },
-  { id: 4, name: "Мишари Рашид Алафаси", link: "mishariy_alafasiy" },
-  { id: 5, name: "Саад Ал-Гамди", link: "saad_alghamdi" },
-  { id: 6, name: "Ахмад Ал-Аджми", link: "ahmad_alajmi" },
+const QURAN_COM_RECITERS: Reciter[] = [
+  { id: 7, name: "Mishary Rashid Alafasy", quranComId: 7 },
+  { id: 1, name: "AbdulBaset AbdulSamad (Mujawwad)", quranComId: 1 },
+  { id: 2, name: "AbdulBaset AbdulSamad (Warsh)", quranComId: 2 },
+  { id: 4, name: "Abu Bakr Al Shatri", quranComId: 4 },
+  { id: 5, name: "Hani Ar-Rifai", quranComId: 5 },
+  { id: 9, name: "Ahmed Al Ajmi", quranComId: 9 },
+  { id: 11, name: "Yasser Ad-Dussary", quranComId: 11 },
 ];
 
-function getSurahAudioUrl(surahNumber: number, reciterLink: string): string {
+const QURAN_CDN = "https://verses.quran.foundation";
+
+function getSurahAudioUrl(surahNumber: number, reciterId: number): string {
   const padded = String(surahNumber).padStart(3, "0");
-  return `https://new.islom.uz/mp3/surah/${reciterLink}_hafs/${padded}.mp3`;
+  const reciterMap: Record<number, string> = {
+    7: "Alafasy",
+    1: "AbdulBaset/Mujawwad",
+    2: "AbdulBaset/Warsh",
+    4: "AbuBakrShatri",
+    5: "HaniRifai",
+    9: "AhmadAjmi",
+    11: "YasserAdDussary",
+  };
+  const reciterDir = reciterMap[reciterId] || "Alafasy";
+  return `${QURAN_CDN}/${reciterDir}/mp3/${padded}001.mp3`;
 }
 
 export default function QuranPage() {
@@ -53,25 +66,15 @@ export default function QuranPage() {
   const [bookmarks, setBookmarks] = useState<{ surah: number; ayah: number }[]>([]);
   const [search, setSearch] = useState("");
   const [dailyVerse, setDailyVerse] = useState<Ayah | null>(null);
-  const [reciters, setReciters] = useState<Reciter[]>(DEFAULT_RECITERS);
-  const [selectedReciter, setSelectedReciter] = useState(DEFAULT_RECITERS[0].link);
+  const [selectedReciter, setSelectedReciter] = useState(7);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const savedReciter = localStorage.getItem("deenflow-quran-reciter");
     if (savedReciter) {
-      setSelectedReciter(savedReciter);
+      setSelectedReciter(Number(savedReciter));
     }
-
-    fetch("https://quran.uz/api/v1/quran/qorilar/1")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.data && data.data.length > 0) {
-          setReciters(data.data);
-        }
-      })
-      .catch(() => {});
 
     fetch("https://api.alquran.cloud/v1/surah")
       .then((r) => r.json())
@@ -127,7 +130,7 @@ export default function QuranPage() {
     }
   };
 
-  const playSurah = (surahNumber: number) => {
+  const playSurah = async (surahNumber: number) => {
     if (isPlaying && selectedSurah === surahNumber) {
       stopAudio();
       return;
@@ -135,36 +138,44 @@ export default function QuranPage() {
 
     stopAudio();
 
-    const url = getSurahAudioUrl(surahNumber, selectedReciter);
-    const audio = new Audio();
-    audio.preload = "auto";
-    audio.src = url;
-    audioRef.current = audio;
+    try {
+      const url = `${process.env.NEXT_PUBLIC_API_URL || ""}/api/quran/audio?chapter=${surahNumber}&recitation=${selectedReciter}`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-    audio.onended = () => {
-      setIsPlaying(false);
-      audioRef.current = null;
-    };
+      if (data.audioUrl) {
+        const audio = new Audio();
+        audio.preload = "auto";
+        audio.src = data.audioUrl;
+        audioRef.current = audio;
 
-    audio.onerror = (e) => {
-      console.error("Audio error:", url, e);
-      toast.error("Failed to load audio. Please try again.");
-      setIsPlaying(false);
-      audioRef.current = null;
-    };
+        audio.onended = () => {
+          setIsPlaying(false);
+          audioRef.current = null;
+        };
 
-    audio.play().then(() => {
-      setIsPlaying(true);
-    }).catch((err) => {
-      console.error("Audio play failed:", url, err);
+        audio.onerror = (e) => {
+          console.error("Audio error:", data.audioUrl, e);
+          toast.error("Failed to load audio. Please try again.");
+          setIsPlaying(false);
+          audioRef.current = null;
+        };
+
+        await audio.play();
+        setIsPlaying(true);
+      } else {
+        throw new Error("No audio URL returned");
+      }
+    } catch (err) {
+      console.error("Audio fetch error:", err);
       toast.error("Unable to play audio. Check your connection and try again.");
       setIsPlaying(false);
-      audioRef.current = null;
-    });
+    }
   };
 
   const handleReciterChange = (reciterId: string) => {
-    setSelectedReciter(reciterId);
+    const id = Number(reciterId);
+    setSelectedReciter(id);
     localStorage.setItem("deenflow-quran-reciter", reciterId);
     if (isPlaying && selectedSurah) {
       stopAudio();
@@ -185,7 +196,7 @@ export default function QuranPage() {
       String(s.number).includes(search)
   );
 
-  const selectedReciterName = reciters.find((r) => r.link === selectedReciter)?.name || "";
+  const selectedReciterName = QURAN_COM_RECITERS.find((r) => r.id === selectedReciter)?.name || "";
 
   return (
     <motion.div
@@ -251,15 +262,15 @@ export default function QuranPage() {
                   <div className="flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-2">
                       <Select
-                        value={selectedReciter}
-                        onValueChange={(v) => handleReciterChange(v ?? DEFAULT_RECITERS[0].link)}
+                        value={String(selectedReciter)}
+                        onValueChange={(v) => handleReciterChange(v ?? "7")}
                       >
                         <SelectTrigger className="w-[220px]">
                           <SelectValue placeholder={selectedReciterName} />
                         </SelectTrigger>
                         <SelectContent>
-                          {reciters.map((reciter) => (
-                            <SelectItem key={reciter.link} value={reciter.link}>
+                          {QURAN_COM_RECITERS.map((reciter) => (
+                            <SelectItem key={reciter.id} value={String(reciter.id)}>
                               {reciter.name}
                             </SelectItem>
                           ))}
@@ -284,7 +295,7 @@ export default function QuranPage() {
                     </div>
 
                     <Badge variant="outline" className="text-xs">
-                      quran.uz (islom.uz)
+                      Quran.com
                     </Badge>
                   </div>
 
