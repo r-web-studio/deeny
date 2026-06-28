@@ -308,7 +308,17 @@
   },
   "dashboardExtra": {
     "journalEntries": "Kundalik yozuvlari",
-    "totalEntries": "jami yozuvlar"
+    "totalEntries": "jami yozuvlar",
+    "installTitle": "DeenFlow ni o'rnatish",
+    "installDesc": "Tezkor kirish va oflayn ishlash uchun bosh ekranga qo'shing",
+    "installButton": "Ilovani o'rnatish",
+    "installSidebarTitle": "Ilovani o'rnatish",
+    "installSidebarDesc": "Tezkor kirish va oflayn",
+    "installSidebarButton": "Hozir o'rnatish",
+    "installIOSTitle": "DeenFlow ni o'rnatish",
+    "installIOSDesc": "Ulashish tugmasini bosing, keyin \"Bosh ekranga qo'shing\"",
+    "installIOSShare": "Ulashish",
+    "installDismiss": "Bekor qilish"
   },
   "error": {
     "title": "Nimadir noto'g'ri ketdi",

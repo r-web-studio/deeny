@@ -1,12 +1,13 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Search, Sun, Moon, Monitor, Download, Check } from "lucide-react";
+import { Menu, Search, Sun, Moon, Monitor, Download, Share, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebarStore } from "@/lib/stores/sidebar-store";
 import { useThemeStore, applyTheme } from "@/lib/stores/theme-store";
 import { Input } from "@/components/ui/input";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { usePWAInstall } from "@/components/pwa/install-context";
 
 const THEME_CONFIG = {
   light: { icon: Sun, label: "Light", gradient: "from-amber-400 to-orange-500", glow: "shadow-amber-500/25" },
@@ -18,34 +19,7 @@ export function Topbar() {
   const { toggle } = useSidebarStore();
   const { theme, setTheme } = useThemeStore();
   const [themeKey, setThemeKey] = useState(0);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
-
-  // Listen for beforeinstallprompt event
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    
-    window.addEventListener('beforeinstallprompt', handler);
-    
-    // Check if app is installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-    }
-    
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-    }
-  };
+  const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
 
   const cycleTheme = () => {
     const next = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
@@ -68,20 +42,29 @@ export function Topbar() {
           <Input placeholder="Search..." className="pl-9 bg-muted/50" />
         </div>
       </div>
-<div className="flex items-center gap-2 ml-4">
-          <LanguageSwitcher />
-          {(!isInstalled && deferredPrompt) && (
+      <div className="flex items-center gap-2 ml-4">
+        <LanguageSwitcher />
+        {!isInstalled && canInstall && (
+          <div className="relative group">
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleInstall}
-              className="h-9 w-9 rounded-full hover:bg-emerald-500/10"
-              title="Install DeenFlow"
+              onClick={isIOS ? undefined : promptInstall}
+              className="h-9 w-9 rounded-full bg-gradient-to-br from-islamic-green/10 to-islamic-green/5 border border-islamic-green/20 text-islamic-green hover:from-islamic-green/20 hover:to-islamic-green/10 hover:border-islamic-green/30 transition-all duration-300"
+              title={isIOS ? "Share → Add to Home Screen" : "Install DeenFlow"}
             >
-              <Download className="h-4 w-4 text-emerald-600" />
+              {isIOS ? (
+                <Share className="h-4 w-4" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
             </Button>
-          )}
-          <div className="relative group">
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] font-medium bg-popover text-popover-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+              {isIOS ? "Share to install" : "Install App"}
+            </div>
+          </div>
+        )}
+        <div className="relative group">
           <Button
             variant="ghost"
             size="icon"

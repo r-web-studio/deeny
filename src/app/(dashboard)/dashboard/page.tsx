@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Clock, CheckCircle, Target, ListTodo, Shield, Quote, Calendar, Sparkles, Smile, Heart, CloudRain, Flame, Wind, Moon, PartyPopper, PenLine, Check, Download, Smartphone } from "lucide-react";
+import { Clock, CheckCircle, Target, ListTodo, Shield, Quote, Calendar, Sparkles, Smile, Heart, CloudRain, Flame, Wind, Moon, PartyPopper, PenLine, Check, Download, Share, Smartphone, Wifi, WifiOff, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -11,6 +11,7 @@ import { usePrayerTimes } from "@/lib/hooks/use-prayer-times";
 import { useI18n } from "@/lib/i18n";
 import { PRAYERS, MOODS } from "@/lib/constants";
 import { useUserStore } from "@/lib/stores/user-store";
+import { usePWAInstall } from "@/components/pwa/install-context";
 import toast from "react-hot-toast";
 
 const moodIcons: Record<string, React.ReactNode> = {
@@ -37,6 +38,7 @@ const item = {
 export default function DashboardPage() {
   const { hijri, gregorian } = useIslamicDate();
   const { t } = useI18n();
+  const { canInstall, isInstalled, isIOS, isDismissed, promptInstall, dismiss } = usePWAInstall();
   const [apiRegion, setApiRegion] = useState<string | undefined>(undefined);
   const [countryId, setCountryId] = useState<string | undefined>(undefined);
   const [cityLat, setCityLat] = useState<number | undefined>(undefined);
@@ -51,8 +53,6 @@ export default function DashboardPage() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [journalCount, setJournalCount] = useState(0);
   const [checkedInToday, setCheckedInToday] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
   const [userName, setUserName] = useState(() => {
     if (typeof window === "undefined") return "";
     const user = useUserStore.getState().user;
@@ -252,30 +252,6 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [times]);
 
-  useEffect(() => {
-    if (localStorage.getItem('pwa-install-dismissed') === 'true') return;
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-      return;
-    }
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-      setIsInstalled(true);
-    }
-  };
-
   const handleDailyCheckin = () => {
     const today = new Date().toISOString().slice(0, 10);
     const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
@@ -456,29 +432,54 @@ export default function DashboardPage() {
         </Card>
       </motion.div>
 
-      {!isInstalled && (
+      {!isInstalled && !isDismissed && canInstall && (
         <motion.div variants={item}>
-          <Card className="glass border-islamic-green/30 bg-gradient-to-br from-islamic-green/5 to-transparent">
+          <Card className="relative overflow-hidden border-islamic-green/20 bg-gradient-to-br from-islamic-green/5 via-card to-gold/5">
+            {/* Top accent line */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-islamic-green/40 to-transparent" />
             <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-5 px-6">
               <div className="flex items-center gap-4">
-                <div className="rounded-xl bg-islamic-green/10 p-3">
-                  <Smartphone className="h-6 w-6 text-islamic-green" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-islamic-green to-islamic-green/80 shadow-lg shadow-islamic-green/20">
+                  {isIOS ? (
+                    <Share className="h-6 w-6 text-white" />
+                  ) : (
+                    <Smartphone className="h-6 w-6 text-white" />
+                  )}
                 </div>
                 <div>
-                  <h3 className="font-semibold">Install DeenFlow</h3>
-                  <p className="text-sm text-muted-foreground">Add to your home screen for quick access and offline use</p>
+                  <h3 className="font-semibold text-foreground">Install DeenFlow</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {isIOS
+                      ? 'Tap the share button, then "Add to Home Screen"'
+                      : 'Add to your home screen for quick access & offline use'}
+                  </p>
                 </div>
               </div>
-              {deferredPrompt ? (
-                <Button onClick={handleInstall} className="bg-islamic-green hover:bg-islamic-green/90 shrink-0">
-                  <Download className="h-4 w-4 mr-2" />
-                  Install App
-                </Button>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center sm:text-right shrink-0">
-                  Use your browser&apos;s<br />menu &rarr; &ldquo;Add to Home Screen&rdquo;
-                </p>
-              )}
+              <div className="flex items-center gap-2 shrink-0">
+                {!isIOS ? (
+                  <Button
+                    onClick={promptInstall}
+                    className="bg-gradient-to-r from-islamic-green to-islamic-green/90 text-white shadow-md shadow-islamic-green/20 hover:shadow-lg hover:shadow-islamic-green/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Install App
+                  </Button>
+                ) : (
+                  <div className="inline-flex items-center gap-1.5 rounded-md bg-islamic-green/10 px-4 py-2 text-sm font-semibold text-islamic-green">
+                    <Share className="h-4 w-4" />
+                    Share to Install
+                  </div>
+                )}
+                <button
+                  onClick={dismiss}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground/50 transition-colors hover:text-muted-foreground"
+                  aria-label="Dismiss"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </CardContent>
           </Card>
         </motion.div>

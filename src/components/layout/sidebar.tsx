@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, BookOpen, Clock, Target, ListTodo, MessageCircle,
   Shield, PenLine, Calendar, BookMarked, BarChart3, Trophy,
-  Settings, LogOut, X, Star
+  Settings, LogOut, X, Star, Download, Share, Smartphone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/lib/stores/sidebar-store";
@@ -15,12 +15,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClientAsync } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
+import { usePWAInstall } from "@/components/pwa/install-context";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { isOpen, close } = useSidebarStore();
   const router = useRouter();
   const { t } = useI18n();
+  const { canInstall, isInstalled, isIOS, isDismissed, promptInstall, dismiss } = usePWAInstall();
 
   const navItems = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: Home },
@@ -90,7 +92,43 @@ export function Sidebar() {
           })}
         </nav>
       </ScrollArea>
-      <div className="p-3 border-t border-border/50">
+      <div className="p-3 border-t border-border/50 space-y-2">
+        {!isInstalled && !isDismissed && canInstall && (
+          <div className="relative overflow-hidden rounded-xl border border-islamic-green/20 bg-gradient-to-br from-islamic-green/5 to-transparent p-3">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-islamic-green/30 to-transparent" />
+            <div className="flex items-center gap-2.5">
+              <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-islamic-green/10">
+                {isIOS ? (
+                  <Share className="h-4 w-4 text-islamic-green" />
+                ) : (
+                  <Download className="h-4 w-4 text-islamic-green" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-foreground">Install App</p>
+                <p className="text-[10px] text-muted-foreground leading-tight">
+                  {isIOS ? 'Share → Add to Home Screen' : 'Quick access & offline'}
+                </p>
+              </div>
+            </div>
+            {!isIOS && (
+              <button
+                onClick={promptInstall}
+                className="mt-2.5 w-full flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-islamic-green to-islamic-green/90 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm shadow-islamic-green/20 transition-all hover:shadow-md hover:shadow-islamic-green/30 hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <Smartphone className="h-3 w-3" />
+                Install Now
+              </button>
+            )}
+            <button
+              onClick={dismiss}
+              className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:text-muted-foreground"
+              aria-label="Dismiss"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        )}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 w-full transition-colors"

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useThemeStore } from "@/lib/stores/theme-store";
 
 interface AnalogClockProps {
   size?: number;
@@ -8,11 +9,26 @@ interface AnalogClockProps {
 
 export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
   const [time, setTime] = useState(new Date());
+  const { theme } = useThemeStore();
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const checkDark = () => {
+      if (theme === "dark") setIsDark(true);
+      else if (theme === "light") setIsDark(false);
+      else setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
+    };
+    checkDark();
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = () => { if (theme === "system") checkDark(); };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [theme]);
 
   const seconds = time.getSeconds();
   const minutes = time.getMinutes();
@@ -71,12 +87,21 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
     hour12: true,
   });
 
+  // Colors that adapt to dark/light mode
+  const faceGradient = isDark ? "url(#clockFaceDark)" : "url(#clockFace)";
+  const hourHandColor = isDark ? "oklch(0.96 0.005 100)" : "oklch(0.15 0.02 250)";
+  const hourMarkerColor = isDark ? "oklch(0.75 0.15 85)" : "oklch(0.35 0.15 155)";
+  const minuteMarkerColor = isDark ? "oklch(0.65 0.02 250)" : "oklch(0.5 0.02 250)";
+  const minuteHandColor = isDark ? "oklch(0.85 0.12 155)" : "oklch(0.35 0.15 155)";
+  const numberColor = isDark ? "oklch(0.92 0.005 100)" : "oklch(0.15 0.02 250)";
+  const shadowColor = isDark ? "oklch(0.60 0.20 155)" : "oklch(0.45 0.18 155)";
+
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
           <filter id="clockShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="oklch(0.45 0.18 155)" floodOpacity="0.3" />
+            <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor={shadowColor} floodOpacity="0.3" />
           </filter>
           <radialGradient id="clockFace" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="oklch(0.98 0.002 100)" />
@@ -92,7 +117,7 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
           cx={center}
           cy={center}
           r={radius}
-          fill="url(#clockFace)"
+          fill={faceGradient}
           stroke="oklch(0.45 0.18 155)"
           strokeWidth="3"
           filter="url(#clockShadow)"
@@ -115,7 +140,7 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
             y1={m.y1}
             x2={m.x2}
             y2={m.y2}
-            stroke="oklch(0.5 0.02 250)"
+            stroke={minuteMarkerColor}
             strokeWidth="1"
           />
         ))}
@@ -127,7 +152,7 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
               y1={m.y1}
               x2={m.x2}
               y2={m.y2}
-              stroke="oklch(0.35 0.15 155)"
+              stroke={hourMarkerColor}
               strokeWidth="2.5"
               strokeLinecap="round"
             />
@@ -136,7 +161,10 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
               y={m.labelY}
               textAnchor="middle"
               dominantBaseline="central"
-              className="fill-foreground text-[10px] font-semibold"
+              fill={numberColor}
+              fontSize="10"
+              fontWeight="600"
+              fontFamily="var(--font-sans), system-ui, sans-serif"
             >
               {m.label}
             </text>
@@ -148,7 +176,7 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
           y1={center}
           x2={hourHandX}
           y2={hourHandY}
-          stroke="oklch(0.15 0.02 250)"
+          stroke={hourHandColor}
           strokeWidth="4"
           strokeLinecap="round"
         />
@@ -158,7 +186,7 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
           y1={center}
           x2={minuteHandX}
           y2={minuteHandY}
-          stroke="oklch(0.35 0.15 155)"
+          stroke={minuteHandColor}
           strokeWidth="2.5"
           strokeLinecap="round"
         />
@@ -173,7 +201,7 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
           strokeLinecap="round"
         />
 
-        <circle cx={center} cy={center} r="4" fill="oklch(0.35 0.15 155)" />
+        <circle cx={center} cy={center} r="4" fill={hourMarkerColor} />
         <circle cx={center} cy={center} r="2" fill="oklch(0.75 0.15 85)" />
       </svg>
 

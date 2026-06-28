@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { Toaster } from "react-hot-toast";
 import { Providers } from "@/components/providers";
+import { PWAInstallProvider } from "@/components/pwa/install-context";
 import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import "./globals.css";
@@ -167,12 +168,14 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <Providers>
-          {children}
-          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-        </Providers>
-        <ServiceWorkerRegister />
-        <InstallPrompt />
+        <PWAInstallProvider>
+          <Providers>
+            {children}
+            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+          </Providers>
+          <ServiceWorkerRegister />
+          <InstallPrompt />
+        </PWAInstallProvider>
       </body>
     </html>
   );

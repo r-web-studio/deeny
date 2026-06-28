@@ -308,7 +308,17 @@
   },
   "dashboardExtra": {
     "journalEntries": "Günlük Yazıları",
-    "totalEntries": "toplam yazı"
+    "totalEntries": "toplam yazı",
+    "installTitle": "DeenFlow'u Yükle",
+    "installDesc": "Hızlı erişim ve çevrimdışı kullanım için ana ekrana ekleyin",
+    "installButton": "Uygulamayı Yükle",
+    "installSidebarTitle": "Uygulamayı Yükle",
+    "installSidebarDesc": "Hızlı erişim ve çevrimdışı",
+    "installSidebarButton": "Şimdi Yükle",
+    "installIOSTitle": "DeenFlow'u Yükle",
+    "installIOSDesc": "Paylaş düğmesine dokunun, sonra \"Ana Ekrana Ekle\"",
+    "installIOSShare": "Paylaş",
+    "installDismiss": "Kapat"
   },
   "error": {
     "title": "Bir şeyler yanlış gitti",

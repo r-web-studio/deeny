@@ -308,7 +308,17 @@
   },
   "dashboardExtra": {
     "journalEntries": "Journal Entries",
-    "totalEntries": "total entries"
+    "totalEntries": "total entries",
+    "installTitle": "Install DeenFlow",
+    "installDesc": "Add to your home screen for quick access & offline use",
+    "installButton": "Install App",
+    "installSidebarTitle": "Install App",
+    "installSidebarDesc": "Quick access & offline",
+    "installSidebarButton": "Install Now",
+    "installIOSTitle": "Install DeenFlow",
+    "installIOSDesc": "Tap the share button then \"Add to Home Screen\"",
+    "installIOSShare": "Share",
+    "installDismiss": "Dismiss"
   },
   "error": {
     "title": "Something went wrong",

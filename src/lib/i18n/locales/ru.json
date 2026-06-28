@@ -308,7 +308,17 @@
   },
   "dashboardExtra": {
     "journalEntries": "Записи дневника",
-    "totalEntries": "всего записей"
+    "totalEntries": "всего записей",
+    "installTitle": "Установить DeenFlow",
+    "installDesc": "Добавьте на главный экран для быстрого доступа и офлайн-работы",
+    "installButton": "Установить приложение",
+    "installSidebarTitle": "Установить приложение",
+    "installSidebarDesc": "Быстрый доступ и офлайн",
+    "installSidebarButton": "Установить сейчас",
+    "installIOSTitle": "Установить DeenFlow",
+    "installIOSDesc": "Нажмите кнопку «Поделиться», затем «Добавить на главный экран»",
+    "installIOSShare": "Поделиться",
+    "installDismiss": "Закрыть"
   },
   "error": {
     "title": "Что-то пошло не так",

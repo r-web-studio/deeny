@@ -47,7 +47,9 @@ export function usePrayerTimes(regionName?: string, countryId?: string, lat?: nu
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!regionName) {
+    const country = countryId ? getCountryById(countryId) : null;
+
+    if (!country) {
       setLoading(false);
       return;
     }
@@ -56,9 +58,8 @@ export function usePrayerTimes(regionName?: string, countryId?: string, lat?: nu
     const month = today.getMonth() + 1;
     const day = today.getDate();
 
-    const country = countryId ? getCountryById(countryId) : null;
-
-    if (country?.api === "islomapi") {
+    if (country.api === "islomapi" && regionName) {
+      // Uzbekistan: uses region name with IslomAPI
       fetch(
         `https://islomapi.uz/api/daily?region=${encodeURIComponent(regionName)}&month=${month}&day=${day}`
       )
@@ -77,7 +78,8 @@ export function usePrayerTimes(regionName?: string, countryId?: string, lat?: nu
           setLoading(false);
         })
         .catch(() => setLoading(false));
-    } else if (country?.api === "aladhan" && lat !== undefined && lon !== undefined) {
+    } else if (country.api === "aladhan" && lat !== undefined && lon !== undefined) {
+      // All other countries: uses lat/lon with AlAdhan API
       const dateStr = `${String(day).padStart(2, "0")}-${String(month).padStart(2, "0")}-${today.getFullYear()}`;
       const method = country.prayerMethod;
 
