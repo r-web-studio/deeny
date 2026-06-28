@@ -14,7 +14,7 @@
  *   - OpenRouter (openrouter.ai)
  */
 
-const CACHE_NAME = 'deenflow-v1';
+const CACHE_NAME = 'deenflow-v2';
 const PRAYER_CACHE = 'prayer-api';
 const STATIC_CACHE = 'static-resources';
 const IMAGE_CACHE = 'images';
