@@ -1,39 +1,44 @@
 import type { NextConfig } from "next";
-import withPWA from "next-pwa";
+import withPWAInit, { runtimeCaching } from "@ducanh2912/next-pwa";
 
-const pwaConfig = withPWA({
+const withPWA = withPWAInit({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
   register: true,
-  skipWaiting: true,
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/deeny-4ty6\.onrender\.com\/api\/.*/i,
-      handler: "NetworkFirst",
-      options: {
-        cacheName: "api-cache",
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 60,
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  workboxOptions: {
+    runtimeCaching: [
+      ...runtimeCaching,
+      {
+        urlPattern: /^https:\/\/deeny-4ty6\.onrender\.com\/api\/.*/i,
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "api-cache",
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 60 * 60,
+          },
         },
       },
-    },
-    {
-      urlPattern: /\.(?:js|css|woff2|png|jpg|svg|ico)$/i,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "static-assets",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 60 * 60 * 24 * 30,
+      {
+        urlPattern: /\.(?:js|css|woff2|png|jpg|svg|ico)$/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "static-assets",
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 60 * 60 * 24 * 30,
+          },
         },
       },
-    },
-  ],
+    ],
+  },
 });
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  turbopack: {},
   images: { remotePatterns: [{ protocol: "https", hostname: "**" }] },
   headers: async () => [
     {
@@ -69,4 +74,4 @@ const nextConfig: NextConfig = {
   ],
 };
 
-export default pwaConfig(nextConfig);
+export default withPWA(nextConfig);
