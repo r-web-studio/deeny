@@ -5,14 +5,83 @@ import { Clock, CheckCircle, Target, ListTodo, Shield, Quote, Calendar, Sparkles
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { useIslamicDate } from "@/lib/hooks/use-islamic-date";
 import { usePrayerTimes } from "@/lib/hooks/use-prayer-times";
 import { useI18n } from "@/lib/i18n";
-import { PRAYERS, MOODS } from "@/lib/constants";
+import { MOODS } from "@/lib/constants";
 import { useUserStore } from "@/lib/stores/user-store";
 import { usePWAInstall } from "@/components/pwa/install-context";
 import toast from "react-hot-toast";
+
+// Helper function to get initial location state from localStorage
+const getInitialLocationState = () => {
+  if (typeof window === "undefined") {
+    return {
+      apiRegion: undefined,
+      countryId: undefined,
+      cityLat: undefined,
+      cityLon: undefined,
+    };
+  }
+  const savedCountry = localStorage.getItem("deenflow-selected-country");
+  const savedLocation = localStorage.getItem("deenflow-prayer-location");
+  let countryId = savedCountry;
+  let apiRegion = undefined;
+  let cityLat = undefined;
+  let cityLon = undefined;
+  if (savedLocation) {
+    try {
+      const city = JSON.parse(savedLocation);
+      if (city) {
+        apiRegion = city.apiRegion;
+        cityLat = city.lat;
+        cityLon = city.lon;
+        if (city.countryId) {
+          countryId = city.countryId;
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return {
+    apiRegion,
+    countryId,
+    cityLat,
+    cityLon,
+  };
+};
+
+// Handle storage events for location and country
+const handleStorageChange = (event: StorageEvent) => {
+  if (event.key === "deenflow-selected-country" || event.key === "deenflow-prayer-location") {
+    const newCountryId = localStorage.getItem("deenflow-selected-country");
+    const newLocation = localStorage.getItem("deenflow-prayer-location");
+    let countryId = newCountryId;
+    let apiRegion = undefined;
+    let cityLat = undefined;
+    let cityLon = undefined;
+    if (newLocation) {
+      try {
+        const city = JSON.parse(newLocation);
+        if (city) {
+          apiRegion = city.apiRegion;
+          cityLat = city.lat;
+          cityLon = city.lon;
+          if (city.countryId) {
+            countryId = city.countryId;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    setCountryId(countryId);
+    setApiRegion(apiRegion);
+    setCityLat(cityLat);
+    setCityLon(cityLon);
+  }
+};
 
 const moodIcons: Record<string, React.ReactNode> = {
   smile: <Smile className="h-5 w-5" />,
@@ -39,10 +108,11 @@ export default function DashboardPage() {
   const { hijri, gregorian } = useIslamicDate();
   const { t } = useI18n();
   const { canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt, triggerInstall, dismiss } = usePWAInstall();
-  const [apiRegion, setApiRegion] = useState<string | undefined>(undefined);
-  const [countryId, setCountryId] = useState<string | undefined>(undefined);
-  const [cityLat, setCityLat] = useState<number | undefined>(undefined);
-  const [cityLon, setCityLon] = useState<number | undefined>(undefined);
+  const { apiRegion: initialApiRegion, countryId: initialCountryId, cityLat: initialCityLat, cityLon: initialCityLon } = getInitialLocationState();
+  const [apiRegion, setApiRegion] = useState(initialApiRegion);
+  const [countryId, setCountryId] = useState(initialCountryId);
+  const [cityLat, setCityLat] = useState(initialCityLat);
+  const [cityLon, setCityLon] = useState(initialCityLon);
   const { times } = usePrayerTimes(apiRegion, countryId, cityLat, cityLon);
   const [nextPrayer, setNextPrayer] = useState("");
   const [countdown, setCountdown] = useState("");
@@ -141,25 +211,6 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    const savedCountry = localStorage.getItem("deenflow-selected-country");
-    const saved = localStorage.getItem("deenflow-prayer-location");
-    if (savedCountry) {
-      setCountryId(savedCountry);
-    }
-    if (saved) {
-      try {
-        const city = JSON.parse(saved);
-        setApiRegion(city.apiRegion);
-        setCityLat(city.lat);
-        setCityLon(city.lon);
-        if (city.countryId) {
-          setCountryId(city.countryId);
-        }
-      } catch {}
-    }
-  }, []);
-
-  useEffect(() => {
     const loadProgress = () => {
       try {
         const todayKey = new Date().toISOString().slice(0, 10);
@@ -215,8 +266,14 @@ export default function DashboardPage() {
     };
 
     loadProgress();
-    window.addEventListener("storage", loadProgress);
-    return () => window.removeEventListener("storage", loadProgress);
+    window.addEventListener("storage", (e) => {
+      loadProgress();
+      handleStorageChange(e);
+    });
+    return () => window.removeEventListener("storage", (e) => {
+      loadProgress();
+      handleStorageChange(e);
+    });
   }, []);
 
   useEffect(() => {
