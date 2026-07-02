@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { TASK_PRIORITIES, TASK_CATEGORIES_DEFAULT } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n";
+import { saveTasks as syncTasks } from "@/lib/sync/data-sync";
+import { createClient } from "@/lib/supabase/client";
 
 const TASKS_STORAGE_KEY = "deenflow-tasks";
 
@@ -49,6 +51,10 @@ export default function TodosPage() {
   const saveTasks = (newTasks: Task[]) => {
     setTasks(newTasks);
     localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(newTasks));
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) syncTasks(user.id, newTasks).catch(() => {});
+    });
   };
 
   const addTask = () => {

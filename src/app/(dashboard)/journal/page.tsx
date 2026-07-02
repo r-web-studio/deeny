@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { MOODS } from "@/lib/constants";
 import { format } from "date-fns";
 import { useI18n } from "@/lib/i18n";
+import { saveJournalEntries as syncJournalEntries } from "@/lib/sync/data-sync";
+import { createClient } from "@/lib/supabase/client";
 
 const JOURNAL_STORAGE_KEY = "deenflow-journal";
 
@@ -70,6 +72,10 @@ export default function JournalPage() {
     ];
     setEntries(newEntries);
     localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(newEntries));
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) syncJournalEntries(user.id, newEntries).catch(() => {});
+    });
     setTitle("");
     setContent("");
     setMood("");
@@ -81,6 +87,10 @@ export default function JournalPage() {
     const updated = entries.filter((e) => e.id !== id);
     setEntries(updated);
     localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(updated));
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) syncJournalEntries(user.id, updated).catch(() => {});
+    });
     toast.success("Entry deleted");
   };
 

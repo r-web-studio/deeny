@@ -14,6 +14,8 @@ import { useFontStore, FONT_PRESETS } from "@/lib/stores/font-store";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import toast from "react-hot-toast";
+import { saveProfile as syncProfile } from "@/lib/sync/data-sync";
+import { createClient } from "@/lib/supabase/client";
 
 const TIMEZONES = [
   "UTC", "America/New_York", "America/Chicago", "America/Denver",
@@ -46,14 +48,14 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("deenflow-profile");
+    const saved = localStorage.getItem("deenflow-profile") || localStorage.getItem("deenflow-user");
     if (saved) {
       const profile = JSON.parse(saved);
-      setFullName(profile.fullName || "");
+      setFullName(profile.fullName || profile.full_name || "");
       setUsername(profile.username || "");
       setCountry(profile.country || "");
       setTimezone(profile.timezone || "UTC");
-      setAvatarPreview(profile.avatarUrl || null);
+      setAvatarPreview(profile.avatarUrl || profile.avatar_url || null);
     }
   }, []);
 
@@ -115,6 +117,11 @@ export default function SettingsPage() {
       country,
       timezone,
     });
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      syncProfile(user.id, profileData).catch(() => {});
+    }
     await new Promise((r) => setTimeout(r, 500));
     setSaving(false);
     toast.success(t("settings.saved"));

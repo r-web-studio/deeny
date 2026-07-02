@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 import { useI18n } from "@/lib/i18n";
+import { saveAIConversations as syncAIConversations } from "@/lib/sync/data-sync";
+import { createClient } from "@/lib/supabase/client";
 
 const AI_STORAGE_KEY = "deenflow-ai-conversations";
 
@@ -55,6 +57,10 @@ export default function AiPage() {
   const saveConversations = (updated: Conversation[]) => {
     setConversations(updated);
     localStorage.setItem(AI_STORAGE_KEY, JSON.stringify(updated));
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) syncAIConversations(user.id, updated).catch(() => {});
+    });
   };
 
   useEffect(() => {

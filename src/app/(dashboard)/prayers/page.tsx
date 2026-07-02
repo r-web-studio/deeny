@@ -14,6 +14,8 @@ import { useI18n } from "@/lib/i18n";
 import { AnalogClock } from "@/components/analog-clock";
 import toast from "react-hot-toast";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, addMonths, subMonths, isSameDay } from "date-fns";
+import { savePrayerHistory as syncPrayerHistory } from "@/lib/sync/data-sync";
+import { createClient } from "@/lib/supabase/client";
 
 interface PrayerStatus {
   [key: string]: "completed" | "delayed" | "missed" | undefined;
@@ -51,6 +53,10 @@ function loadHistory(): PrayerHistory {
 
 function saveHistory(history: PrayerHistory) {
   localStorage.setItem(PRAYER_HISTORY_KEY, JSON.stringify(history));
+  const supabase = createClient();
+  supabase.auth.getUser().then(({ data: { user } }) => {
+    if (user) syncPrayerHistory(user.id, history).catch(() => {});
+  });
 }
 
 function migrateOldStatuses(history: PrayerHistory): PrayerHistory {

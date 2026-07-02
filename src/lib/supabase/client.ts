@@ -4,12 +4,23 @@ let cachedUrl = "";
 let cachedKey = "";
 let fetchedConfig = false;
 
+function createSupabaseClient(url: string, key: string) {
+  return createBrowserClient(url, key, {
+    cookieOptions: {
+      name: "sb",
+      maxAge: 60 * 60 * 24 * 7,
+      path: "/",
+      sameSite: "lax",
+    },
+  });
+}
+
 export function createClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || cachedUrl;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || cachedKey;
 
   if (url && key) {
-    return createBrowserClient(url, key);
+    return createSupabaseClient(url, key);
   }
 
   console.warn(
@@ -17,7 +28,7 @@ export function createClient() {
     "Make sure env vars are set and you triggered a Manual Deploy on Render."
   );
 
-  return createBrowserClient("", "");
+  return createSupabaseClient("", "");
 }
 
 export async function createClientAsync() {
@@ -25,7 +36,7 @@ export async function createClientAsync() {
   const envKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (envUrl && envKey) {
-    return createBrowserClient(envUrl, envKey);
+    return createSupabaseClient(envUrl, envKey);
   }
 
   if (!fetchedConfig) {
@@ -43,12 +54,12 @@ export async function createClientAsync() {
   }
 
   if (cachedUrl && cachedKey) {
-    return createBrowserClient(cachedUrl, cachedKey);
+    return createSupabaseClient(cachedUrl, cachedKey);
   }
 
   console.error(
     "[Supabase] No config available. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Render dashboard and do a Manual Deploy."
   );
 
-  return createBrowserClient("", "");
+  return createSupabaseClient("", "");
 }

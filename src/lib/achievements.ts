@@ -1,4 +1,6 @@
 import { ACHIEVEMENTS_LIST } from "./constants";
+import { saveAchievements as syncAchievements } from "./sync/data-sync";
+import { createClient } from "./supabase/client";
 
 const ACHIEVEMENTS_STORAGE_KEY = "deenflow-achievements";
 
@@ -17,6 +19,10 @@ function loadEarned(): EarnedAchievement[] {
 
 export function saveEarned(earned: EarnedAchievement[]) {
   localStorage.setItem(ACHIEVEMENTS_STORAGE_KEY, JSON.stringify(earned));
+  const supabase = createClient();
+  supabase.auth.getUser().then(({ data: { user } }) => {
+    if (user) syncAchievements(user.id, earned).catch(() => {});
+  });
 }
 
 function getPrayerStreak(): number {

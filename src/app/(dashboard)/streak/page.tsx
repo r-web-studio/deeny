@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from "recharts";
 import { useI18n } from "@/lib/i18n";
+import { saveStreak as syncStreak, type StreakLocal } from "@/lib/sync/data-sync";
+import { createClient } from "@/lib/supabase/client";
 
 const MILESTONES = [7, 14, 30, 60, 90, 180, 365];
 const STREAK_STORAGE_KEY = "deenflow-streak";
@@ -57,6 +59,10 @@ export default function StreakPage() {
 
   const saveStreakData = (data: StreakData) => {
     localStorage.setItem(STREAK_STORAGE_KEY, JSON.stringify(data));
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) syncStreak(user.id, data).catch(() => {});
+    });
   };
 
   const handleRelapse = () => {

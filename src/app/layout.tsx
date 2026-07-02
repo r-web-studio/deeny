@@ -6,6 +6,7 @@ import { Providers } from "@/components/providers";
 import { PWAInstallProvider } from "@/components/pwa/install-context";
 import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
+import { SyncProvider } from "@/components/sync-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -172,10 +173,12 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <PWAInstallProvider>
-          <Providers>
-            {children}
-            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-          </Providers>
+          <SyncProvider>
+            <Providers>
+              {children}
+              <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+            </Providers>
+          </SyncProvider>
           <ServiceWorkerRegister />
           <InstallPrompt />
         </PWAInstallProvider>
