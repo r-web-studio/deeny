@@ -163,13 +163,6 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png" />
-
-        {/* Splash screens for iOS */}
-        <link
-          rel="apple-touch-startup-image"
-          href="/icons/splash-1170x2532.png"
-          media="(device-width: 390px) and (-webkit-device-pixel-ratio: 3)"
-        />
       </head>
       <body className="min-h-full flex flex-col">
         <PWAInstallProvider>

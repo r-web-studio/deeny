@@ -78,17 +78,20 @@
     {
       "name": "Namoz",
       "url": "/prayers",
-      "description": "Namoz kuzatuvi"
+      "description": "Namoz kuzatuvi",
+      "icons": [{ "src": "/icons/shortcut-prayer.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Zikr",
       "url": "/dhikr",
-      "description": "Zikr hisoblagich"
+      "description": "Zikr hisoblagich",
+      "icons": [{ "src": "/icons/shortcut-dhikr.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Kundalik",
       "url": "/journal",
-      "description": "Ruhiy kundalik"
+      "description": "Ruhiy kundalik",
+      "icons": [{ "src": "/icons/shortcut-journal.png", "sizes": "96x96", "type": "image/png" }]
     }
   ]
 }

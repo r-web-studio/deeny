@@ -31,4 +31,4 @@ RUN npm ci
 
 COPY . .
 
-CMD ["sh", "-c", "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug && cp app/build/outputs/apk/debug/app-debug.apk /output/deenflow.apk"]
+CMD ["sh", "-c", "npm run build:static && npx cap sync android && cd android && ./gradlew assembleDebug && cp app/build/outputs/apk/debug/app-debug.apk /output/deenflow.apk"]

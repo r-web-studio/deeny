@@ -5,6 +5,7 @@ const config = {
   server: {
     url: "https://deenflow.onrender.com",
     cleartext: false,
+    allowNavigation: ["*"],
   },
   plugins: {
     CapacitorCookies: {
@@ -23,6 +24,7 @@ const config = {
   android: {
     allowMixedContent: false,
     backgroundColor: "#059669",
+    webContentsDebuggingEnabled: false,
   },
 };
 

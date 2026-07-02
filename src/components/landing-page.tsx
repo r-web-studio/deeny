@@ -1,25 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { usePWAInstall } from "@/components/pwa/install-context";
 
 export default function LandingPageClient() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
+  const { hasNativePrompt, triggerInstall } = usePWAInstall();
 
   const handleInstall = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === "accepted") {
-        setDeferredPrompt(null);
-      }
+    if (hasNativePrompt) {
+      triggerInstall();
     } else {
       window.location.href = "/register";
     }

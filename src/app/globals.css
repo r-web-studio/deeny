@@ -43,6 +43,17 @@
   --color-gold: var(--gold);
   --color-islamic-green: var(--islamic-green);
   --color-islamic-green-light: var(--islamic-green-light);
+  --color-tasbeeh-bg: var(--tasbeeh-bg);
+  --color-tasbeeh-card: var(--tasbeeh-card);
+  --color-tasbeeh-body-top: var(--tasbeeh-body-top);
+  --color-tasbeeh-body-bottom: var(--tasbeeh-body-bottom);
+  --color-tasbeeh-gold: var(--tasbeeh-gold);
+  --color-tasbeeh-gold-light: var(--tasbeeh-gold-light);
+  --color-tasbeeh-gold-dark: var(--tasbeeh-gold-dark);
+  --color-tasbeeh-lcd-bg: var(--tasbeeh-lcd-bg);
+  --color-tasbeeh-lcd-text: var(--tasbeeh-lcd-text);
+  --color-tasbeeh-text: var(--tasbeeh-text);
+  --color-tasbeeh-text-secondary: var(--tasbeeh-text-secondary);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -80,6 +91,24 @@
   --chart-4: oklch(0.65 0.15 300);
   --chart-5: oklch(0.50 0.15 250);
   --radius: 0.75rem;
+  /* Tasbeeh theme tokens */
+  --tasbeeh-bg: #F7F8FA;
+  --tasbeeh-card: #FFFFFF;
+  --tasbeeh-body-top: #1E4D7B;
+  --tasbeeh-body-bottom: #173A63;
+  --tasbeeh-gold: #E6C15A;
+  --tasbeeh-gold-light: #F5DFA0;
+  --tasbeeh-gold-dark: #C9A23D;
+  --tasbeeh-lcd-bg: #F4E8AE;
+  --tasbeeh-lcd-text: #173A63;
+  --tasbeeh-text: #111827;
+  --tasbeeh-text-secondary: #6B7280;
+  --tasbeeh-border: rgba(23,58,99,0.08);
+  --tasbeeh-shadow: 0 25px 60px rgba(0,0,0,0.10), 0 8px 20px rgba(0,0,0,0.06);
+  --tasbeeh-shadow-lg: 0 30px 80px rgba(0,0,0,0.14), 0 12px 30px rgba(0,0,0,0.08);
+  --tasbeeh-lcd-shadow: inset 0 2px 8px rgba(0,0,0,0.12), inset 0 1px 3px rgba(0,0,0,0.08);
+  --tasbeeh-btn-glow: rgba(230,193,90,0.35);
+  --tasbeeh-card-border: rgba(0,0,0,0.04);
   --sidebar: oklch(0.985 0.002 100);
   --sidebar-foreground: oklch(0.15 0.02 250);
   --sidebar-primary: oklch(0.35 0.15 155);
@@ -125,6 +154,24 @@
   --sidebar-accent-foreground: oklch(0.92 0.01 155);
   --sidebar-border: oklch(0.25 0.02 250 / 50%);
   --sidebar-ring: oklch(0.55 0.18 155);
+  /* Tasbeeh dark theme tokens */
+  --tasbeeh-bg: #0B1220;
+  --tasbeeh-card: #111827;
+  --tasbeeh-body-top: #243D5E;
+  --tasbeeh-body-bottom: #1B2E4B;
+  --tasbeeh-gold: #F2C94C;
+  --tasbeeh-gold-light: #F7DC8A;
+  --tasbeeh-gold-dark: #D4A843;
+  --tasbeeh-lcd-bg: #1A2A3E;
+  --tasbeeh-lcd-text: #D9C36B;
+  --tasbeeh-text: #F9FAFB;
+  --tasbeeh-text-secondary: #9CA3AF;
+  --tasbeeh-border: rgba(255,255,255,0.06);
+  --tasbeeh-shadow: 0 25px 60px rgba(0,0,0,0.30), 0 8px 20px rgba(0,0,0,0.20);
+  --tasbeeh-shadow-lg: 0 30px 80px rgba(0,0,0,0.40), 0 12px 30px rgba(0,0,0,0.25);
+  --tasbeeh-lcd-shadow: inset 0 2px 10px rgba(0,0,0,0.40), inset 0 1px 3px rgba(0,0,0,0.30);
+  --tasbeeh-btn-glow: rgba(242,201,76,0.25);
+  --tasbeeh-card-border: rgba(255,255,255,0.06);
 }
 
 @layer base {
@@ -205,4 +252,106 @@
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+@keyframes tasbeeh-ripple {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes lcd-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.97; }
+}
+
+@keyframes goal-glow {
+  0%, 100% { box-shadow: 0 0 20px 5px rgba(230,193,90,0.2); }
+  50% { box-shadow: 0 0 40px 15px rgba(230,193,90,0.35); }
+}
+
+@keyframes subtle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@layer utilities {
+  .tasbeeh-device {
+    background: linear-gradient(180deg, var(--tasbeeh-body-top), var(--tasbeeh-body-bottom));
+    border: 2px solid var(--tasbeeh-border);
+    box-shadow: var(--tasbeeh-shadow),
+      inset 0 2px 3px rgba(255,255,255,0.12),
+      inset 0 -4px 8px rgba(0,0,0,0.25);
+  }
+
+  .dark .tasbeeh-device {
+    box-shadow: var(--tasbeeh-shadow),
+      inset 0 2px 4px rgba(255,255,255,0.06),
+      inset 0 -4px 10px rgba(0,0,0,0.35),
+      0 0 30px rgba(0,0,0,0.3);
+  }
+
+  .tasbeeh-lcd {
+    background: linear-gradient(180deg, var(--tasbeeh-lcd-bg), color-mix(in srgb, var(--tasbeeh-lcd-bg) 85%, var(--tasbeeh-gold) 15%));
+    box-shadow: var(--tasbeeh-lcd-shadow);
+    animation: lcd-flicker 4s ease-in-out infinite;
+  }
+
+  .tasbeeh-btn {
+    background: linear-gradient(180deg, var(--tasbeeh-gold-light) 0%, var(--tasbeeh-gold) 50%, var(--tasbeeh-gold-dark) 100%);
+    box-shadow:
+      0 8px 24px var(--tasbeeh-btn-glow),
+      0 4px 8px rgba(0,0,0,0.12),
+      inset 0 2px 0 rgba(255,255,255,0.45),
+      inset 0 -2px 0 rgba(0,0,0,0.12);
+    transition: all 0.15s ease;
+  }
+
+  .tasbeeh-btn:hover {
+    box-shadow:
+      0 12px 32px var(--tasbeeh-btn-glow),
+      0 6px 12px rgba(0,0,0,0.15),
+      inset 0 2px 0 rgba(255,255,255,0.5),
+      inset 0 -2px 0 rgba(0,0,0,0.12),
+      0 0 20px var(--tasbeeh-btn-glow);
+  }
+
+  .tasbeeh-btn:active {
+    transform: scale(0.96);
+    box-shadow:
+      0 4px 12px var(--tasbeeh-btn-glow),
+      0 2px 4px rgba(0,0,0,0.12),
+      inset 0 2px 4px rgba(0,0,0,0.15);
+  }
+
+  .tasbeeh-glass {
+    background: color-mix(in srgb, var(--tasbeeh-card) 80%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--tasbeeh-card-border);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  .dark .tasbeeh-glass {
+    background: color-mix(in srgb, var(--tasbeeh-card) 75%, transparent);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  }
+
+  .tasbeeh-card-hover {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .tasbeeh-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+  }
+
+  .dark .tasbeeh-card-hover:hover {
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  }
+
+  .font-mono-lcd {
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Courier New', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
 }

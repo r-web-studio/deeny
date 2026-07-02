@@ -26,7 +26,7 @@ docker run --rm \
     sdkmanager 'platform-tools' 'build-tools;34.0.0' 'platforms;android-34' > /dev/null 2>&1 &&
     npm install -g @capacitor/cli@latest &&
     npm ci &&
-    npm run build &&
+    npm run build:static &&
     npx cap add android 2>/dev/null || npx cap sync android &&
     cd android &&
     chmod +x gradlew &&

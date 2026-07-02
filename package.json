@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
+    "build:static": "CAPACITOR_BUILD=true next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "cap:sync": "npx cap sync android",
