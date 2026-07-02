@@ -53,7 +53,7 @@ const getInitialLocationState = () => {
 };
 
 // Handle storage events for location and country
-const handleStorageChange = (event: StorageEvent) => {
+function handleStorageLocationChange(event: StorageEvent, setters: { setCountryId: (v: string | undefined) => void; setApiRegion: (v: string | undefined) => void; setCityLat: (v: number | undefined) => void; setCityLon: (v: number | undefined) => void }) {
   if (event.key === "deenflow-selected-country" || event.key === "deenflow-prayer-location") {
     const newCountryId = localStorage.getItem("deenflow-selected-country");
     const newLocation = localStorage.getItem("deenflow-prayer-location");
@@ -76,12 +76,12 @@ const handleStorageChange = (event: StorageEvent) => {
         // ignore
       }
     }
-    setCountryId(countryId);
-    setApiRegion(apiRegion);
-    setCityLat(cityLat);
-    setCityLon(cityLon);
+    setters.setCountryId(countryId ?? undefined);
+    setters.setApiRegion(apiRegion);
+    setters.setCityLat(cityLat);
+    setters.setCityLon(cityLon);
   }
-};
+}
 
 const moodIcons: Record<string, React.ReactNode> = {
   smile: <Smile className="h-5 w-5" />,
@@ -110,7 +110,7 @@ export default function DashboardPage() {
   const { canInstall, isInstalled, isIOS, isDismissed, hasNativePrompt, triggerInstall, dismiss } = usePWAInstall();
   const { apiRegion: initialApiRegion, countryId: initialCountryId, cityLat: initialCityLat, cityLon: initialCityLon } = getInitialLocationState();
   const [apiRegion, setApiRegion] = useState(initialApiRegion);
-  const [countryId, setCountryId] = useState(initialCountryId);
+  const [countryId, setCountryId] = useState(initialCountryId ?? undefined);
   const [cityLat, setCityLat] = useState(initialCityLat);
   const [cityLon, setCityLon] = useState(initialCityLon);
   const { times } = usePrayerTimes(apiRegion, countryId, cityLat, cityLon);
@@ -266,14 +266,12 @@ export default function DashboardPage() {
     };
 
     loadProgress();
-    window.addEventListener("storage", (e) => {
+    const storageHandler = (e: StorageEvent) => {
       loadProgress();
-      handleStorageChange(e);
-    });
-    return () => window.removeEventListener("storage", (e) => {
-      loadProgress();
-      handleStorageChange(e);
-    });
+      handleStorageLocationChange(e, { setCountryId, setApiRegion, setCityLat, setCityLon });
+    };
+    window.addEventListener("storage", storageHandler);
+    return () => window.removeEventListener("storage", storageHandler);
   }, []);
 
   useEffect(() => {
