@@ -1,15 +1,5 @@
 import type { NextConfig } from "next";
-import withPWAInit, { runtimeCaching } from "@ducanh2912/next-pwa";
-import type { RuntimeCaching } from "workbox-build";
-
-const isHttpUrl = (url: string | URL | Request) => {
-  try {
-    const u = typeof url === "string" || url instanceof URL ? new URL(url.toString()) : new URL(url.url);
-    return u.protocol === "http:" || u.protocol === "https:";
-  } catch {
-    return false;
-  }
-};
+import withPWAInit from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
   dest: "public",
@@ -18,13 +8,22 @@ const withPWA = withPWAInit({
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
   workboxOptions: {
+    navigateFallback: "/",
+    navigateFallbackDenylist: [
+      /^\/manifest\.json$/,
+      /^\/api\//,
+      /^\/_next\//,
+      /^\/icons\//,
+    ],
     runtimeCaching: [
-      ...(runtimeCaching.map((entry) => ({
-        ...entry,
-        urlPattern: entry.urlPattern instanceof RegExp
-          ? ((opts: { url: URL }) => isHttpUrl(opts.url) && (entry.urlPattern as RegExp).test(opts.url.href))
-          : entry.urlPattern,
-      })) as RuntimeCaching[]),
+      {
+        urlPattern: /^https:\/\/vpbvmbnovdixuikeuaog\.supabase\.co\/rest\/v1\/.*/i,
+        handler: "NetworkOnly",
+      },
+      {
+        urlPattern: /^https:\/\/vpbvmbnovdixuikeuaog\.supabase\.co\/auth\/v1\/.*/i,
+        handler: "NetworkOnly",
+      },
       {
         urlPattern: /^https:\/\/deeny-4ty6\.onrender\.com\/api\/.*/i,
         handler: "NetworkFirst",

@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
 import type {
   AllUserData,
   PrayerLog,
@@ -68,15 +68,12 @@ export async function clearSyncQueue(ids: string[]): Promise<void> {
   }
 }
 
-let supabaseClient: SupabaseClient | null = null;
+let supabaseClient: ReturnType<typeof createClient> | null = null;
 
-function getSupabase(): SupabaseClient | null {
+function getSupabase(): ReturnType<typeof createClient> | null {
   if (supabaseClient) return supabaseClient;
   try {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) return null;
-    supabaseClient = createClient(url, key);
+    supabaseClient = createClient();
     return supabaseClient;
   } catch {
     return null;
