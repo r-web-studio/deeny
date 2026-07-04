@@ -14,14 +14,15 @@ const withPWA = withPWAInit({
       /^\/api\//,
       /^\/_next\//,
       /^\/icons\//,
+      /^\/swe-worker/,
+    ],
+    exclude: [
+      /^\/manifest\.json$/,
+      /^\/swe-worker/,
     ],
     runtimeCaching: [
       {
-        urlPattern: /^https:\/\/vpbvmbnovdixuikeuaog\.supabase\.co\/rest\/v1\/.*/i,
-        handler: "NetworkOnly",
-      },
-      {
-        urlPattern: /^https:\/\/vpbvmbnovdixuikeuaog\.supabase\.co\/auth\/v1\/.*/i,
+        urlPattern: /^https:\/\/vpbvmbnovdixuikeuaog\.supabase\.co\/.*/i,
         handler: "NetworkOnly",
       },
       {
@@ -36,7 +37,7 @@ const withPWA = withPWAInit({
         },
       },
       {
-        urlPattern: /\.(?:js|css|woff2|png|jpg|svg|ico)$/i,
+        urlPattern: /^https:\/\/.*\.(?:js|css|woff2|png|jpg|jpeg|gif|webp|svg|ico)$/i,
         handler: "CacheFirst",
         options: {
           cacheName: "static-assets",

@@ -5,14 +5,7 @@ let cachedKey = "";
 let fetchedConfig = false;
 
 function createSupabaseClient(url: string, key: string) {
-  return createBrowserClient(url, key, {
-    cookieOptions: {
-      name: "sb",
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/",
-      sameSite: "lax",
-    },
-  });
+  return createBrowserClient(url, key);
 }
 
 export function createClient() {

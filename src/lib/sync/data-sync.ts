@@ -508,44 +508,51 @@ export async function processSyncQueue(): Promise<number> {
         case "prayer_logs": {
           const items = item.data.items as PrayerLog[];
           if (items.length > 0) {
-            await supabase.from("prayer_logs").upsert(items, { onConflict: "id" });
+            const { error } = await supabase.from("prayer_logs").upsert(items, { onConflict: "id" });
+            if (error && error.code !== "23505") console.warn("prayer_logs sync:", error.message);
           }
           break;
         }
         case "dhikr_sessions": {
           const items = item.data.items as DhikrSession[];
           if (items.length > 0) {
-            await supabase.from("dhikr_sessions").upsert(items, { onConflict: "id" });
+            const { error } = await supabase.from("dhikr_sessions").upsert(items, { onConflict: "id" });
+            if (error && error.code !== "23505") console.warn("dhikr_sessions sync:", error.message);
           }
           break;
         }
         case "tasks": {
           const items = item.data.items as Task[];
           if (items.length > 0) {
-            await supabase.from("tasks").upsert(items, { onConflict: "id" });
+            const { error } = await supabase.from("tasks").upsert(items, { onConflict: "id" });
+            if (error && error.code !== "23505") console.warn("tasks sync:", error.message);
           }
           break;
         }
         case "journal_entries": {
           const items = item.data.items as JournalEntry[];
           if (items.length > 0) {
-            await supabase.from("journal_entries").upsert(items, { onConflict: "id" });
+            const { error } = await supabase.from("journal_entries").upsert(items, { onConflict: "id" });
+            if (error && error.code !== "23505") console.warn("journal_entries sync:", error.message);
           }
           break;
         }
         case "ai_conversations": {
           const data = item.data.items as { convos: AIConversation[]; messages: AIMessage[] };
           if (data.convos.length > 0) {
-            await supabase.from("ai_conversations").upsert(data.convos, { onConflict: "id" });
+            const { error } = await supabase.from("ai_conversations").upsert(data.convos, { onConflict: "id" });
+            if (error && error.code !== "23505") console.warn("ai_conversations sync:", error.message);
           }
           if (data.messages.length > 0) {
-            await supabase.from("ai_messages").upsert(data.messages, { onConflict: "id" });
+            const { error } = await supabase.from("ai_messages").upsert(data.messages, { onConflict: "id" });
+            if (error && error.code !== "23505") console.warn("ai_messages sync:", error.message);
           }
           break;
         }
         case "no_porn_streaks": {
           const streak = item.data.items as NoPornStreak;
-          await supabase.from("no_porn_streaks").upsert(streak, { onConflict: "id" });
+          const { error } = await supabase.from("no_porn_streaks").upsert(streak, { onConflict: "id" });
+          if (error && error.code !== "23505") console.warn("no_porn_streaks sync:", error.message);
           break;
         }
         case "user_achievements": {
@@ -558,14 +565,16 @@ export async function processSyncQueue(): Promise<number> {
               achievement_id: String(a.index),
               earned_at: a.earned_at,
             }));
-            await supabase.from("user_achievements").upsert(rows, { onConflict: "id" });
+            const { error } = await supabase.from("user_achievements").upsert(rows, { onConflict: "id" });
+            if (error && error.code !== "23505") console.warn("user_achievements sync:", error.message);
           }
           break;
         }
         case "users": {
           const profile = item.data.items as Record<string, unknown>;
           if (profile.id) {
-            await supabase.from("users").upsert(profile, { onConflict: "id" });
+            const { error } = await supabase.from("users").upsert(profile, { onConflict: "id" });
+            if (error && error.code !== "23505") console.warn("users sync:", error.message);
           }
           break;
         }
