@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 import withPWAInit, { runtimeCaching } from "@ducanh2912/next-pwa";
 
+const isHttpUrl = (url: Request | URL | string) => {
+  try {
+    const u = typeof url === "string" || url instanceof URL ? new URL(url) : new URL(url.url);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
 const withPWA = withPWAInit({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
@@ -9,7 +18,12 @@ const withPWA = withPWAInit({
   aggressiveFrontEndNavCaching: true,
   workboxOptions: {
     runtimeCaching: [
-      ...runtimeCaching,
+      ...runtimeCaching.map((entry) => ({
+        ...entry,
+        urlPattern: entry.urlPattern instanceof RegExp
+          ? (url: Request | URL | string) => isHttpUrl(url) && entry.urlPattern.test(typeof url === "string" ? url : url instanceof URL ? url.url : url.url)
+          : entry.urlPattern,
+      })),
       {
         urlPattern: /^https:\/\/deeny-4ty6\.onrender\.com\/api\/.*/i,
         handler: "NetworkFirst",
@@ -62,7 +76,7 @@ const nextConfig: NextConfig = {
       source: "/manifest.json",
       headers: [
         { key: "Cache-Control", value: "public, max-age=3600" },
-        { key: "Content-Type", value: "application/manifest+json" },
+        { key: "Content-Type", value: "application/manifest+json; charset=utf-8" },
       ],
     },
     {

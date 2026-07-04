@@ -552,9 +552,16 @@ export async function processSyncQueue(): Promise<number> {
           break;
         }
         case "user_achievements": {
-          const items = item.data.items as UserAchievement[];
-          if (items.length > 0) {
-            await supabase.from("user_achievements").upsert(items, { onConflict: "id" });
+          const localItems = item.data.items as { index: number; earned_at: string }[];
+          const userId = item.data.user_id;
+          if (localItems.length > 0) {
+            const rows: UserAchievement[] = localItems.map((a) => ({
+              id: `${userId}-${a.index}`,
+              user_id: userId,
+              achievement_id: String(a.index),
+              earned_at: a.earned_at,
+            }));
+            await supabase.from("user_achievements").upsert(rows, { onConflict: "id" });
           }
           break;
         }
