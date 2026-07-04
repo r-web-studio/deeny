@@ -151,7 +151,7 @@ export const COUNTRIES: Country[] = [
     name: "Pakistan",
     flag: "🇵🇰",
     timezone: "Asia/Karachi",
-    prayerMethod: 2,
+    prayerMethod: 1,
     api: "aladhan",
     regions: [
       {
@@ -201,7 +201,7 @@ export const COUNTRIES: Country[] = [
     name: "Indonesia",
     flag: "🇮🇩",
     timezone: "Asia/Jakarta",
-    prayerMethod: 11,
+    prayerMethod: 20,
     api: "aladhan",
     regions: [
       {
@@ -245,7 +245,7 @@ export const COUNTRIES: Country[] = [
     name: "Malaysia",
     flag: "🇲🇾",
     timezone: "Asia/Kuala_Lumpur",
-    prayerMethod: 11,
+    prayerMethod: 17,
     api: "aladhan",
     regions: [
       {
@@ -315,7 +315,7 @@ export const COUNTRIES: Country[] = [
       {
         name: "Delta",
         cities: [
-          { name: "Mansoura", lat: 31.3807, lon: 31.3807 },
+          { name: "Mansoura", lat: 31.0409, lon: 31.3785 },
           { name: "Tanta", lat: 30.7865, lon: 31.0004 },
           { name: "Port Said", lat: 31.2653, lon: 32.3019 },
         ],
@@ -327,7 +327,7 @@ export const COUNTRIES: Country[] = [
     name: "UAE",
     flag: "🇦🇪",
     timezone: "Asia/Dubai",
-    prayerMethod: 8,
+    prayerMethod: 16,
     api: "aladhan",
     regions: [
       {
@@ -363,7 +363,7 @@ export const COUNTRIES: Country[] = [
     name: "Kazakhstan",
     flag: "🇰🇿",
     timezone: "Asia/Almaty",
-    prayerMethod: 2,
+    prayerMethod: 3,
     api: "aladhan",
     regions: [
       {
@@ -397,7 +397,7 @@ export const COUNTRIES: Country[] = [
     name: "Russia",
     flag: "🇷🇺",
     timezone: "Europe/Moscow",
-    prayerMethod: 2,
+    prayerMethod: 14,
     api: "aladhan",
     regions: [
       {
@@ -431,7 +431,7 @@ export const COUNTRIES: Country[] = [
     name: "Kyrgyzstan",
     flag: "🇰🇬",
     timezone: "Asia/Bishkek",
-    prayerMethod: 2,
+    prayerMethod: 3,
     api: "aladhan",
     regions: [
       {
@@ -453,7 +453,7 @@ export const COUNTRIES: Country[] = [
     name: "Tajikistan",
     flag: "🇹🇯",
     timezone: "Asia/Dushanbe",
-    prayerMethod: 2,
+    prayerMethod: 3,
     api: "aladhan",
     regions: [
       {
@@ -475,7 +475,7 @@ export const COUNTRIES: Country[] = [
     name: "Afghanistan",
     flag: "🇦🇫",
     timezone: "Asia/Kabul",
-    prayerMethod: 2,
+    prayerMethod: 3,
     api: "aladhan",
     regions: [
       {
@@ -509,7 +509,7 @@ export const COUNTRIES: Country[] = [
     name: "Iran",
     flag: "🇮🇷",
     timezone: "Asia/Tehran",
-    prayerMethod: 14,
+    prayerMethod: 7,
     api: "aladhan",
     regions: [
       {
@@ -549,7 +549,7 @@ export const COUNTRIES: Country[] = [
     name: "Morocco",
     flag: "🇲🇦",
     timezone: "Africa/Casablanca",
-    prayerMethod: 5,
+    prayerMethod: 21,
     api: "aladhan",
     regions: [
       {
@@ -583,7 +583,7 @@ export const COUNTRIES: Country[] = [
     name: "Jordan",
     flag: "🇯🇴",
     timezone: "Asia/Amman",
-    prayerMethod: 3,
+    prayerMethod: 23,
     api: "aladhan",
     regions: [
       {
