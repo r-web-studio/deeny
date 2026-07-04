@@ -553,7 +553,7 @@ export async function processSyncQueue(): Promise<number> {
         }
         case "user_achievements": {
           const localItems = item.data.items as { index: number; earned_at: string }[];
-          const userId = item.data.user_id;
+          const userId = item.data.user_id as string;
           if (localItems.length > 0) {
             const rows: UserAchievement[] = localItems.map((a) => ({
               id: `${userId}-${a.index}`,

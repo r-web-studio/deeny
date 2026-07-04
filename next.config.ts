@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 import withPWAInit, { runtimeCaching } from "@ducanh2912/next-pwa";
+import type { RuntimeCaching } from "workbox-build";
 
-const isHttpUrl = (url: Request | URL | string) => {
+const isHttpUrl = (url: string | URL | Request) => {
   try {
-    const u = typeof url === "string" || url instanceof URL ? new URL(url) : new URL(url.url);
+    const u = typeof url === "string" || url instanceof URL ? new URL(url.toString()) : new URL(url.url);
     return u.protocol === "http:" || u.protocol === "https:";
   } catch {
     return false;
@@ -18,12 +19,12 @@ const withPWA = withPWAInit({
   aggressiveFrontEndNavCaching: true,
   workboxOptions: {
     runtimeCaching: [
-      ...runtimeCaching.map((entry) => ({
+      ...(runtimeCaching.map((entry) => ({
         ...entry,
         urlPattern: entry.urlPattern instanceof RegExp
-          ? (url: Request | URL | string) => isHttpUrl(url) && entry.urlPattern.test(typeof url === "string" ? url : url instanceof URL ? url.url : url.url)
+          ? ((opts: { url: URL }) => isHttpUrl(opts.url) && (entry.urlPattern as RegExp).test(opts.url.href))
           : entry.urlPattern,
-      })),
+      })) as RuntimeCaching[]),
       {
         urlPattern: /^https:\/\/deeny-4ty6\.onrender\.com\/api\/.*/i,
         handler: "NetworkFirst",
