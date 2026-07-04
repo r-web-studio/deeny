@@ -41,10 +41,11 @@ export function usePrayerTimes(regionName?: string, countryId?: string, lat?: nu
     const day = today.getDate();
     const dateStr = `${String(day).padStart(2, "0")}-${String(month).padStart(2, "0")}-${today.getFullYear()}`;
     const method = country.prayerMethod;
+    const schoolParam = country.school !== undefined ? `&school=${country.school}` : "";
 
     if (lat !== undefined && lon !== undefined) {
       fetch(
-        `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lon}&method=${method}`
+        `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lon}&method=${method}${schoolParam}`
       )
         .then((r) => r.json())
         .then((data: AladhanResponse | null) => {

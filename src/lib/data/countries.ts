@@ -15,6 +15,7 @@ export interface Country {
   flag: string;
   timezone: string;
   prayerMethod: number;
+  school?: number; // 0 = Shafi'i, 1 = Hanafi
   api: "aladhan";
   regions: Region[];
 }
@@ -25,7 +26,8 @@ export const COUNTRIES: Country[] = [
     name: "Uzbekistan",
     flag: "🇺🇿",
     timezone: "Asia/Tashkent",
-    prayerMethod: 3,
+    prayerMethod: 2,
+    school: 1,
     api: "aladhan",
     regions: [
       {
@@ -42,6 +44,7 @@ export const COUNTRIES: Country[] = [
     flag: "🇹🇷",
     timezone: "Europe/Istanbul",
     prayerMethod: 13,
+    school: 1,
     api: "aladhan",
     regions: [
       {
@@ -152,6 +155,7 @@ export const COUNTRIES: Country[] = [
     flag: "🇵🇰",
     timezone: "Asia/Karachi",
     prayerMethod: 1,
+    school: 1,
     api: "aladhan",
     regions: [
       {
@@ -364,6 +368,7 @@ export const COUNTRIES: Country[] = [
     flag: "🇰🇿",
     timezone: "Asia/Almaty",
     prayerMethod: 3,
+    school: 1,
     api: "aladhan",
     regions: [
       {
@@ -432,6 +437,7 @@ export const COUNTRIES: Country[] = [
     flag: "🇰🇬",
     timezone: "Asia/Bishkek",
     prayerMethod: 3,
+    school: 1,
     api: "aladhan",
     regions: [
       {
@@ -454,6 +460,7 @@ export const COUNTRIES: Country[] = [
     flag: "🇹🇯",
     timezone: "Asia/Dushanbe",
     prayerMethod: 3,
+    school: 1,
     api: "aladhan",
     regions: [
       {
@@ -476,6 +483,7 @@ export const COUNTRIES: Country[] = [
     flag: "🇦🇫",
     timezone: "Asia/Kabul",
     prayerMethod: 3,
+    school: 1,
     api: "aladhan",
     regions: [
       {
@@ -612,6 +620,7 @@ export const COUNTRIES: Country[] = [
     flag: "🇩🇪",
     timezone: "Europe/Berlin",
     prayerMethod: 3,
+    school: 1,
     api: "aladhan",
     regions: [
       {
