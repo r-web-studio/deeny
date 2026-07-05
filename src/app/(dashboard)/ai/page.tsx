@@ -57,10 +57,12 @@ export default function AiPage() {
   const saveConversations = (updated: Conversation[]) => {
     setConversations(updated);
     localStorage.setItem(AI_STORAGE_KEY, JSON.stringify(updated));
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) syncAIConversations(user.id, updated).catch(() => {});
-    });
+    try {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) syncAIConversations(user.id, updated).catch(() => {});
+      }).catch(() => {});
+    } catch {}
   };
 
   useEffect(() => {
@@ -194,7 +196,7 @@ export default function AiPage() {
   };
 
   return (
-    <div className="flex h-[calc(100dvh-8rem)] gap-4">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-7rem)] gap-4 overflow-hidden">
       {/* Mobile sidebar toggle */}
       <Button
         variant="outline"
