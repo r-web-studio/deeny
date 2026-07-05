@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DHIKR_PRESETS } from "@/lib/constants";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { saveDhikrSessions as syncDhikrSessions } from "@/lib/sync/data-sync";
+import { createClient } from "@/lib/supabase/client";
 
 const DHIKR_STORAGE_KEY = "deenflow-dhikr-sessions";
 
@@ -48,6 +50,10 @@ export default function DhikrPage() {
   const saveSessions = (newSessions: Session[]) => {
     setSessions(newSessions);
     localStorage.setItem(DHIKR_STORAGE_KEY, JSON.stringify(newSessions));
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) syncDhikrSessions(user.id, newSessions).catch(() => {});
+    });
   };
 
   const handleReset = () => {

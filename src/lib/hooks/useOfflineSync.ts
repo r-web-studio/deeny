@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import {
   processSyncQueue,
@@ -11,13 +11,7 @@ import {
   mergeJournalEntries,
   mergeAIConversations,
   mergeStreak,
-  savePrayerHistory,
-  saveDhikrSessions,
-  saveTasks,
-  saveJournalEntries,
-  saveAIConversations,
-  saveStreak,
-  saveAchievements,
+  mergeDailyCheckins,
   saveProfile,
   loadPrayerHistory,
   loadDhikrSessions,
@@ -27,16 +21,10 @@ import {
   loadStreak,
   loadAchievements,
   loadProfile,
+  loadDailyCheckins,
   isOnline as checkOnline,
-  type PrayerHistory,
-  type DhikrSessionLocal,
-  type TaskLocal,
-  type JournalEntryLocal,
-  type AIConversationLocal,
-  type StreakLocal,
-  type AchievementLocal,
-  type ProfileLocal,
 } from '@/lib/sync/data-sync';
+import { useUserStore } from '@/lib/stores/user-store';
 
 const SYNC_INTERVAL = 30000;
 
@@ -44,6 +32,7 @@ export function useOfflineSync() {
   const [online, setOnline] = useState<boolean>(checkOnline());
   const [pendingSyncCount, setPendingSyncCount] = useState<number>(0);
   const [synced, setSynced] = useState<boolean>(false);
+  const hasMergedRef = useRef(false);
 
   const syncQueue = useCallback(async () => {
     if (!checkOnline()) return;
@@ -56,6 +45,9 @@ export function useOfflineSync() {
   }, []);
 
   const loadAndMerge = useCallback(async () => {
+    if (hasMergedRef.current) return;
+    hasMergedRef.current = true;
+
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -68,41 +60,80 @@ export function useOfflineSync() {
 
       const localPrayers = loadPrayerHistory();
       const mergedPrayers = mergePrayerHistory(localPrayers, remote.prayers);
-      savePrayerHistory(user.id, mergedPrayers);
+      saveToLS('deenflow-prayer-history', mergedPrayers);
 
       const localDhikr = loadDhikrSessions();
       const mergedDhikr = mergeDhikrSessions(localDhikr, remote.dhikr);
-      saveDhikrSessions(user.id, mergedDhikr);
+      saveToLS('deenflow-dhikr-sessions', mergedDhikr);
 
       const localTasks = loadTasks();
       const mergedTasks = mergeTasks(localTasks, remote.tasks);
-      saveTasks(user.id, mergedTasks);
+      saveToLS('deenflow-tasks', mergedTasks);
 
       const localJournal = loadJournalEntries();
       const mergedJournal = mergeJournalEntries(localJournal, remote.journal);
-      saveJournalEntries(user.id, mergedJournal);
+      saveToLS('deenflow-journal', mergedJournal);
 
       const localConvo = loadAIConversations();
       const mergedConvo = mergeAIConversations(localConvo, remote.conversations, remote.messages);
-      saveAIConversations(user.id, mergedConvo);
+      saveToLS('deenflow-ai-conversations', mergedConvo);
 
       const localStreak = loadStreak();
       const mergedStreak = mergeStreak(localStreak, remote.streak);
-      if (mergedStreak) saveStreak(user.id, mergedStreak);
+      if (mergedStreak) saveToLS('deenflow-streak', mergedStreak);
+
+      const localCheckins = loadDailyCheckins();
+      const mergedCheckins = mergeDailyCheckins(localCheckins, remote.dailyCheckins);
+      saveToLS('deenflow-daily-checkins', mergedCheckins);
 
       const localAchievements = loadAchievements();
-      saveAchievements(user.id, localAchievements);
+      saveToLS('deenflow-achievements', localAchievements);
 
       const localProfile = loadProfile();
-      if (localProfile) saveProfile(user.id, localProfile);
-
-      localStorage.setItem('deenflow-prayer-history', JSON.stringify(mergedPrayers));
-      localStorage.setItem('deenflow-dhikr-sessions', JSON.stringify(mergedDhikr));
-      localStorage.setItem('deenflow-tasks', JSON.stringify(mergedTasks));
-      localStorage.setItem('deenflow-journal', JSON.stringify(mergedJournal));
-      localStorage.setItem('deenflow-ai-conversations', JSON.stringify(mergedConvo));
-      if (mergedStreak) localStorage.setItem('deenflow-streak', JSON.stringify(mergedStreak));
-      localStorage.setItem('deenflow-achievements', JSON.stringify(localAchievements));
+      if (remote.profile) {
+        const remoteProfile = {
+          fullName: remote.profile.full_name || localProfile?.fullName || '',
+          username: remote.profile.username || localProfile?.username || '',
+          country: remote.profile.country || localProfile?.country || '',
+          timezone: remote.profile.timezone || localProfile?.timezone || 'UTC',
+          avatarUrl: remote.profile.avatar_url || localProfile?.avatarUrl || null,
+          language: remote.profile.language || localProfile?.language || 'en',
+          colorPreset: remote.profile.color_preset || localProfile?.colorPreset || 'madinah-green',
+          fontPreset: remote.profile.font_preset || localProfile?.fontPreset || 'amiri-classic',
+          prayerLocation: remote.profile.prayer_location || localProfile?.prayerLocation || null,
+        };
+        saveToLS('deenflow-profile', remoteProfile);
+        useUserStore.getState().setUser({
+          fullName: remoteProfile.fullName,
+          email: user.email || '',
+          username: remoteProfile.username,
+          avatarUrl: remoteProfile.avatarUrl,
+          country: remoteProfile.country,
+          timezone: remoteProfile.timezone,
+        });
+        // Sync language, color, font from remote profile to localStorage
+        if (remoteProfile.language) {
+          const currentLang = localStorage.getItem('deenflow-locale');
+          if (currentLang !== remoteProfile.language) {
+            localStorage.setItem('deenflow-locale', remoteProfile.language);
+          }
+        }
+        if (remoteProfile.colorPreset) {
+          localStorage.setItem('deenflow-colors', remoteProfile.colorPreset);
+        }
+        if (remoteProfile.fontPreset) {
+          localStorage.setItem('deenflow-fonts', remoteProfile.fontPreset);
+        }
+        if (remoteProfile.prayerLocation) {
+          localStorage.setItem('deenflow-prayer-location', JSON.stringify(remoteProfile.prayerLocation));
+          const loc = remoteProfile.prayerLocation as Record<string, string>;
+          if (loc.countryId) {
+            localStorage.setItem('deenflow-selected-country', loc.countryId);
+          }
+        }
+      } else if (localProfile) {
+        saveProfile(user.id, localProfile);
+      }
 
       setSynced(true);
       await syncQueue();
@@ -138,4 +169,9 @@ export function useOfflineSync() {
   }, [syncQueue]);
 
   return { isOnline: online, pendingSyncCount, synced };
+}
+
+function saveToLS(key: string, data: unknown) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(key, JSON.stringify(data));
 }

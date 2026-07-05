@@ -83,6 +83,16 @@ export interface UserProfile {
   country?: string;
   timezone?: string;
   theme?: string;
+  language?: string;
+  color_preset?: string;
+  font_preset?: string;
+  prayer_location?: Record<string, unknown>;
+}
+
+export interface DailyCheckin {
+  id: string;
+  user_id: string;
+  checkin_date: string;
 }
 
 export type SyncQueueItemType =
@@ -95,6 +105,7 @@ export type SyncQueueItemType =
   | "no_porn_streaks"
   | "relapses"
   | "user_achievements"
+  | "daily_checkins"
   | "users";
 
 export interface SyncQueueItem {
@@ -116,4 +127,5 @@ export interface AllUserData {
   relapses: Relapse[];
   achievements: UserAchievement[];
   profile: UserProfile | null;
+  dailyCheckins: DailyCheckin[];
 }

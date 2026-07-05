@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from "recharts";
 import { useI18n } from "@/lib/i18n";
-import { saveStreak as syncStreak, type StreakLocal } from "@/lib/sync/data-sync";
+import { saveStreak as syncStreak, saveDailyCheckins as syncDailyCheckins, type StreakLocal } from "@/lib/sync/data-sync";
 import { createClient } from "@/lib/supabase/client";
 
 const MILESTONES = [7, 14, 30, 60, 90, 180, 365];
@@ -99,6 +99,14 @@ export default function StreakPage() {
     setCheckedInToday(true);
     saveStreakData({ currentStreak: newStreak, longestStreak: newLongest, relapses, startDate });
     toast.success("MashaAllah! Day marked as clean. Keep going!");
+
+    // Sync daily checkins to Supabase
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        syncDailyCheckins(user.id, checkins).catch(() => {});
+      }
+    });
   };
 
   const weeklyData = Array.from({ length: 7 }, (_, i) => {

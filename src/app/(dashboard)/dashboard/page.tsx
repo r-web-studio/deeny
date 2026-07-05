@@ -11,6 +11,8 @@ import { useI18n } from "@/lib/i18n";
 import { MOODS } from "@/lib/constants";
 import { useUserStore } from "@/lib/stores/user-store";
 import { usePWAInstall } from "@/components/pwa/install-context";
+import { saveDailyCheckins as syncDailyCheckins, saveStreak as syncStreak } from "@/lib/sync/data-sync";
+import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 
 // Helper function to get initial location state from localStorage
@@ -322,19 +324,26 @@ export default function DashboardPage() {
     const newStreak = (streakData.currentStreak || 0) + 1;
     const newLongest = Math.max(newStreak, streakData.longestStreak || 0);
 
-    localStorage.setItem(
-      "deenflow-streak",
-      JSON.stringify({
-        ...streakData,
-        currentStreak: newStreak,
-        longestStreak: newLongest,
-        startDate: streakData.startDate || new Date().toISOString(),
-      })
-    );
+    const updatedStreak = {
+      ...streakData,
+      currentStreak: newStreak,
+      longestStreak: newLongest,
+      startDate: streakData.startDate || new Date().toISOString(),
+    };
+    localStorage.setItem("deenflow-streak", JSON.stringify(updatedStreak));
 
     setCurrentStreak(newStreak);
     setCheckedInToday(true);
     toast.success("MashaAllah! Day marked as clean. Keep going!");
+
+    // Sync to Supabase
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        syncDailyCheckins(user.id, checkins).catch(() => {});
+        syncStreak(user.id, updatedStreak).catch(() => {});
+      }
+    });
   };
 
   return (

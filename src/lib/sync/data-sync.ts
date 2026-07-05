@@ -8,9 +8,8 @@ import type {
   AIConversation,
   AIMessage,
   NoPornStreak,
-  Relapse,
   UserAchievement,
-  UserProfile,
+  DailyCheckin,
   SyncQueueItem,
   SyncQueueItemType,
 } from "./types";
@@ -94,10 +93,11 @@ export async function loadAllData(userId: string): Promise<AllUserData> {
     return {
       prayers: [], dhikr: [], tasks: [], journal: [], conversations: [],
       messages: [], streak: null, relapses: [], achievements: [], profile: null,
+      dailyCheckins: [],
     };
   }
 
-  const [prayers, dhikr, tasks, journal, conversations, streakResult, relapses, achievements, profile] =
+  const [prayers, dhikr, tasks, journal, conversations, streakResult, relapses, achievements, profile, checkins] =
     await Promise.all([
       supabase.from("prayer_logs").select("*").eq("user_id", userId),
       supabase.from("dhikr_sessions").select("*").eq("user_id", userId),
@@ -108,6 +108,7 @@ export async function loadAllData(userId: string): Promise<AllUserData> {
       supabase.from("relapses").select("*").eq("user_id", userId),
       supabase.from("user_achievements").select("*").eq("user_id", userId),
       supabase.from("users").select("*").eq("id", userId).maybeSingle(),
+      supabase.from("daily_checkins").select("*").eq("user_id", userId),
     ]);
 
   const convIds = (conversations.data || []).map((c: AIConversation) => c.id);
@@ -128,6 +129,7 @@ export async function loadAllData(userId: string): Promise<AllUserData> {
     relapses: relapses.data || [],
     achievements: achievements.data || [],
     profile: profile.data || null,
+    dailyCheckins: checkins.data || [],
   };
 }
 
@@ -164,6 +166,20 @@ async function queueAndSave<T>(
   });
 }
 
+async function queueDelete(
+  supabaseTable: SyncQueueItemType,
+  userId: string,
+  ids: string[]
+) {
+  await addToSyncQueue({
+    id: `${supabaseTable}-delete-${genId()}`,
+    type: supabaseTable,
+    data: { ids, user_id: userId },
+    action: "delete",
+    createdAt: new Date().toISOString(),
+  });
+}
+
 // ── Prayers ─────────────────────────────────────────────────────────────────
 
 export interface PrayerHistory {
@@ -196,12 +212,15 @@ export function mergePrayerHistory(local: PrayerHistory, remote: PrayerLog[]): P
   const merged = { ...local };
   for (const log of remote) {
     if (!merged[log.date]) merged[log.date] = {};
-    const existing = merged[log.date][log.prayer];
-    if (!existing) {
+    if (!merged[log.date][log.prayer]) {
       merged[log.date][log.prayer] = log.status;
     }
   }
   return merged;
+}
+
+export async function deletePrayerHistory(userId: string, dates: string[]) {
+  await queueDelete("prayer_logs", userId, dates);
 }
 
 // ── Dhikr ───────────────────────────────────────────────────────────────────
@@ -282,15 +301,20 @@ export function loadTasks(): TaskLocal[] {
 
 export function mergeTasks(local: TaskLocal[], remote: Task[]): TaskLocal[] {
   if (remote.length === 0) return local;
-  const remoteMapped: TaskLocal[] = remote.map((r) => ({
-    id: r.id,
-    title: r.title,
-    priority: r.priority,
-    category: "Personal",
-    due_date: r.due_date || null,
-    completed: r.completed,
-    created_at: new Date().toISOString(),
-  }));
+  const localById = new Map<string, TaskLocal>();
+  for (const t of local) localById.set(t.id, t);
+  const remoteMapped: TaskLocal[] = remote.map((r) => {
+    const existingLocal = localById.get(r.id);
+    return {
+      id: r.id,
+      title: r.title,
+      priority: r.priority,
+      category: existingLocal?.category || "Personal",
+      due_date: r.due_date || null,
+      completed: r.completed,
+      created_at: existingLocal?.created_at || new Date().toISOString(),
+    };
+  });
   const byId = new Map<string, TaskLocal>();
   for (const t of [...local, ...remoteMapped]) {
     const existing = byId.get(t.id);
@@ -299,6 +323,10 @@ export function mergeTasks(local: TaskLocal[], remote: Task[]): TaskLocal[] {
     }
   }
   return Array.from(byId.values());
+}
+
+export async function deleteTasks(userId: string, ids: string[]) {
+  await queueDelete("tasks", userId, ids);
 }
 
 // ── Journal ─────────────────────────────────────────────────────────────────
@@ -347,6 +375,10 @@ export function mergeJournalEntries(local: JournalEntryLocal[], remote: JournalE
     }
   }
   return Array.from(byId.values());
+}
+
+export async function deleteJournalEntries(userId: string, ids: string[]) {
+  await queueDelete("journal_entries", userId, ids);
 }
 
 // ── AI Conversations ────────────────────────────────────────────────────────
@@ -404,6 +436,10 @@ export function mergeAIConversations(local: AIConversationLocal[], remoteConvo: 
     }
   }
   return Array.from(byId.values());
+}
+
+export async function deleteAIConversations(userId: string, ids: string[]) {
+  await queueDelete("ai_conversations", userId, ids);
 }
 
 // ── Streak ──────────────────────────────────────────────────────────────────
@@ -474,6 +510,10 @@ export interface ProfileLocal {
   country: string;
   timezone: string;
   avatarUrl: string | null;
+  language?: string;
+  colorPreset?: string;
+  fontPreset?: string;
+  prayerLocation?: Record<string, unknown>;
 }
 
 export async function saveProfile(userId: string, profile: ProfileLocal) {
@@ -484,11 +524,44 @@ export async function saveProfile(userId: string, profile: ProfileLocal) {
     country: profile.country,
     timezone: profile.timezone,
     avatar_url: profile.avatarUrl,
+    language: profile.language || "en",
+    color_preset: profile.colorPreset || "madinah-green",
+    font_preset: profile.fontPreset || "amiri-classic",
+    prayer_location: profile.prayerLocation || null,
   });
 }
 
 export function loadProfile(): ProfileLocal | null {
   return getFromLocalStorage<ProfileLocal>("deenflow-profile");
+}
+
+// ── Daily Checkins ──────────────────────────────────────────────────────────
+
+export interface DailyCheckinLocal {
+  [date: string]: boolean;
+}
+
+export async function saveDailyCheckins(userId: string, checkins: DailyCheckinLocal) {
+  const dbCheckins: DailyCheckin[] = Object.keys(checkins)
+    .filter((date) => checkins[date])
+    .map((date) => ({
+      id: genId(),
+      user_id: userId,
+      checkin_date: date,
+    }));
+  await queueAndSave("deenflow-daily-checkins", "daily_checkins", userId, { checkins, dbCheckins });
+}
+
+export function loadDailyCheckins(): DailyCheckinLocal {
+  return getFromLocalStorage<DailyCheckinLocal>("deenflow-daily-checkins") || {};
+}
+
+export function mergeDailyCheckins(local: DailyCheckinLocal, remote: DailyCheckin[]): DailyCheckinLocal {
+  const merged = { ...local };
+  for (const checkin of remote) {
+    merged[checkin.checkin_date] = true;
+  }
+  return merged;
 }
 
 // ── Sync Queue Processing ───────────────────────────────────────────────────
@@ -572,9 +645,48 @@ export async function processSyncQueue(): Promise<number> {
         }
         case "users": {
           const profile = item.data.items as Record<string, unknown>;
-          if (profile.id) {
+          if (item.action === "delete") {
+            const ids = item.data.ids as string[];
+            if (ids.length > 0) {
+              await supabase.from("users").delete().in("id", ids);
+            }
+          } else if (profile.id) {
             const { error } = await supabase.from("users").upsert(profile, { onConflict: "id" });
             if (error && error.code !== "23505") console.warn("users sync:", error.message);
+          }
+          break;
+        }
+        case "daily_checkins": {
+          if (item.action === "delete") {
+            const ids = item.data.ids as string[];
+            if (ids.length > 0) {
+              await supabase.from("daily_checkins").delete().in("id", ids);
+            }
+          } else {
+            const data = item.data.items as { checkins: DailyCheckinLocal; dbCheckins: DailyCheckin[] };
+            if (data.dbCheckins && data.dbCheckins.length > 0) {
+              const { error } = await supabase.from("daily_checkins").upsert(data.dbCheckins, { onConflict: "user_id,checkin_date" });
+              if (error && error.code !== "23505") console.warn("daily_checkins sync:", error.message);
+            }
+          }
+          break;
+        }
+        default: {
+          if (item.action === "delete") {
+            const ids = item.data.ids as string[];
+            if (ids.length > 0) {
+              const tableMap: Record<string, string> = {
+                prayer_logs: "prayer_logs",
+                dhikr_sessions: "dhikr_sessions",
+                journal_entries: "journal_entries",
+                ai_conversations: "ai_conversations",
+                ai_messages: "ai_messages",
+              };
+              const table = tableMap[item.type];
+              if (table) {
+                await supabase.from(table).delete().in("id", ids);
+              }
+            }
           }
           break;
         }

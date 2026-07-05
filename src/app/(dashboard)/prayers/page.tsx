@@ -9,12 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePrayerTimes, PrayerTimesData } from "@/lib/hooks/use-prayer-times";
 import { UZBEKISTAN_REGIONS, UzbekistanCity } from "@/lib/data/uzbekistan";
-import { COUNTRIES, Country, City } from "@/lib/data/countries";
+import { COUNTRIES, City } from "@/lib/data/countries";
 import { useI18n } from "@/lib/i18n";
 import { AnalogClock } from "@/components/analog-clock";
-import toast from "react-hot-toast";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, addMonths, subMonths, isSameDay } from "date-fns";
-import { savePrayerHistory as syncPrayerHistory } from "@/lib/sync/data-sync";
+import { savePrayerHistory as syncPrayerHistory, saveProfile as syncProfile } from "@/lib/sync/data-sync";
 import { createClient } from "@/lib/supabase/client";
 
 interface PrayerStatus {
@@ -120,6 +119,27 @@ export default function PrayersPage() {
     setStatuses(h[todayKey] || {});
   }, []);
 
+  const syncPrayerLocationToProfile = (countryId: string, city: SelectedCity | null) => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        const profileRaw = localStorage.getItem("deenflow-profile");
+        const profile = profileRaw ? JSON.parse(profileRaw) : {};
+        syncProfile(user.id, {
+          fullName: profile.fullName || "",
+          username: profile.username || "",
+          country: profile.country || "",
+          timezone: profile.timezone || "UTC",
+          avatarUrl: profile.avatarUrl || null,
+          language: profile.language || "en",
+          colorPreset: profile.colorPreset || "madinah-green",
+          fontPreset: profile.fontPreset || "amiri-classic",
+          prayerLocation: city ? { countryId, name: city.name, lat: city.lat, lon: city.lon, apiRegion: city.apiRegion } : undefined,
+        }).catch(() => {});
+      }
+    });
+  };
+
   const selectCountry = (countryId: string | null) => {
     if (!countryId) return;
     setSelectedCountryId(countryId);
@@ -129,6 +149,7 @@ export default function PrayersPage() {
     localStorage.removeItem(STORAGE_KEY);
     setNextPrayerIdx(-1);
     setCountdown("");
+    syncPrayerLocationToProfile(countryId, null);
   };
 
   const selectCity = (city: SelectedCity) => {
@@ -136,6 +157,7 @@ export default function PrayersPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(city));
     setNextPrayerIdx(-1);
     setCountdown("");
+    syncPrayerLocationToProfile(selectedCountryId, city);
   };
 
   const selectUzbekCity = (city: UzbekistanCity) => {

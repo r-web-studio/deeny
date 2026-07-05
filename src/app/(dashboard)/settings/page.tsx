@@ -107,7 +107,22 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    const profileData = { fullName, username, country, timezone, avatarUrl: avatarPreview };
+    const profileData = {
+      fullName,
+      username,
+      country,
+      timezone,
+      avatarUrl: avatarPreview,
+      language: localStorage.getItem("deenflow-locale") || "en",
+      colorPreset: colorPresetId,
+      fontPreset: fontPresetId,
+      prayerLocation: (() => {
+        try {
+          const raw = localStorage.getItem("deenflow-prayer-location");
+          return raw ? JSON.parse(raw) : null;
+        } catch { return null; }
+      })(),
+    };
     localStorage.setItem("deenflow-profile", JSON.stringify(profileData));
     useUserStore.getState().setUser({
       fullName,

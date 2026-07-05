@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { saveProfile as syncProfile } from "@/lib/sync/data-sync";
 
 export type Locale = "en" | "uz" | "ru" | "tr";
 
@@ -41,6 +42,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setLocaleState(newLocale);
     localStorage.setItem(STORAGE_KEY, newLocale);
     setLoaded(false);
+    // Sync language to Supabase profile
+    syncLanguageToProfile(newLocale);
   };
 
   const t = (key: string): string => {
@@ -56,6 +59,35 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       {children}
     </I18nContext.Provider>
   );
+}
+
+function syncLanguageToProfile(lang: Locale) {
+  if (typeof window === "undefined") return;
+  try {
+    const profileRaw = localStorage.getItem("deenflow-profile");
+    const profile = profileRaw ? JSON.parse(profileRaw) : {};
+    profile.language = lang;
+    localStorage.setItem("deenflow-profile", JSON.stringify(profile));
+    // Import dynamically to avoid SSR issues
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          syncProfile(user.id, {
+            fullName: profile.fullName || "",
+            username: profile.username || "",
+            country: profile.country || "",
+            timezone: profile.timezone || "UTC",
+            avatarUrl: profile.avatarUrl || null,
+            language: lang,
+            colorPreset: profile.colorPreset || "madinah-green",
+            fontPreset: profile.fontPreset || "amiri-classic",
+            prayerLocation: profile.prayerLocation || null,
+          }).catch(() => {});
+        }
+      });
+    });
+  } catch {}
 }
 
 export function useI18n() {

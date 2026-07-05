@@ -14,6 +14,10 @@ CREATE TABLE public.users (
   country TEXT,
   timezone TEXT DEFAULT 'UTC',
   theme TEXT DEFAULT 'system' CHECK (theme IN ('light', 'dark', 'system')),
+  language TEXT DEFAULT 'en' CHECK (language IN ('en', 'uz', 'ru', 'tr')),
+  color_preset TEXT DEFAULT 'madinah-green',
+  font_preset TEXT DEFAULT 'amiri-classic',
+  prayer_location JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -43,6 +47,7 @@ CREATE TABLE public.prayer_logs (
 );
 
 CREATE INDEX idx_prayer_logs_user_date ON public.prayer_logs(user_id, date);
+CREATE INDEX idx_daily_checkins_user_date ON public.daily_checkins(user_id, checkin_date);
 
 -- Dhikr sessions
 CREATE TABLE public.dhikr_sessions (
@@ -163,6 +168,15 @@ CREATE TABLE public.user_achievements (
   UNIQUE(user_id, achievement_id)
 );
 
+-- Daily check-ins
+CREATE TABLE public.daily_checkins (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  checkin_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, checkin_date)
+);
+
 -- Notifications
 CREATE TABLE public.notifications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -191,6 +205,7 @@ ALTER TABLE public.relapses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bookmarks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_achievements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.daily_checkins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
 -- Users policies
@@ -262,6 +277,11 @@ CREATE POLICY "Anyone can view achievements" ON public.achievements FOR SELECT U
 CREATE POLICY "Users can view own achievements" ON public.user_achievements FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own achievements" ON public.user_achievements FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+-- Daily checkins policies
+CREATE POLICY "Users can view own checkins" ON public.daily_checkins FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own checkins" ON public.daily_checkins FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own checkins" ON public.daily_checkins FOR DELETE USING (auth.uid() = user_id);
+
 -- Notifications policies
 CREATE POLICY "Users can view own notifications" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own notifications" ON public.notifications FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -279,3 +299,24 @@ INSERT INTO public.achievements (name, description, icon, category, requirement)
   ('30 Day Clean Streak', 'Stay clean for 30 days', '💎', 'streak', 30),
   ('90 Day Clean Streak', 'Stay clean for 90 days', '👑', 'streak', 90)
 ON CONFLICT (name) DO NOTHING;
+
+-- ============================================================
+-- MIGRATION: Run these if your database already exists
+-- ============================================================
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS language TEXT DEFAULT 'en';
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS color_preset TEXT DEFAULT 'madinah-green';
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS font_preset TEXT DEFAULT 'amiri-classic';
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS prayer_location JSONB;
+-- ALTER TABLE public.users ADD CONSTRAINT users_language_check CHECK (language IN ('en', 'uz', 'ru', 'tr'));
+-- CREATE TABLE IF NOT EXISTS public.daily_checkins (
+--   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+--   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+--   checkin_date DATE NOT NULL DEFAULT CURRENT_DATE,
+--   created_at TIMESTAMPTZ DEFAULT NOW(),
+--   UNIQUE(user_id, checkin_date)
+-- );
+-- ALTER TABLE public.daily_checkins ENABLE ROW LEVEL SECURITY;
+-- CREATE POLICY "Users can view own checkins" ON public.daily_checkins FOR SELECT USING (auth.uid() = user_id);
+-- CREATE POLICY "Users can insert own checkins" ON public.daily_checkins FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- CREATE POLICY "Users can delete own checkins" ON public.daily_checkins FOR DELETE USING (auth.uid() = user_id);
+-- CREATE INDEX IF NOT EXISTS idx_daily_checkins_user_date ON public.daily_checkins(user_id, checkin_date);

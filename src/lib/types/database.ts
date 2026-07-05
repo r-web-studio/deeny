@@ -7,6 +7,10 @@ export interface User {
   country: string | null;
   timezone: string;
   theme: "light" | "dark" | "system";
+  language: "en" | "uz" | "ru" | "tr";
+  color_preset: string;
+  font_preset: string;
+  prayer_location: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
@@ -134,5 +138,12 @@ export interface Notification {
   message: string;
   type: "prayer" | "task" | "achievement" | "daily";
   read: boolean;
+  created_at: string;
+}
+
+export interface DailyCheckin {
+  id: string;
+  user_id: string;
+  checkin_date: string;
   created_at: string;
 }
