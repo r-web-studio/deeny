@@ -28,6 +28,33 @@
         }
       ],
       "healthCheckPath": "/api/health"
+    },
+    {
+      "type": "worker",
+      "name": "deenflow-bot",
+      "runtime": "node",
+      "plan": "starter",
+      "buildCommand": "cd telegram-bot && npm install",
+      "startCommand": "cd telegram-bot && npm run start",
+      "autoDeploy": true,
+      "envVars": [
+        {
+          "key": "NODE_VERSION",
+          "value": "20"
+        },
+        {
+          "key": "BOT_TOKEN",
+          "sync": false
+        },
+        {
+          "key": "ADMIN_PASSWORD",
+          "sync": false
+        },
+        {
+          "key": "ADMIN_CHAT_ID",
+          "sync": false
+        }
+      ]
     }
   ]
 }

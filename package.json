@@ -10,7 +10,9 @@
     "lint": "eslint",
     "cap:sync": "npx cap sync android",
     "cap:android": "npx cap open android",
-    "build:apk": "bash scripts/build-apk.sh"
+    "build:apk": "bash scripts/build-apk.sh",
+    "bot:dev": "cd telegram-bot && npm run dev",
+    "bot:start": "cd telegram-bot && npm run start"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
