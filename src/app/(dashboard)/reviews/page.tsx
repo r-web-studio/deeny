@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import { useI18n } from "@/lib/i18n";
 
 const REVIEWS_KEY = "deenflow-reviews";
-const TELEGRAM_BOT_URL = "https://t.me/YourBotUsername"; // TODO: Replace with actual bot username
+const TELEGRAM_BOT_URL = "https://t.me/reviewssakinahbot";
 
 interface Review {
   id: string;
