@@ -36,19 +36,11 @@ function AuthCallbackContent() {
     const handleAuth = async () => {
       const supabase = await createClientAsync();
       const next = searchParams.get("next") || "/dashboard";
-      const code = searchParams.get("code");
+      const urlError = searchParams.get("error");
 
-      if (code) {
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-        if (exchangeError) {
-          console.error("Code exchange error:", exchangeError);
-          setError(exchangeError.message);
-          timeoutRef.current = setTimeout(() => router.push("/login"), 2000);
-          return;
-        }
-        await saveUserFromSession(supabase);
-        router.push(next);
-        router.refresh();
+      if (urlError) {
+        setError(urlError);
+        timeoutRef.current = setTimeout(() => router.push("/login"), 2000);
         return;
       }
 

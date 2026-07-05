@@ -31,6 +31,20 @@ export async function updateSession(request: NextRequest) {
       }
     );
 
+    if (pathname.startsWith("/auth/callback")) {
+      const code = request.nextUrl.searchParams.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error("Code exchange error in middleware:", error.message);
+          const url = request.nextUrl.clone();
+          url.pathname = "/login";
+          url.searchParams.set("error", error.message);
+          return NextResponse.redirect(url);
+        }
+      }
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
 
     const publicPaths = ["/login", "/register", "/forgot-password", "/"];
