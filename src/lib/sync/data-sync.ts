@@ -144,7 +144,10 @@ function getFromLocalStorage<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed as T;
+    }
   } catch {}
   return null;
 }
@@ -246,7 +249,8 @@ export async function saveDhikrSessions(userId: string, sessions: DhikrSessionLo
 }
 
 export function loadDhikrSessions(): DhikrSessionLocal[] {
-  return getFromLocalStorage<DhikrSessionLocal[]>("deenflow-dhikr-sessions") || [];
+  const data = getFromLocalStorage<DhikrSessionLocal[]>("deenflow-dhikr-sessions");
+  return Array.isArray(data) ? data : [];
 }
 
 export function mergeDhikrSessions(local: DhikrSessionLocal[], remote: DhikrSession[]): DhikrSessionLocal[] {
@@ -296,7 +300,8 @@ export async function saveTasks(userId: string, tasks: TaskLocal[]) {
 }
 
 export function loadTasks(): TaskLocal[] {
-  return getFromLocalStorage<TaskLocal[]>("deenflow-tasks") || [];
+  const data = getFromLocalStorage<TaskLocal[]>("deenflow-tasks");
+  return Array.isArray(data) ? data : [];
 }
 
 export function mergeTasks(local: TaskLocal[], remote: Task[]): TaskLocal[] {
@@ -354,7 +359,8 @@ export async function saveJournalEntries(userId: string, entries: JournalEntryLo
 }
 
 export function loadJournalEntries(): JournalEntryLocal[] {
-  return getFromLocalStorage<JournalEntryLocal[]>("deenflow-journal") || [];
+  const data = getFromLocalStorage<JournalEntryLocal[]>("deenflow-journal");
+  return Array.isArray(data) ? data : [];
 }
 
 export function mergeJournalEntries(local: JournalEntryLocal[], remote: JournalEntry[]): JournalEntryLocal[] {
@@ -411,7 +417,8 @@ export async function saveAIConversations(userId: string, convos: AIConversation
 }
 
 export function loadAIConversations(): AIConversationLocal[] {
-  return getFromLocalStorage<AIConversationLocal[]>("deenflow-ai-conversations") || [];
+  const data = getFromLocalStorage<AIConversationLocal[]>("deenflow-ai-conversations");
+  return Array.isArray(data) ? data : [];
 }
 
 export function mergeAIConversations(local: AIConversationLocal[], remoteConvo: AIConversation[], remoteMsgs: AIMessage[]): AIConversationLocal[] {
@@ -499,7 +506,8 @@ export async function saveAchievements(userId: string, earned: AchievementLocal[
 }
 
 export function loadAchievements(): AchievementLocal[] {
-  return getFromLocalStorage<AchievementLocal[]>("deenflow-achievements") || [];
+  const data = getFromLocalStorage<AchievementLocal[]>("deenflow-achievements");
+  return Array.isArray(data) ? data : [];
 }
 
 // ── Profile ─────────────────────────────────────────────────────────────────

@@ -42,7 +42,9 @@ export default function AiPage() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setConversations(parsed);
+        if (Array.isArray(parsed)) {
+          setConversations(parsed);
+        }
       } catch {}
     }
   }, []);
