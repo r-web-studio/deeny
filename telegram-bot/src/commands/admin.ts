@@ -7,6 +7,7 @@ import {
   adminDeleteKeyboard,
   adminAllReviewsKeyboard,
   adminStatsKeyboard,
+  adminReplyKeyboard,
   mainMenuKeyboard,
 } from "../keyboards";
 
@@ -102,6 +103,47 @@ export function registerAdminCommand(
     }
   });
 
+  bot.on("message", (msg) => {
+    const chatId = msg.chat.id;
+    const session = sessions.get(chatId);
+    if (!session || session.state !== BotState.AWAITING_ADMIN_REPLY) return;
+    if (msg.text?.startsWith("/")) return;
+
+    const replyText = msg.text?.trim();
+    if (!replyText || replyText.length < 1) {
+      bot.sendMessage(chatId, "⚠️ Please type a reply message (at least 1 character).");
+      return;
+    }
+
+    const targetUserId = session.tempData.replyToId as number;
+    const targetUserName = session.tempData.replyToName as string;
+
+    const userMessage = [
+      "📬 <b>Message from DeenFlow Admin:</b>",
+      "",
+      escapeHtml(replyText),
+      "",
+      "— <i>DeenFlow Team</i>",
+    ].join("\n");
+
+    bot.sendMessage(targetUserId, userMessage, { parse_mode: "HTML" })
+      .then(() => {
+        bot.sendMessage(chatId, `✅ Reply sent to <b>${escapeHtml(targetUserName)}</b>!`, {
+          parse_mode: "HTML",
+          reply_markup: adminPanelKeyboard(),
+        });
+      })
+      .catch(() => {
+        bot.sendMessage(chatId, `❌ Failed to send reply to <b>${escapeHtml(targetUserName)}</b>. They may have blocked the bot.`, {
+          parse_mode: "HTML",
+          reply_markup: adminPanelKeyboard(),
+        });
+      });
+
+    session.state = BotState.IDLE;
+    session.tempData = {};
+  });
+
   bot.on("callback_query", (query) => {
     const chatId = query.message?.chat.id;
     if (!chatId) return;
@@ -175,6 +217,67 @@ export function registerAdminCommand(
           reply_markup: adminDeleteKeyboard(reviews),
         });
       }
+      bot.answerCallbackQuery(query.id);
+    }
+
+    if (query.data === "admin_reply_review") {
+      const reviews = getAllReviews();
+      if (reviews.length === 0) {
+        bot.sendMessage(chatId, "📭 No reviews to reply to.", {
+          reply_markup: adminPanelKeyboard(),
+        });
+      } else {
+        bot.sendMessage(chatId, "💬 Select a review to reply to:", {
+          reply_markup: adminReplyKeyboard(reviews),
+        });
+      }
+      bot.answerCallbackQuery(query.id);
+    }
+
+    if (query.data?.startsWith("reply_review_")) {
+      const reviewId = query.data.replace("reply_review_", "");
+      const review = getAllReviews().find((r) => r.id === reviewId);
+      if (!review) {
+        bot.sendMessage(chatId, "❌ Review not found.", {
+          reply_markup: adminPanelKeyboard(),
+        });
+      } else {
+        const session = sessions.get(chatId) || { state: BotState.IDLE, tempData: {} };
+        session.state = BotState.AWAITING_ADMIN_REPLY;
+        session.tempData = { replyToId: review.telegramId, replyToName: review.name };
+        sessions.set(chatId, session);
+
+        const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+        const preview = [
+          "💬 <b>Replying to:</b>",
+          "",
+          `👤 <b>${escapeHtml(review.name)}</b> — ${stars}`,
+          `📝 ${escapeHtml(review.comment)}`,
+          "",
+          "✍️ Type your reply message:",
+        ].join("\n");
+
+        bot.sendMessage(chatId, preview, {
+          parse_mode: "HTML",
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: "❌ Cancel", callback_data: "cancel_reply" }],
+            ],
+          },
+        });
+      }
+      bot.answerCallbackQuery(query.id);
+    }
+
+    if (query.data === "cancel_reply") {
+      const session = sessions.get(chatId);
+      if (session) {
+        session.state = BotState.IDLE;
+        session.tempData = {};
+      }
+      bot.sendMessage(chatId, "❌ Reply cancelled.", {
+        reply_markup: adminPanelKeyboard(),
+      });
       bot.answerCallbackQuery(query.id);
     }
 

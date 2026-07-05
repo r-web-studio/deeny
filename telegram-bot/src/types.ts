@@ -15,6 +15,7 @@ export enum BotState {
   AWAITING_REVIEW_COMMENT = "awaiting_review_comment",
   AWAITING_REVIEW_CONFIRM = "awaiting_review_confirm",
   AWAITING_ADMIN_PASSWORD = "awaiting_admin_password",
+  AWAITING_ADMIN_REPLY = "awaiting_admin_reply",
 }
 
 export interface UserSession {

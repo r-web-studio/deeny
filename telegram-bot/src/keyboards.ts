@@ -98,6 +98,7 @@ export function adminPanelKeyboard(): TelegramBot.InlineKeyboardMarkup {
         { text: "📊 Stats", callback_data: "admin_stats" },
       ],
       [
+        { text: "💬 Reply to User", callback_data: "admin_reply_review" },
         { text: "🗑️ Delete Review", callback_data: "admin_delete_review" },
       ],
       [
@@ -140,6 +141,25 @@ export function adminAllReviewsKeyboard(): TelegramBot.InlineKeyboardMarkup {
       ],
     ],
   };
+}
+
+export function adminReplyKeyboard(
+  reviews: { id: string; name: string; rating: number; telegramId: number }[]
+): TelegramBot.InlineKeyboardMarkup {
+  const buttons: TelegramBot.InlineKeyboardButton[][] = [];
+
+  reviews.slice(0, 8).forEach((r) => {
+    buttons.push([
+      { text: `💬 Reply to ${r.name} (${r.rating}★)`, callback_data: `reply_review_${r.id}` },
+    ]);
+  });
+
+  buttons.push([
+    { text: "🔙 Back to Admin", callback_data: "admin_panel" },
+    { text: "🏠 Main Menu", callback_data: "back_to_menu" },
+  ]);
+
+  return { inline_keyboard: buttons };
 }
 
 export function adminStatsKeyboard(): TelegramBot.InlineKeyboardMarkup {

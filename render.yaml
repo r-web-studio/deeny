@@ -30,7 +30,7 @@
       "healthCheckPath": "/api/health"
     },
     {
-      "type": "worker",
+      "type": "web",
       "name": "deenflow-bot",
       "runtime": "node",
       "plan": "starter",
@@ -54,7 +54,8 @@
           "key": "ADMIN_CHAT_ID",
           "sync": false
         }
-      ]
+      ],
+      "healthCheckPath": "/"
     }
   ]
 }

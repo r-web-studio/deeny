@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import http from "http";
 import TelegramBot from "node-telegram-bot-api";
 import { UserSession, BotState } from "./types";
 import { registerStartCommand } from "./commands/start";
@@ -26,6 +27,18 @@ if (!ADMIN_PASSWORD) {
 if (!ADMIN_CHAT_ID) {
   console.error("❌ ADMIN_CHAT_ID is required in .env");
   process.exit(1);
+}
+
+const server = http.createServer((_req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Bot is running");
+});
+
+const PORT = process.env.PORT;
+if (PORT) {
+  server.listen(parseInt(PORT), () => {
+    console.log(`🌐 Health check server running on port ${PORT}`);
+  });
 }
 
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
