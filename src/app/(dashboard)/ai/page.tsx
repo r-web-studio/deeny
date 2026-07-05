@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ReactMarkdown from "react-markdown";
+import { SafeMarkdown } from "@/components/safe-markdown";
 import { useI18n } from "@/lib/i18n";
 import { saveAIConversations as syncAIConversations } from "@/lib/sync/data-sync";
 import { createClient } from "@/lib/supabase/client";
@@ -320,7 +320,7 @@ export default function AiPage() {
                       <CardContent className="p-3">
                         {msg.role === "assistant" ? (
                           <div className="prose prose-sm dark:prose-invert max-w-none">
-                            <ReactMarkdown>{msg.content}</ReactMarkdown>
+                            <SafeMarkdown className="prose prose-sm dark:prose-invert max-w-none">{msg.content}</SafeMarkdown>
                           </div>
                         ) : (
                           <p className="text-sm">{msg.content}</p>

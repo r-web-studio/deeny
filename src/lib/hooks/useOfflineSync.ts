@@ -48,7 +48,14 @@ export function useOfflineSync() {
     if (hasMergedRef.current) return;
     hasMergedRef.current = true;
 
-    const supabase = createClient();
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch (err) {
+      console.error('Failed to create Supabase client:', err);
+      setSynced(true);
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setSynced(true);
