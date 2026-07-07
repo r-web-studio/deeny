@@ -96,9 +96,16 @@ export default function AchievementsPage() {
 
     if (n.length > 0 && hasChecked.current) {
       setNewlyEarned(n);
+      // Big celebration confetti
       fireConfetti();
-      setTimeout(() => fireBurst(), 500);
-      setTimeout(() => fireBurst(), 1200);
+      setTimeout(() => fireBurst(), 300);
+      setTimeout(() => fireBurst(), 800);
+      setTimeout(() => fireBurst(), 1400);
+      setTimeout(() => {
+        // Extra side bursts
+        confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors: ["#22c55e", "#eab308", "#a855f7", "#3b82f6"] });
+        confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: ["#22c55e", "#eab308", "#a855f7", "#3b82f6"] });
+      }, 2000);
       setCelebrationIndex(n[0].index);
     }
     hasChecked.current = true;
@@ -225,12 +232,12 @@ export default function AchievementsPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.3, opacity: 0, y: 50 }}
               transition={{ type: "spring", damping: 15, stiffness: 200 }}
-              className="relative max-w-sm w-full mx-4"
+              className="relative max-w-md w-full mx-4"
               onClick={(e) => e.stopPropagation()}
             >
               <Card className="glass border-gold/30 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-islamic-green/10 pointer-events-none" />
-                <CardHeader className="text-center relative">
+                <CardHeader className="text-center relative pb-2">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -243,37 +250,51 @@ export default function AchievementsPage() {
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: "spring", damping: 10, stiffness: 150, delay: 0.2 }}
-                    className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center mx-auto"
+                    className="w-24 h-24 rounded-2xl bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center mx-auto"
                   >
-                    <Trophy className="h-10 w-10 text-gold" />
+                    <Trophy className="h-12 w-12 text-gold" />
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <h1 className="text-3xl font-bold text-gold mt-4 tracking-tight">
+                      CONGRATULATIONS!
+                    </h1>
                   </motion.div>
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
+                    transition={{ delay: 0.5 }}
                   >
-                    <p className="text-gold font-bold text-lg mt-3">{t("achievementsExtra.achievementUnlocked")}</p>
-                    <h2 className="text-xl font-bold mt-1">
+                    <p className="text-lg font-semibold text-foreground mt-3">
+                      You&apos;ve earned:
+                    </p>
+                    <h2 className="text-2xl font-bold mt-2 text-islamic-green">
                       {ACHIEVEMENTS_LIST[celebrationIndex]?.name}
                     </h2>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm text-muted-foreground mt-2">
                       {ACHIEVEMENTS_LIST[celebrationIndex]?.description}
                     </p>
                   </motion.div>
                 </CardHeader>
-                <CardContent className="text-center relative">
+                <CardContent className="text-center relative pb-6">
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
+                    transition={{ delay: 0.7 }}
                   >
                     {newlyEarned.length > 1 && (
-                      <p className="text-xs text-muted-foreground mb-2">
-                        +{newlyEarned.length - 1} {t("achievementsExtra.moreAchievements").replace("{count}", String(newlyEarned.length - 1)).replace("{plural}", newlyEarned.length > 2 ? "s" : "")}
+                      <p className="text-sm text-muted-foreground mb-3">
+                        +{newlyEarned.length - 1} more achievement{newlyEarned.length > 2 ? "s" : ""} unlocked!
                       </p>
                     )}
-                    <Button onClick={closeCelebration} className="bg-gold hover:bg-gold/90 text-black">
-                      <Star className="h-4 w-4 mr-2" /> {t("achievementsExtra.awesome")}
+                    <p className="text-sm text-islamic-green font-medium mb-4">
+                      Keep going! Your dedication is inspiring.
+                    </p>
+                    <Button onClick={closeCelebration} className="bg-gold hover:bg-gold/90 text-black px-8 py-3 text-lg font-bold">
+                      <Star className="h-5 w-5 mr-2" /> AWESOME!
                     </Button>
                   </motion.div>
                 </CardContent>

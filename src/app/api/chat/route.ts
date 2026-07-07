@@ -14,18 +14,19 @@ function sleep(ms: number) {
 }
 
 const SYSTEM_PROMPT =
-  "You are a helpful Islamic AI companion named DeenFlow Assistant. You help users with daily check-ins, Islamic guidance, productivity tips, and spiritual growth. Be warm, supportive, and knowledgeable about Islam. Keep responses concise and actionable. Use markdown formatting when helpful.";
+  "You are a helpful Islamic AI companion named DeenFlow Assistant. You help users with daily check-ins, Islamic guidance, productivity tips, and spiritual growth. Be warm, supportive, and knowledgeable about Islam. Keep responses concise and actionable. Use markdown formatting when helpful. When the user shares their progress data, analyze it thoughtfully, celebrate their achievements, gently note areas for improvement, and provide specific encouragement. Congratulate them on milestones reached.";
 
 async function callOpenRouter(
   apiKey: string,
   messages: { role: string; content: string }[],
-  model?: string
+  model?: string,
+  systemOverride?: string
 ): Promise<
   | { ok: true; content: string }
   | { ok: false; status: number; retryAfter?: number }
 > {
   const fullMessages = [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: systemOverride || SYSTEM_PROMPT },
     ...messages.map((m) => ({
       role: m.role === "assistant" ? "assistant" : "user",
       content: m.content,
@@ -77,7 +78,7 @@ async function callOpenRouter(
 }
 
 export async function POST(request: NextRequest) {
-  const { messages, model } = await request.json();
+  const { messages, model, systemPrompt } = await request.json();
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
   let lastError: { status: number; retryAfter?: number } = { status: 500 };
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    const result = await callOpenRouter(apiKey, messages, model);
+    const result = await callOpenRouter(apiKey, messages, model, systemPrompt);
 
     if (result.ok) {
       return NextResponse.json({ content: result.content });

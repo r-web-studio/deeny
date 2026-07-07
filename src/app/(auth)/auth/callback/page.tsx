@@ -47,6 +47,10 @@ function AuthCallbackContent() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         await saveUserFromSession(supabase);
+        // Auto-agree to terms for OAuth users
+        if (!localStorage.getItem("deenflow-terms-agreed")) {
+          localStorage.setItem("deenflow-terms-agreed", "true");
+        }
         router.push(next);
         router.refresh();
       } else {

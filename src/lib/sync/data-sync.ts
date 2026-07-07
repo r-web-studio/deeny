@@ -194,8 +194,10 @@ export async function savePrayerHistory(userId: string, history: PrayerHistory) 
   for (const [date, dayStatuses] of Object.entries(history)) {
     for (const [prayer, status] of Object.entries(dayStatuses)) {
       if (status) {
+        // Use stable ID based on user + date + prayer to avoid duplicates on sync
+        const stableId = `${userId}-${date}-${prayer.toLowerCase()}`;
         logs.push({
-          id: genId(),
+          id: stableId,
           user_id: userId,
           prayer: prayer.toLowerCase(),
           status,
@@ -215,7 +217,8 @@ export function mergePrayerHistory(local: PrayerHistory, remote: PrayerLog[]): P
   const merged = { ...local };
   for (const log of remote) {
     if (!merged[log.date]) merged[log.date] = {};
-    if (!merged[log.date][log.prayer]) {
+    // Always use remote status if we have it - remote is source of truth for cloud data
+    if (log.status) {
       merged[log.date][log.prayer] = log.status;
     }
   }
@@ -229,6 +232,7 @@ export async function deletePrayerHistory(userId: string, dates: string[]) {
 // ── Dhikr ───────────────────────────────────────────────────────────────────
 
 export interface DhikrSessionLocal {
+  id?: string;
   dhikr_type: string;
   count: number;
   target: number;
@@ -237,8 +241,8 @@ export interface DhikrSessionLocal {
 }
 
 export async function saveDhikrSessions(userId: string, sessions: DhikrSessionLocal[]) {
-  const dbSessions: DhikrSession[] = sessions.map((s) => ({
-    id: genId(),
+  const dbSessions: DhikrSession[] = sessions.map((s, idx) => ({
+    id: s.id || `${userId}-dhikr-${s.dhikr_type}-${s.date}-${idx}`,
     user_id: userId,
     dhikr_type: s.dhikr_type,
     count: s.count,
@@ -256,6 +260,7 @@ export function loadDhikrSessions(): DhikrSessionLocal[] {
 export function mergeDhikrSessions(local: DhikrSessionLocal[], remote: DhikrSession[]): DhikrSessionLocal[] {
   if (remote.length === 0) return local;
   const remoteMapped: DhikrSessionLocal[] = remote.map((r) => ({
+    id: r.id,
     dhikr_type: r.dhikr_type,
     count: r.count,
     target: r.target,
@@ -404,9 +409,10 @@ export async function saveAIConversations(userId: string, convos: AIConversation
   }));
   const dbMessages: AIMessage[] = [];
   for (const c of convos) {
-    for (const m of c.messages) {
+    for (let i = 0; i < c.messages.length; i++) {
+      const m = c.messages[i];
       dbMessages.push({
-        id: genId(),
+        id: `${c.id}-msg-${i}`,
         conversation_id: c.id,
         role: m.role,
         content: m.content,
@@ -460,7 +466,7 @@ export interface StreakLocal {
 
 export async function saveStreak(userId: string, streak: StreakLocal) {
   const dbStreak: NoPornStreak = {
-    id: genId(),
+    id: `streak-${userId}`,
     user_id: userId,
     current_streak: streak.currentStreak,
     longest_streak: streak.longestStreak,
@@ -553,7 +559,7 @@ export async function saveDailyCheckins(userId: string, checkins: DailyCheckinLo
   const dbCheckins: DailyCheckin[] = Object.keys(checkins)
     .filter((date) => checkins[date])
     .map((date) => ({
-      id: genId(),
+      id: `${userId}-checkin-${date}`,
       user_id: userId,
       checkin_date: date,
     }));
@@ -641,9 +647,9 @@ export async function processSyncQueue(): Promise<number> {
           const userId = item.data.user_id as string;
           if (localItems.length > 0) {
             const rows: UserAchievement[] = localItems.map((a) => ({
-              id: `${userId}-${a.index}`,
+              id: `${userId}-achievement-${a.index}`,
               user_id: userId,
-              achievement_id: String(a.index),
+              achievement_id: `achievement-${a.index}`,
               earned_at: a.earned_at,
             }));
             const { error } = await supabase.from("user_achievements").upsert(rows, { onConflict: "id" });

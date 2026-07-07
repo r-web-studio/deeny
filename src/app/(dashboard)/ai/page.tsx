@@ -101,12 +101,12 @@ export default function AiPage() {
 
   const lastSentRef = useRef<number>(0);
 
-  const postChat = async (allMessages: Message[]): Promise<string> => {
+  const postChat = async (allMessages: Message[], systemPrompt?: string): Promise<string> => {
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: allMessages }),
+        body: JSON.stringify({ messages: allMessages, systemPrompt }),
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({ content: null }));
@@ -187,6 +187,125 @@ export default function AiPage() {
     );
 
     const content = await postChat([userMsg]);
+    const assistantMsg: Message = { role: "assistant", content };
+
+    saveConversations(
+      conversationsRef.current.map((c) =>
+        c.id === targetId ? { ...c, messages: [...c.messages, assistantMsg] } : c
+      )
+    );
+    setLoading(false);
+  };
+
+  const generateProgressSummary = () => {
+    const progressData: string[] = [];
+
+    // Prayer progress
+    const prayerRaw = localStorage.getItem("deenflow-prayer-history");
+    if (prayerRaw) {
+      const history = JSON.parse(prayerRaw) as Record<string, Record<string, string>>;
+      const dates = Object.keys(history).sort().reverse();
+      const last7 = dates.slice(0, 7);
+      let totalCompleted = 0;
+      let perfectDays = 0;
+      for (const date of last7) {
+        const day = history[date];
+        const completed = Object.values(day).filter((s) => s === "completed").length;
+        totalCompleted += completed;
+        if (completed === 5) perfectDays++;
+      }
+      progressData.push(`PRAYER LOG (Last 7 days): ${totalCompleted}/35 prayers completed. ${perfectDays} perfect days (all 5 prayers). Recent dates: ${last7.join(", ") || "none"}`);
+    }
+
+    // Dhikr progress
+    const dhikrRaw = localStorage.getItem("deenflow-dhikr-sessions");
+    if (dhikrRaw) {
+      const sessions = JSON.parse(dhikrRaw) as { count: number; dhikr_type: string; date: string }[];
+      const last7 = sessions.filter((s) => {
+        const d = new Date(s.date);
+        const now = new Date();
+        return (now.getTime() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
+      });
+      const totalDhikr = last7.reduce((sum, s) => sum + s.count, 0);
+      const types = new Set(last7.map((s) => s.dhikr_type));
+      progressData.push(`DHIKR LOG (Last 7 days): ${totalDhikr} total dhikr completed across ${types.size} different types`);
+    }
+
+    // Task progress
+    const tasksRaw = localStorage.getItem("deenflow-tasks");
+    if (tasksRaw) {
+      const tasks = JSON.parse(tasksRaw) as { completed: boolean; title: string }[];
+      const completed = tasks.filter((t) => t.completed).length;
+      progressData.push(`TASKS: ${completed}/${tasks.length} tasks completed`);
+    }
+
+    // Journal entries
+    const journalRaw = localStorage.getItem("deenflow-journal");
+    if (journalRaw) {
+      const entries = JSON.parse(journalRaw) as { date: string }[];
+      const last7 = entries.filter((e) => {
+        const d = new Date(e.date);
+        const now = new Date();
+        return (now.getTime() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
+      });
+      progressData.push(`JOURNAL: ${entries.length} total entries, ${last7.length} in the last 7 days`);
+    }
+
+    // Clean streak
+    const streakRaw = localStorage.getItem("deenflow-streak");
+    if (streakRaw) {
+      const data = JSON.parse(streakRaw) as { currentStreak: number; longestStreak: number };
+      progressData.push(`CLEAN STREAK: Currently ${data.currentStreak} days, longest was ${data.longestStreak} days`);
+    }
+
+    // Achievements
+    const achieveRaw = localStorage.getItem("deenflow-achievements");
+    if (achieveRaw) {
+      const earned = JSON.parse(achieveRaw) as { index: number }[];
+      progressData.push(`ACHIEVEMENTS: ${earned.length} achievements earned`);
+    }
+
+    // Daily checkins
+    const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
+    if (checkinsRaw) {
+      const checkins = JSON.parse(checkinsRaw) as Record<string, boolean>;
+      const dates = Object.keys(checkins).sort().reverse().slice(0, 7);
+      progressData.push(`DAILY CHECK-INS: ${Object.keys(checkins).length} total check-ins. Last 7: ${dates.join(", ") || "none"}`);
+    }
+
+    return progressData.join("\n");
+  };
+
+  const sendProgressSummary = async () => {
+    let targetId = activeId;
+    if (!targetId) {
+      targetId = createConvo();
+    }
+    setInput("");
+    setLoading(true);
+
+    const progressData = generateProgressSummary();
+    const summaryPrompt = `Here is my weekly progress data from DeenFlow. Please analyze it and give me a comprehensive summary. Celebrate my achievements, note areas where I can improve, and provide specific encouragement and tips for next week. Be warm and motivational. Here is my data:\n\n${progressData}`;
+
+    const userMsg: Message = { role: "user", content: summaryPrompt };
+
+    saveConversations(
+      conversationsRef.current.map((c) =>
+        c.id === targetId
+          ? { ...c, messages: [...c.messages, userMsg], title: "Weekly Progress Summary" }
+          : c
+      )
+    );
+
+    const systemPrompt = `You are DeenFlow Assistant, an Islamic AI companion. The user has shared their weekly progress data from the DeenFlow app. Analyze this data thoughtfully:
+1. Celebrate specific achievements and milestones reached
+2. Identify patterns (consistent prayers, growing dhikr, etc.)
+3. Gently note areas for improvement with specific suggestions
+4. Provide Islamic encouragement with relevant Quranic verses or hadith when appropriate
+5. End with specific, actionable goals for next week
+Be warm, supportive, and use the data to give personalized feedback. Use markdown formatting.`;
+
+    const content = await postChat([userMsg], systemPrompt);
     const assistantMsg: Message = { role: "assistant", content };
 
     saveConversations(
@@ -286,6 +405,16 @@ export default function AiPage() {
                     {t("ai.description")}
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-lg">
+                    <Button
+                      variant="outline"
+                      className="text-left h-auto py-3 border-islamic-green/30 bg-islamic-green/5"
+                      onClick={sendProgressSummary}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-islamic-green" />
+                        Get Weekly Progress Summary
+                      </span>
+                    </Button>
                     {[
                       t("ai.prompts.howWasYourDay"),
                       t("ai.prompts.didYouPray"),

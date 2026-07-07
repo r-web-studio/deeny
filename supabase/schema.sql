@@ -5,7 +5,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Users table (extends auth.users)
-CREATE TABLE public.users (
+CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
   full_name TEXT DEFAULT '',
@@ -37,7 +37,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- Prayer logs
-CREATE TABLE public.prayer_logs (
+CREATE TABLE IF NOT EXISTS public.prayer_logs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   prayer TEXT NOT NULL CHECK (prayer IN ('fajr', 'dhuhr', 'asr', 'maghrib', 'isha')),
@@ -46,11 +46,10 @@ CREATE TABLE public.prayer_logs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_prayer_logs_user_date ON public.prayer_logs(user_id, date);
-CREATE INDEX idx_daily_checkins_user_date ON public.daily_checkins(user_id, checkin_date);
+CREATE INDEX IF NOT EXISTS idx_prayer_logs_user_date ON public.prayer_logs(user_id, date);
 
 -- Dhikr sessions
-CREATE TABLE public.dhikr_sessions (
+CREATE TABLE IF NOT EXISTS public.dhikr_sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   dhikr_type TEXT NOT NULL,
@@ -61,7 +60,7 @@ CREATE TABLE public.dhikr_sessions (
 );
 
 -- Task categories
-CREATE TABLE public.task_categories (
+CREATE TABLE IF NOT EXISTS public.task_categories (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   name TEXT NOT NULL,
@@ -70,7 +69,7 @@ CREATE TABLE public.task_categories (
 );
 
 -- Tasks
-CREATE TABLE public.tasks (
+CREATE TABLE IF NOT EXISTS public.tasks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   title TEXT NOT NULL,
@@ -84,7 +83,7 @@ CREATE TABLE public.tasks (
 );
 
 -- Journal entries
-CREATE TABLE public.journal_entries (
+CREATE TABLE IF NOT EXISTS public.journal_entries (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   title TEXT NOT NULL,
@@ -97,7 +96,7 @@ CREATE TABLE public.journal_entries (
 );
 
 -- AI conversations
-CREATE TABLE public.ai_conversations (
+CREATE TABLE IF NOT EXISTS public.ai_conversations (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   title TEXT DEFAULT 'New Chat',
@@ -106,7 +105,7 @@ CREATE TABLE public.ai_conversations (
 );
 
 -- AI messages
-CREATE TABLE public.ai_messages (
+CREATE TABLE IF NOT EXISTS public.ai_messages (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   conversation_id UUID REFERENCES public.ai_conversations(id) ON DELETE CASCADE NOT NULL,
   role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
@@ -115,7 +114,7 @@ CREATE TABLE public.ai_messages (
 );
 
 -- No-porn streaks
-CREATE TABLE public.no_porn_streaks (
+CREATE TABLE IF NOT EXISTS public.no_porn_streaks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
   current_streak INTEGER DEFAULT 0,
@@ -128,7 +127,7 @@ CREATE TABLE public.no_porn_streaks (
 );
 
 -- Relapses
-CREATE TABLE public.relapses (
+CREATE TABLE IF NOT EXISTS public.relapses (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   streak_id UUID REFERENCES public.no_porn_streaks(id) ON DELETE CASCADE NOT NULL,
@@ -138,7 +137,7 @@ CREATE TABLE public.relapses (
 );
 
 -- Bookmarks (Quran)
-CREATE TABLE public.bookmarks (
+CREATE TABLE IF NOT EXISTS public.bookmarks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   surah_number INTEGER NOT NULL,
@@ -149,7 +148,7 @@ CREATE TABLE public.bookmarks (
 );
 
 -- Achievements
-CREATE TABLE public.achievements (
+CREATE TABLE IF NOT EXISTS public.achievements (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL UNIQUE,
   description TEXT NOT NULL,
@@ -160,7 +159,7 @@ CREATE TABLE public.achievements (
 );
 
 -- User achievements
-CREATE TABLE public.user_achievements (
+CREATE TABLE IF NOT EXISTS public.user_achievements (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   achievement_id UUID REFERENCES public.achievements(id) ON DELETE CASCADE NOT NULL,
@@ -169,7 +168,7 @@ CREATE TABLE public.user_achievements (
 );
 
 -- Daily check-ins
-CREATE TABLE public.daily_checkins (
+CREATE TABLE IF NOT EXISTS public.daily_checkins (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   checkin_date DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -177,8 +176,10 @@ CREATE TABLE public.daily_checkins (
   UNIQUE(user_id, checkin_date)
 );
 
+CREATE INDEX IF NOT EXISTS idx_daily_checkins_user_date ON public.daily_checkins(user_id, checkin_date);
+
 -- Notifications
-CREATE TABLE public.notifications (
+CREATE TABLE IF NOT EXISTS public.notifications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   title TEXT NOT NULL,
@@ -209,83 +210,129 @@ ALTER TABLE public.daily_checkins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
 -- Users policies
+DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
 CREATE POLICY "Users can view own profile" ON public.users FOR SELECT USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
 CREATE POLICY "Users can update own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
 
 -- Prayer logs policies
+DROP POLICY IF EXISTS "Users can view own prayer logs" ON public.prayer_logs;
 CREATE POLICY "Users can view own prayer logs" ON public.prayer_logs FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own prayer logs" ON public.prayer_logs;
 CREATE POLICY "Users can insert own prayer logs" ON public.prayer_logs FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own prayer logs" ON public.prayer_logs;
 CREATE POLICY "Users can update own prayer logs" ON public.prayer_logs FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own prayer logs" ON public.prayer_logs;
 CREATE POLICY "Users can delete own prayer logs" ON public.prayer_logs FOR DELETE USING (auth.uid() = user_id);
 
 -- Dhikr sessions policies
+DROP POLICY IF EXISTS "Users can view own dhikr sessions" ON public.dhikr_sessions;
 CREATE POLICY "Users can view own dhikr sessions" ON public.dhikr_sessions FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own dhikr sessions" ON public.dhikr_sessions;
 CREATE POLICY "Users can insert own dhikr sessions" ON public.dhikr_sessions FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own dhikr sessions" ON public.dhikr_sessions;
 CREATE POLICY "Users can update own dhikr sessions" ON public.dhikr_sessions FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own dhikr sessions" ON public.dhikr_sessions;
 CREATE POLICY "Users can delete own dhikr sessions" ON public.dhikr_sessions FOR DELETE USING (auth.uid() = user_id);
 
 -- Tasks policies
+DROP POLICY IF EXISTS "Users can view own tasks" ON public.tasks;
 CREATE POLICY "Users can view own tasks" ON public.tasks FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own tasks" ON public.tasks;
 CREATE POLICY "Users can insert own tasks" ON public.tasks FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own tasks" ON public.tasks;
 CREATE POLICY "Users can update own tasks" ON public.tasks FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own tasks" ON public.tasks;
 CREATE POLICY "Users can delete own tasks" ON public.tasks FOR DELETE USING (auth.uid() = user_id);
 
 -- Task categories policies
+DROP POLICY IF EXISTS "Users can view own categories" ON public.task_categories;
 CREATE POLICY "Users can view own categories" ON public.task_categories FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own categories" ON public.task_categories;
 CREATE POLICY "Users can insert own categories" ON public.task_categories FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own categories" ON public.task_categories;
 CREATE POLICY "Users can update own categories" ON public.task_categories FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own categories" ON public.task_categories;
 CREATE POLICY "Users can delete own categories" ON public.task_categories FOR DELETE USING (auth.uid() = user_id);
 
 -- Journal entries policies
+DROP POLICY IF EXISTS "Users can view own journal entries" ON public.journal_entries;
 CREATE POLICY "Users can view own journal entries" ON public.journal_entries FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own journal entries" ON public.journal_entries;
 CREATE POLICY "Users can insert own journal entries" ON public.journal_entries FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own journal entries" ON public.journal_entries;
 CREATE POLICY "Users can update own journal entries" ON public.journal_entries FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own journal entries" ON public.journal_entries;
 CREATE POLICY "Users can delete own journal entries" ON public.journal_entries FOR DELETE USING (auth.uid() = user_id);
 
 -- AI conversations policies
+DROP POLICY IF EXISTS "Users can view own conversations" ON public.ai_conversations;
 CREATE POLICY "Users can view own conversations" ON public.ai_conversations FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own conversations" ON public.ai_conversations;
 CREATE POLICY "Users can insert own conversations" ON public.ai_conversations FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own conversations" ON public.ai_conversations;
 CREATE POLICY "Users can update own conversations" ON public.ai_conversations FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own conversations" ON public.ai_conversations;
 CREATE POLICY "Users can delete own conversations" ON public.ai_conversations FOR DELETE USING (auth.uid() = user_id);
 
 -- AI messages policies
+DROP POLICY IF EXISTS "Users can view own messages" ON public.ai_messages;
 CREATE POLICY "Users can view own messages" ON public.ai_messages FOR SELECT USING (
   EXISTS (SELECT 1 FROM public.ai_conversations WHERE id = conversation_id AND user_id = auth.uid())
 );
+DROP POLICY IF EXISTS "Users can insert own messages" ON public.ai_messages;
 CREATE POLICY "Users can insert own messages" ON public.ai_messages FOR INSERT WITH CHECK (
   EXISTS (SELECT 1 FROM public.ai_conversations WHERE id = conversation_id AND user_id = auth.uid())
 );
 
 -- No-porn streaks policies
+DROP POLICY IF EXISTS "Users can view own streak" ON public.no_porn_streaks;
 CREATE POLICY "Users can view own streak" ON public.no_porn_streaks FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own streak" ON public.no_porn_streaks;
 CREATE POLICY "Users can insert own streak" ON public.no_porn_streaks FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own streak" ON public.no_porn_streaks;
 CREATE POLICY "Users can update own streak" ON public.no_porn_streaks FOR UPDATE USING (auth.uid() = user_id);
 
 -- Relapses policies
+DROP POLICY IF EXISTS "Users can view own relapses" ON public.relapses;
 CREATE POLICY "Users can view own relapses" ON public.relapses FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own relapses" ON public.relapses;
 CREATE POLICY "Users can insert own relapses" ON public.relapses FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Bookmarks policies
+DROP POLICY IF EXISTS "Users can view own bookmarks" ON public.bookmarks;
 CREATE POLICY "Users can view own bookmarks" ON public.bookmarks FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own bookmarks" ON public.bookmarks;
 CREATE POLICY "Users can insert own bookmarks" ON public.bookmarks FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own bookmarks" ON public.bookmarks;
 CREATE POLICY "Users can delete own bookmarks" ON public.bookmarks FOR DELETE USING (auth.uid() = user_id);
 
 -- Achievements (public read)
+DROP POLICY IF EXISTS "Anyone can view achievements" ON public.achievements;
 CREATE POLICY "Anyone can view achievements" ON public.achievements FOR SELECT USING (true);
 
 -- User achievements policies
+DROP POLICY IF EXISTS "Users can view own achievements" ON public.user_achievements;
 CREATE POLICY "Users can view own achievements" ON public.user_achievements FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own achievements" ON public.user_achievements;
 CREATE POLICY "Users can insert own achievements" ON public.user_achievements FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Daily checkins policies
+DROP POLICY IF EXISTS "Users can view own checkins" ON public.daily_checkins;
 CREATE POLICY "Users can view own checkins" ON public.daily_checkins FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own checkins" ON public.daily_checkins;
 CREATE POLICY "Users can insert own checkins" ON public.daily_checkins FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own checkins" ON public.daily_checkins;
 CREATE POLICY "Users can delete own checkins" ON public.daily_checkins FOR DELETE USING (auth.uid() = user_id);
 
 -- Notifications policies
+DROP POLICY IF EXISTS "Users can view own notifications" ON public.notifications;
 CREATE POLICY "Users can view own notifications" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own notifications" ON public.notifications;
 CREATE POLICY "Users can insert own notifications" ON public.notifications FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own notifications" ON public.notifications;
 CREATE POLICY "Users can update own notifications" ON public.notifications FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own notifications" ON public.notifications;
 CREATE POLICY "Users can delete own notifications" ON public.notifications FOR DELETE USING (auth.uid() = user_id);
 
 -- Seed default achievements
@@ -299,24 +346,3 @@ INSERT INTO public.achievements (name, description, icon, category, requirement)
   ('30 Day Clean Streak', 'Stay clean for 30 days', '💎', 'streak', 30),
   ('90 Day Clean Streak', 'Stay clean for 90 days', '👑', 'streak', 90)
 ON CONFLICT (name) DO NOTHING;
-
--- ============================================================
--- MIGRATION: Run these if your database already exists
--- ============================================================
--- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS language TEXT DEFAULT 'en';
--- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS color_preset TEXT DEFAULT 'madinah-green';
--- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS font_preset TEXT DEFAULT 'amiri-classic';
--- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS prayer_location JSONB;
--- ALTER TABLE public.users ADD CONSTRAINT users_language_check CHECK (language IN ('en', 'uz', 'ru', 'tr'));
--- CREATE TABLE IF NOT EXISTS public.daily_checkins (
---   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
---   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
---   checkin_date DATE NOT NULL DEFAULT CURRENT_DATE,
---   created_at TIMESTAMPTZ DEFAULT NOW(),
---   UNIQUE(user_id, checkin_date)
--- );
--- ALTER TABLE public.daily_checkins ENABLE ROW LEVEL SECURITY;
--- CREATE POLICY "Users can view own checkins" ON public.daily_checkins FOR SELECT USING (auth.uid() = user_id);
--- CREATE POLICY "Users can insert own checkins" ON public.daily_checkins FOR INSERT WITH CHECK (auth.uid() = user_id);
--- CREATE POLICY "Users can delete own checkins" ON public.daily_checkins FOR DELETE USING (auth.uid() = user_id);
--- CREATE INDEX IF NOT EXISTS idx_daily_checkins_user_date ON public.daily_checkins(user_id, checkin_date);

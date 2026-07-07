@@ -13,6 +13,13 @@ import {
   mergeStreak,
   mergeDailyCheckins,
   saveProfile,
+  savePrayerHistory,
+  saveDhikrSessions,
+  saveTasks,
+  saveJournalEntries,
+  saveAIConversations,
+  saveStreak,
+  saveDailyCheckins,
   loadPrayerHistory,
   loadDhikrSessions,
   loadTasks,
@@ -68,30 +75,39 @@ export function useOfflineSync() {
       const localPrayers = loadPrayerHistory();
       const mergedPrayers = mergePrayerHistory(localPrayers, remote.prayers);
       saveToLS('deenflow-prayer-history', mergedPrayers);
+      await savePrayerHistory(user.id, mergedPrayers);
 
       const localDhikr = loadDhikrSessions();
       const mergedDhikr = mergeDhikrSessions(localDhikr, remote.dhikr);
       saveToLS('deenflow-dhikr-sessions', mergedDhikr);
+      await saveDhikrSessions(user.id, mergedDhikr);
 
       const localTasks = loadTasks();
       const mergedTasks = mergeTasks(localTasks, remote.tasks);
       saveToLS('deenflow-tasks', mergedTasks);
+      await saveTasks(user.id, mergedTasks);
 
       const localJournal = loadJournalEntries();
       const mergedJournal = mergeJournalEntries(localJournal, remote.journal);
       saveToLS('deenflow-journal', mergedJournal);
+      await saveJournalEntries(user.id, mergedJournal);
 
       const localConvo = loadAIConversations();
       const mergedConvo = mergeAIConversations(localConvo, remote.conversations, remote.messages);
       saveToLS('deenflow-ai-conversations', mergedConvo);
+      await saveAIConversations(user.id, mergedConvo);
 
       const localStreak = loadStreak();
       const mergedStreak = mergeStreak(localStreak, remote.streak);
-      if (mergedStreak) saveToLS('deenflow-streak', mergedStreak);
+      if (mergedStreak) {
+        saveToLS('deenflow-streak', mergedStreak);
+        await saveStreak(user.id, mergedStreak);
+      }
 
       const localCheckins = loadDailyCheckins();
       const mergedCheckins = mergeDailyCheckins(localCheckins, remote.dailyCheckins);
       saveToLS('deenflow-daily-checkins', mergedCheckins);
+      await saveDailyCheckins(user.id, mergedCheckins);
 
       const localAchievements = loadAchievements();
       saveToLS('deenflow-achievements', localAchievements);
