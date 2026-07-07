@@ -30,12 +30,12 @@ export default function PrivacyPolicyPage() {
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">1. Introduction</h2>
               <p className="text-muted-foreground leading-relaxed">
-                Welcome to DeenFlow (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your personal
+                Welcome to Sakinah (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your personal
                 information and your right to privacy. This Privacy Policy explains how we collect, use,
                 disclose, and safeguard your information when you use our application and services.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                By using DeenFlow, you agree to the collection and use of information in accordance with
+                By using Sakinah, you agree to the collection and use of information in accordance with
                 this policy. If you do not agree with the terms of this privacy policy, please do not
                 access the application.
               </p>
@@ -104,7 +104,7 @@ export default function PrivacyPolicyPage() {
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">4. AI Companion Service</h2>
               <p className="text-muted-foreground leading-relaxed">
-                DeenFlow includes an AI companion feature powered by OpenAI&apos;s GPT models. When you
+                Sakinah includes an AI companion feature powered by OpenAI&apos;s GPT models. When you
                 use the AI companion:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
@@ -174,8 +174,8 @@ export default function PrivacyPolicyPage() {
                 If you have any questions about this Privacy Policy, please contact us:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
-                <li>Email: admin@deenflow.com</li>
-                <li>Telegram: @deenflowbot</li>
+                <li>Email: admin@sakinah.app</li>
+                <li>Telegram: @sakinahbot</li>
               </ul>
             </section>
           </CardContent>

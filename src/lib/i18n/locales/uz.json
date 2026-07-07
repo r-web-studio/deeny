@@ -1,5 +1,5 @@
 {
-  "app": { "name": "DeenFlow" },
+  "app": { "name": "Sakinah" },
   "nav": {
     "dashboard": "Bosh sahifa",
     "prayers": "Namoz vaqtlari",
@@ -91,7 +91,7 @@
   },
   "ai": {
     "newChat": "Yangi suhbat",
-    "title": "DeenFlow AI Yordamchi",
+    "title": "Sakinah AI Yordamchi",
     "description": "Islom, samaradorlik yoki kundalik hayot haqida istalgan narsani so'rang. Men yordam berishga tayyorman!",
     "prompts": {
       "howWasYourDay": "Kuningiz qanday o'tdi?",
@@ -101,7 +101,7 @@
     },
     "thinking": "O'ylayapman...",
     "typeMessage": "Xabaringizni yozing...",
-    "aiLabel": "DeenFlow AI",
+    "aiLabel": "Sakinah AI",
     "welcome": "Shaxsiy islomiy AI yordamchingiz. Yangi suhbat boshlang yoki kundalik tekshirish uchun ishlating.",
     "startChat": "Suhbatni boshlash",
     "dailyCheckin": "Kundalik tekshirish"
@@ -266,7 +266,7 @@
   },
   "reviews": {
     "title": "Sharhlar va takliflar",
-    "subtitle": "DeenFlow'ni yaxshilash uchun fikrlaringizni baham ko'ring",
+    "subtitle": "Sakinah'ni yaxshilash uchun fikrlaringizni baham ko'ring",
     "writeReview": "Sharh yozish",
     "overallRating": "Umumiy baho",
     "ratingBreakdown": "Baholar taqsimoti",
@@ -309,13 +309,13 @@
   "dashboardExtra": {
     "journalEntries": "Kundalik yozuvlari",
     "totalEntries": "jami yozuvlar",
-    "installTitle": "DeenFlow ni o'rnatish",
+    "installTitle": "Sakinah ni o'rnatish",
     "installDesc": "Tezkor kirish va oflayn ishlash uchun bosh ekranga qo'shing",
     "installButton": "Ilovani o'rnatish",
     "installSidebarTitle": "Ilovani o'rnatish",
     "installSidebarDesc": "Tezkor kirish va oflayn",
     "installSidebarButton": "Hozir o'rnatish",
-    "installIOSTitle": "DeenFlow ni o'rnatish",
+    "installIOSTitle": "Sakinah ni o'rnatish",
     "installIOSDesc": "Ulashish tugmasini bosing, keyin \"Bosh ekranga qo'shing\"",
     "installIOSShare": "Ulashish",
     "installDismiss": "Bekor qilish"

@@ -39,7 +39,7 @@ export default function OfflinePage() {
         className="relative z-10 flex flex-col items-center gap-6"
       >
         {/* Logo */}
-        <img src="/icons/icon-192x192.png" alt="DeenFlow Logo" className="w-20 h-20 rounded-2xl shadow-lg" />
+        <img src="/icons/icon-192x192.png" alt="Sakinah Logo" className="w-20 h-20 rounded-2xl shadow-lg" />
 
         {/* WiFi-off icon */}
         <div className="rounded-full bg-emerald-500/10 p-6">
@@ -51,7 +51,7 @@ export default function OfflinePage() {
 
         {/* Subtext */}
         <p className="max-w-md text-base leading-relaxed text-slate-400">
-          DeenFlow needs an internet connection for most features. Your locally
+          Sakinah needs an internet connection for most features. Your locally
           saved dhikr counts and journal entries are still available.
         </p>
 

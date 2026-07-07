@@ -83,7 +83,7 @@ export default function LoginPageClient() {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <Card className="glass-strong shadow-xl">
         <CardHeader className="text-center">
-          <img src="/icons/icon-192x192.png" alt="DeenFlow Logo" className="mx-auto w-16 h-16 rounded-2xl shadow-lg mb-2" />
+          <img src="/icons/icon-192x192.png" alt="Sakinah Logo" className="mx-auto w-16 h-16 rounded-2xl shadow-lg mb-2" />
           <CardTitle className="text-2xl">{t("auth.welcomeBack")}</CardTitle>
           <CardDescription>{t("auth.signInDesc")}</CardDescription>
         </CardHeader>

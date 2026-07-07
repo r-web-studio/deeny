@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://deenflow.app/login</loc>
+    <loc>https://sakinah.app/login</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://deenflow.app/register</loc>
+    <loc>https://sakinah.app/register</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://deenflow.app/dashboard</loc>
+    <loc>https://sakinah.app/dashboard</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>

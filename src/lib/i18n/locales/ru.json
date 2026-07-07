@@ -1,5 +1,5 @@
 {
-  "app": { "name": "DeenFlow" },
+  "app": { "name": "Sakinah" },
   "nav": {
     "dashboard": "Главная",
     "prayers": "Время молитвы",
@@ -91,7 +91,7 @@
   },
   "ai": {
     "newChat": "Новый чат",
-    "title": "DeenFlow AI Помощник",
+    "title": "Sakinah AI Помощник",
     "description": "Спросите меня о чём угодно — об исламе, продуктивности или повседневной жизни. Я готов помочь!",
     "prompts": {
       "howWasYourDay": "Как прошёл ваш день?",
@@ -101,7 +101,7 @@
     },
     "thinking": "Думаю...",
     "typeMessage": "Введите сообщение...",
-    "aiLabel": "DeenFlow AI",
+    "aiLabel": "Sakinah AI",
     "welcome": "Ваш личный исламский AI-помощник. Начните новый разговор или используйте ежедневный запрос.",
     "startChat": "Начать чат",
     "dailyCheckin": "Ежедневная проверка"
@@ -266,7 +266,7 @@
   },
   "reviews": {
     "title": "Отзывы и предложения",
-    "subtitle": "Поделитесь отзывом, чтобы помочь нам улучшить DeenFlow",
+    "subtitle": "Поделитесь отзывом, чтобы помочь нам улучшить Sakinah",
     "writeReview": "Написать отзыв",
     "overallRating": "Общий рейтинг",
     "ratingBreakdown": "Разбивка рейтинга",
@@ -309,13 +309,13 @@
   "dashboardExtra": {
     "journalEntries": "Записи дневника",
     "totalEntries": "всего записей",
-    "installTitle": "Установить DeenFlow",
+    "installTitle": "Установить Sakinah",
     "installDesc": "Добавьте на главный экран для быстрого доступа и офлайн-работы",
     "installButton": "Установить приложение",
     "installSidebarTitle": "Установить приложение",
     "installSidebarDesc": "Быстрый доступ и офлайн",
     "installSidebarButton": "Установить сейчас",
-    "installIOSTitle": "Установить DeenFlow",
+    "installIOSTitle": "Установить Sakinah",
     "installIOSDesc": "Нажмите кнопку «Поделиться», затем «Добавить на главный экран»",
     "installIOSShare": "Поделиться",
     "installDismiss": "Закрыть"

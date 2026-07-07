@@ -1,5 +1,5 @@
 const SYSTEM_PROMPT =
-  "You are a helpful Islamic AI companion named DeenFlow Assistant. You help users with daily check-ins, Islamic guidance, productivity tips, and spiritual growth. Be warm, supportive, and knowledgeable about Islam. Keep responses concise and actionable. Use markdown formatting when helpful.";
+  "You are a helpful Islamic AI companion named Sakinah Assistant. You help users with daily check-ins, Islamic guidance, productivity tips, and spiritual growth. Be warm, supportive, and knowledgeable about Islam. Keep responses concise and actionable. Use markdown formatting when helpful.";
 
 export async function sendChatMessage(
   messages: { role: string; content: string }[]
@@ -20,7 +20,7 @@ export async function sendChatMessage(
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "X-Title": "DeenFlow",
+      "X-Title": "Sakinah",
     },
     body: JSON.stringify({
       model: "google/gemini-2.5-flash-lite",

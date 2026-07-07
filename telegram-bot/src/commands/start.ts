@@ -18,7 +18,7 @@ export function registerStartCommand(
     const welcomeMessage = [
       `Assalamu Alaikum, ${firstName}! 🌙`,
       "",
-      "Welcome to <b>DeenFlow Reviews</b>.",
+      "Welcome to <b>Sakinah Reviews</b>.",
       "Share your experience and see what others say.",
       "",
       "Tap a button below to get started:",

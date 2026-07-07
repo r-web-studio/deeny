@@ -44,7 +44,7 @@ export function registerReviewCommand(
           });
         }
 
-        bot.sendMessage(chatId, `Thanks, <b>${escapeHtml(name)}</b>! How would you rate DeenFlow?`, {
+        bot.sendMessage(chatId, `Thanks, <b>${escapeHtml(name)}</b>! How would you rate Sakinah?`, {
           parse_mode: "HTML",
           reply_markup: {
             inline_keyboard: [

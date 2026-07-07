@@ -1,5 +1,5 @@
 {
-  "app": { "name": "DeenFlow" },
+  "app": { "name": "Sakinah" },
   "nav": {
     "dashboard": "Ana Sayfa",
     "prayers": "Namaz Vakitleri",
@@ -91,7 +91,7 @@
   },
   "ai": {
     "newChat": "Yeni Sohbet",
-    "title": "DeenFlow AI Asistan",
+    "title": "Sakinah AI Asistan",
     "description": "İslam, verimlilik veya günlük hayat hakkında her şeyi sorun. Yardımcı olmaya hazırım!",
     "prompts": {
       "howWasYourDay": "Gününüz nasıl geçti?",
@@ -101,7 +101,7 @@
     },
     "thinking": "Düşünüyorum...",
     "typeMessage": "Mesajınızı yazın...",
-    "aiLabel": "DeenFlow AI",
+    "aiLabel": "Sakinah AI",
     "welcome": "Kişisel İslami AI asistanınız. Yeni bir sohbet başlatın veya günlük kontrol için kullanın.",
     "startChat": "Sohbete Başla",
     "dailyCheckin": "Günlük Kontrol"
@@ -266,7 +266,7 @@
   },
   "reviews": {
     "title": "Değerlendirmeler ve Öneriler",
-    "subtitle": "DeenFlow'u geliştirmek için geri bildiriminizi paylaşın",
+    "subtitle": "Sakinah'u geliştirmek için geri bildiriminizi paylaşın",
     "writeReview": "Değerlendirme Yaz",
     "overallRating": "Genel Değerlendirme",
     "ratingBreakdown": "Değerlendirme Dağılımı",
@@ -309,13 +309,13 @@
   "dashboardExtra": {
     "journalEntries": "Günlük Yazıları",
     "totalEntries": "toplam yazı",
-    "installTitle": "DeenFlow'u Yükle",
+    "installTitle": "Sakinah'u Yükle",
     "installDesc": "Hızlı erişim ve çevrimdışı kullanım için ana ekrana ekleyin",
     "installButton": "Uygulamayı Yükle",
     "installSidebarTitle": "Uygulamayı Yükle",
     "installSidebarDesc": "Hızlı erişim ve çevrimdışı",
     "installSidebarButton": "Şimdi Yükle",
-    "installIOSTitle": "DeenFlow'u Yükle",
+    "installIOSTitle": "Sakinah'u Yükle",
     "installIOSDesc": "Paylaş düğmesine dokunun, sonra \"Ana Ekrana Ekle\"",
     "installIOSShare": "Paylaş",
     "installDismiss": "Kapat"

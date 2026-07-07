@@ -12,7 +12,7 @@ export default function ServiceWorkerRegister() {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
-          console.log('DeenFlow SW registered');
+          console.log('Sakinah SW registered');
 
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;

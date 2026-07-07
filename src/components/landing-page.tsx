@@ -22,7 +22,7 @@ export default function LandingPageClient() {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "#059669" }}>
                 <span className="text-white font-bold text-sm">D</span>
               </div>
-              <span className="text-white font-semibold text-lg">DeenFlow</span>
+              <span className="text-white font-semibold text-lg">Sakinah</span>
             </div>
             <div className="hidden md:flex items-center gap-6">
               <a href="#features" className="text-gray-400 hover:text-white transition-colors text-sm">Features</a>
@@ -47,7 +47,7 @@ export default function LandingPageClient() {
             Track your prayers. Count your dhikr. Grow your deen.
           </p>
           <p className="text-base text-gray-500 mb-10 max-w-xl mx-auto">
-            DeenFlow — ваш личный исламский помощник для ежедневной духовной практики.
+            Sakinah — ваш личный исламский помощник для ежедневной духовной практики.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <button
@@ -242,17 +242,17 @@ export default function LandingPageClient() {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "#059669" }}>
                 <span className="text-white font-bold text-sm">D</span>
               </div>
-              <span className="text-white font-semibold">DeenFlow</span>
+              <span className="text-white font-semibold">Sakinah</span>
             </div>
             <div className="flex items-center gap-6">
               <a href="/login" className="text-gray-400 hover:text-white transition-colors text-sm">Kirish</a>
               <a href="/register" className="text-gray-400 hover:text-white transition-colors text-sm">Ro&apos;yxat</a>
-              <a href="mailto:support@deenflow.app" className="text-gray-400 hover:text-white transition-colors text-sm">Qo&apos;llab-quvvatlash</a>
+              <a href="mailto:support@sakinah.app" className="text-gray-400 hover:text-white transition-colors text-sm">Qo&apos;llab-quvvatlash</a>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-white/5 text-center">
             <p className="text-gray-500 text-sm">
-              &copy; 2026 DeenFlow. Barcha huquqlar himoyalangan.
+              &copy; 2026 Sakinah. Barcha huquqlar himoyalangan.
             </p>
           </div>
         </div>

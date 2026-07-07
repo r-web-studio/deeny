@@ -119,11 +119,11 @@ export function registerAdminCommand(
     const targetUserName = session.tempData.replyToName as string;
 
     const userMessage = [
-      "📬 <b>Message from DeenFlow Admin:</b>",
+      "📬 <b>Message from Sakinah Admin:</b>",
       "",
       escapeHtml(replyText),
       "",
-      "— <i>DeenFlow Team</i>",
+      "— <i>Sakinah Team</i>",
     ].join("\n");
 
     bot.sendMessage(targetUserId, userMessage, { parse_mode: "HTML" })

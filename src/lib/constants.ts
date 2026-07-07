@@ -1,4 +1,4 @@
-export const APP_NAME = "DeenFlow";
+export const APP_NAME = "Sakinah";
 
 export const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"] as const;
 export type PrayerName = (typeof PRAYERS)[number];

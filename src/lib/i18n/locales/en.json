@@ -1,5 +1,5 @@
 {
-  "app": { "name": "DeenFlow" },
+  "app": { "name": "Sakinah" },
   "nav": {
     "dashboard": "Dashboard",
     "prayers": "Prayer Times",
@@ -91,7 +91,7 @@
   },
   "ai": {
     "newChat": "New Chat",
-    "title": "DeenFlow AI Companion",
+    "title": "Sakinah AI Companion",
     "description": "Ask me anything about Islam, productivity, or daily life. I am here to help!",
     "prompts": {
       "howWasYourDay": "How was your day?",
@@ -101,7 +101,7 @@
     },
     "thinking": "Thinking...",
     "typeMessage": "Type your message...",
-    "aiLabel": "DeenFlow AI",
+    "aiLabel": "Sakinah AI",
     "welcome": "Your personal Islamic AI companion. Start a new conversation or use a daily check-in prompt.",
     "startChat": "Start Chat",
     "dailyCheckin": "Daily Check-in"
@@ -266,7 +266,7 @@
   },
   "reviews": {
     "title": "Reviews & Suggestions",
-    "subtitle": "Share your feedback to help us improve DeenFlow",
+    "subtitle": "Share your feedback to help us improve Sakinah",
     "writeReview": "Write Review",
     "overallRating": "Overall Rating",
     "ratingBreakdown": "Rating Breakdown",
@@ -309,13 +309,13 @@
   "dashboardExtra": {
     "journalEntries": "Journal Entries",
     "totalEntries": "total entries",
-    "installTitle": "Install DeenFlow",
+    "installTitle": "Install Sakinah",
     "installDesc": "Add to your home screen for quick access & offline use",
     "installButton": "Install App",
     "installSidebarTitle": "Install App",
     "installSidebarDesc": "Quick access & offline",
     "installSidebarButton": "Install Now",
-    "installIOSTitle": "Install DeenFlow",
+    "installIOSTitle": "Install Sakinah",
     "installIOSDesc": "Tap the share button then \"Add to Home Screen\"",
     "installIOSShare": "Share",
     "installDismiss": "Dismiss"

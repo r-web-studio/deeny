@@ -285,7 +285,7 @@ export default function AiPage() {
     setLoading(true);
 
     const progressData = generateProgressSummary();
-    const summaryPrompt = `Here is my weekly progress data from DeenFlow. Please analyze it and give me a comprehensive summary. Celebrate my achievements, note areas where I can improve, and provide specific encouragement and tips for next week. Be warm and motivational. Here is my data:\n\n${progressData}`;
+    const summaryPrompt = `Here is my weekly progress data from Sakinah. Please analyze it and give me a comprehensive summary. Celebrate my achievements, note areas where I can improve, and provide specific encouragement and tips for next week. Be warm and motivational. Here is my data:\n\n${progressData}`;
 
     const userMsg: Message = { role: "user", content: summaryPrompt };
 
@@ -297,7 +297,7 @@ export default function AiPage() {
       )
     );
 
-    const systemPrompt = `You are DeenFlow Assistant, an Islamic AI companion. The user has shared their weekly progress data from the DeenFlow app. Analyze this data thoughtfully:
+    const systemPrompt = `You are Sakinah Assistant, an Islamic AI companion. The user has shared their weekly progress data from the Sakinah app. Analyze this data thoughtfully:
 1. Celebrate specific achievements and milestones reached
 2. Identify patterns (consistent prayers, growing dhikr, etc.)
 3. Gently note areas for improvement with specific suggestions

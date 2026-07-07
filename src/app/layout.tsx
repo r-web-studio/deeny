@@ -37,8 +37,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "DeenFlow - Islamic Productivity",
-    template: "%s | DeenFlow",
+    default: "Sakinah - Islamic Productivity",
+    template: "%s | Sakinah",
   },
   description:
     "A premium Islamic productivity app for prayer tracking, dhikr, journaling, and spiritual growth.",
@@ -157,7 +157,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="DeenFlow" />
+        <meta name="apple-mobile-web-app-title" content="Sakinah" />
 
         {/* Apple Touch Icons (required for iOS home screen) */}
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />

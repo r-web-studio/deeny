@@ -46,7 +46,7 @@ export function TermsGate({ children }: { children: React.ReactNode }) {
         >
           <Card className="glass-strong shadow-xl">
             <CardHeader className="text-center">
-              <img src="/icons/icon-192x192.png" alt="DeenFlow Logo" className="mx-auto w-16 h-16 rounded-2xl shadow-lg mb-2" />
+              <img src="/icons/icon-192x192.png" alt="Sakinah Logo" className="mx-auto w-16 h-16 rounded-2xl shadow-lg mb-2" />
               <CardTitle className="text-2xl">Terms & Privacy Agreement</CardTitle>
               <CardDescription>
                 Please review and agree to our terms before continuing

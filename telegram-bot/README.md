@@ -1,6 +1,6 @@
-# DeenFlow Telegram Reviews Bot
+# Sakinah Telegram Reviews Bot
 
-A Telegram bot for collecting and managing user reviews for the DeenFlow app.
+A Telegram bot for collecting and managing user reviews for the Sakinah app.
 
 ## Setup
 

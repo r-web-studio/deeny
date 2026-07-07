@@ -1,4 +1,4 @@
--- DeenFlow Database Schema for Supabase
+-- Sakinah Database Schema for Supabase
 -- Run this in the Supabase SQL Editor
 
 -- Enable UUID extension

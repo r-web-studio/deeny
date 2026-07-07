@@ -1,6 +1,6 @@
 const config = {
   appId: "com.deenflow.app",
-  appName: "DeenFlow",
+  appName: "Sakinah",
   webDir: "out",
   server: {
     url: "https://deenflow.onrender.com",

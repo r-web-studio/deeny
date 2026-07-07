@@ -44,7 +44,7 @@ if (PORT) {
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 const sessions = new Map<number, UserSession>();
 
-console.log("🤖 DeenFlow Reviews Bot is starting...");
+console.log("🤖 Sakinah Reviews Bot is starting...");
 console.log(`📋 Admin Chat ID: ${ADMIN_CHAT_ID}`);
 
 registerStartCommand(bot, sessions);

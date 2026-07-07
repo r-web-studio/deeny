@@ -309,6 +309,33 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [times]);
 
+  // Load and save daily mood
+  useEffect(() => {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    try {
+      const raw = localStorage.getItem("deenflow-daily-mood");
+      if (raw) {
+        const moods = JSON.parse(raw) as Record<string, string>;
+        if (moods[todayKey]) setSelectedMood(moods[todayKey]);
+      }
+    } catch {}
+  }, []);
+
+  const handleMoodSelect = (moodLabel: string) => {
+    setSelectedMood(moodLabel);
+    const todayKey = new Date().toISOString().slice(0, 10);
+    try {
+      const raw = localStorage.getItem("deenflow-daily-mood");
+      const moods = raw ? JSON.parse(raw) : {};
+      moods[todayKey] = moodLabel;
+      localStorage.setItem("deenflow-daily-mood", JSON.stringify(moods));
+    } catch {
+      const moods: Record<string, string> = {};
+      moods[todayKey] = moodLabel;
+      localStorage.setItem("deenflow-daily-mood", JSON.stringify(moods));
+    }
+  };
+
   const handleDailyCheckin = () => {
     const today = new Date().toISOString().slice(0, 10);
     const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
@@ -453,7 +480,7 @@ export default function DashboardPage() {
               {MOODS.map((m) => (
                 <button
                   key={m.label}
-                  onClick={() => setSelectedMood(m.label)}
+                  onClick={() => handleMoodSelect(m.label)}
                   className={`p-2 rounded-lg transition-all ${selectedMood === m.label ? "bg-islamic-green/20 text-islamic-green scale-110" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                   title={m.label}
                 >
@@ -511,7 +538,7 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">Install DeenFlow</h3>
+                  <h3 className="font-semibold text-foreground">Install Sakinah</h3>
                   <p className="text-sm text-muted-foreground">
                     {isIOS
                       ? 'Tap the share button, then "Add to Home Screen"'

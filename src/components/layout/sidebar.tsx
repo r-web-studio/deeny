@@ -50,7 +50,7 @@ export function Sidebar() {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-4 border-b border-border/50">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <img src="/icons/icon-192x192.png" alt="DeenFlow Logo" className="w-10 h-10 rounded-xl shadow-lg" />
+          <img src="/icons/icon-192x192.png" alt="Sakinah Logo" className="w-10 h-10 rounded-xl shadow-lg" />
           <div>
             <span className="font-bold text-lg font-heading">{APP_NAME}</span>
             <p className="text-[10px] text-muted-foreground -mt-0.5 font-arabic">بِسْمِ ٱللَّٰهِ</p>

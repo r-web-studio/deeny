@@ -30,7 +30,7 @@ export function showStats(bot: TelegramBot, chatId: number): void {
   const avgStars = "★".repeat(Math.round(stats.average)) + "☆".repeat(5 - Math.round(stats.average));
 
   const lines: string[] = [
-    "📊 <b>DeenFlow Review Statistics</b>",
+    "📊 <b>Sakinah Review Statistics</b>",
     "",
     `📝 <b>Total Reviews:</b> ${stats.total}`,
     `⭐ <b>Average Rating:</b> ${stats.average.toFixed(1)}/5 ${avgStars}`,

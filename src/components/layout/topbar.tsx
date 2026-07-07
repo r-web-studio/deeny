@@ -51,7 +51,7 @@ export function Topbar() {
               size="icon"
               onClick={isIOS ? undefined : triggerInstall}
               className="h-9 w-9 rounded-full bg-gradient-to-br from-islamic-green/10 to-islamic-green/5 border border-islamic-green/20 text-islamic-green hover:from-islamic-green/20 hover:to-islamic-green/10 hover:border-islamic-green/30 transition-all duration-300"
-              title={isIOS ? "Share → Add to Home Screen" : "Install DeenFlow"}
+              title={isIOS ? "Share → Add to Home Screen" : "Install Sakinah"}
             >
               {isIOS ? (
                 <Share className="h-4 w-4" />

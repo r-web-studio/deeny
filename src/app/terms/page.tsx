@@ -30,7 +30,7 @@ export default function TermsOfServicePage() {
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">1. Acceptance of Terms</h2>
               <p className="text-muted-foreground leading-relaxed">
-                By accessing and using DeenFlow (the &quot;Application&quot;), you accept and agree to be
+                By accessing and using Sakinah (the &quot;Application&quot;), you accept and agree to be
                 bound by the terms and provisions of this agreement. If you do not agree to these terms,
                 please do not use the Application.
               </p>
@@ -39,7 +39,7 @@ export default function TermsOfServicePage() {
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">2. Description of Service</h2>
               <p className="text-muted-foreground leading-relaxed">
-                DeenFlow is a Islamic productivity application that helps users track their daily
+                Sakinah is a Islamic productivity application that helps users track their daily
                 spiritual practices, including:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
@@ -107,7 +107,7 @@ export default function TermsOfServicePage() {
               <h2 className="text-xl font-semibold">6. Intellectual Property</h2>
               <p className="text-muted-foreground leading-relaxed">
                 The Application and its original content, features, and functionality are owned by
-                DeenFlow and are protected by international copyright, trademark, patent, trade secret,
+                Sakinah and are protected by international copyright, trademark, patent, trade secret,
                 and other intellectual property laws.
               </p>
               <p className="text-muted-foreground leading-relaxed">
@@ -195,8 +195,8 @@ export default function TermsOfServicePage() {
                 If you have any questions about these Terms, please contact us:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
-                <li>Email: admin@deenflow.com</li>
-                <li>Telegram: @deenflowbot</li>
+                <li>Email: admin@sakinah.app</li>
+                <li>Telegram: @sakinahbot</li>
               </ul>
             </section>
           </CardContent>

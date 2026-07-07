@@ -99,9 +99,9 @@ function loadData() {
     }
   } catch {}
   const moodColors: Record<string, string> = {
-    smile: "#22c55e", heart: "#059669", "cloud-rain": "#6b7280",
-    flame: "#ef4444", wind: "#3b82f6", sparkles: "#a855f7",
-    moon: "#8b5cf6", "party-popper": "#eab308", Unknown: "#9ca3af",
+    Happy: "#22c55e", Peaceful: "#059669", Sad: "#6b7280",
+    Angry: "#ef4444", Anxious: "#3b82f6", Grateful: "#a855f7",
+    Tired: "#8b5cf6", Excited: "#eab308", Unknown: "#9ca3af",
   };
   const moodData = Object.entries(moodCounts)
     .map(([name, value]) => ({ name, value, color: moodColors[name] || "#9ca3af" }))

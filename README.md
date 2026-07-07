@@ -1,4 +1,4 @@
-# DeenFlow
+# Sakinah
 
 A premium Islamic productivity web application built with Next.js, TypeScript, TailwindCSS, shadcn/ui, and Supabase.
 
