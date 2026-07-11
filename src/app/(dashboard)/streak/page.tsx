@@ -60,7 +60,7 @@ export default function StreakPage() {
   const saveStreakData = (data: StreakData) => {
     localStorage.setItem(STREAK_STORAGE_KEY, JSON.stringify(data));
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncStreak(user.id, data).catch(() => {});
     });
   };
@@ -102,7 +102,7 @@ export default function StreakPage() {
 
     // Sync daily checkins to Supabase
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) {
         syncDailyCheckins(user.id, checkins).catch(() => {});
       }

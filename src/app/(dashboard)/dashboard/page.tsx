@@ -365,7 +365,7 @@ export default function DashboardPage() {
 
     // Sync to Supabase
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) {
         syncDailyCheckins(user.id, checkins).catch(() => {});
         syncStreak(user.id, updatedStreak).catch(() => {});

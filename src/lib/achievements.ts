@@ -20,7 +20,7 @@ function loadEarned(): EarnedAchievement[] {
 export function saveEarned(earned: EarnedAchievement[]) {
   localStorage.setItem(ACHIEVEMENTS_STORAGE_KEY, JSON.stringify(earned));
   const supabase = createClient();
-  supabase.auth.getUser().then(({ data: { user } }) => {
+  supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
     if (user) syncAchievements(user.id, earned).catch(() => {});
   });
 }

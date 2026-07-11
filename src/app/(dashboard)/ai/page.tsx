@@ -61,7 +61,7 @@ export default function AiPage() {
     localStorage.setItem(AI_STORAGE_KEY, JSON.stringify(updated));
     try {
       const supabase = createClient();
-      supabase.auth.getUser().then(({ data: { user } }) => {
+      supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
         if (user) syncAIConversations(user.id, updated).catch(() => {});
       }).catch(() => {});
     } catch {}

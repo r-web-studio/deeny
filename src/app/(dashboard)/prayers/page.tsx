@@ -53,7 +53,7 @@ function loadHistory(): PrayerHistory {
 function saveHistory(history: PrayerHistory) {
   localStorage.setItem(PRAYER_HISTORY_KEY, JSON.stringify(history));
   const supabase = createClient();
-  supabase.auth.getUser().then(({ data: { user } }) => {
+  supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
     if (user) syncPrayerHistory(user.id, history).catch(() => {});
   });
 }
@@ -121,7 +121,7 @@ export default function PrayersPage() {
 
   const syncPrayerLocationToProfile = (countryId: string, city: SelectedCity | null) => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) {
         const profileRaw = localStorage.getItem("deenflow-profile");
         const profile = profileRaw ? JSON.parse(profileRaw) : {};

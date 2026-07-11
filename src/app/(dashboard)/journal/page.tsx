@@ -73,7 +73,7 @@ export default function JournalPage() {
     setEntries(newEntries);
     localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(newEntries));
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncJournalEntries(user.id, newEntries).catch(() => {});
     });
     setTitle("");
@@ -88,7 +88,7 @@ export default function JournalPage() {
     setEntries(updated);
     localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(updated));
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncJournalEntries(user.id, updated).catch(() => {});
     });
     toast.success("Entry deleted");

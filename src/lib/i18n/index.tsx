@@ -71,7 +71,7 @@ function syncLanguageToProfile(lang: Locale) {
     // Import dynamically to avoid SSR issues
     import("@/lib/supabase/client").then(({ createClient }) => {
       const supabase = createClient();
-      supabase.auth.getUser().then(({ data: { user } }) => {
+      supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
         if (user) {
           syncProfile(user.id, {
             fullName: profile.fullName || "",

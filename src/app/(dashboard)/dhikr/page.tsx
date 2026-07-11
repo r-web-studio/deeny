@@ -51,7 +51,7 @@ export default function DhikrPage() {
     setSessions(newSessions);
     localStorage.setItem(DHIKR_STORAGE_KEY, JSON.stringify(newSessions));
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncDhikrSessions(user.id, newSessions).catch(() => {});
     });
   };

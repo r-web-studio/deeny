@@ -52,7 +52,7 @@ export default function TodosPage() {
     setTasks(newTasks);
     localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(newTasks));
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncTasks(user.id, newTasks).catch(() => {});
     });
   };
