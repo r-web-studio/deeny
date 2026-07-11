@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Search, Sun, Moon, Monitor, Download, Share, Smartphone } from "lucide-react";
+import { Menu, Search, Sun, Moon, Monitor, Download, Share, Smartphone, CloudOff, Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebarStore } from "@/lib/stores/sidebar-store";
 import { useThemeStore, applyTheme } from "@/lib/stores/theme-store";
@@ -20,6 +20,18 @@ export function Topbar() {
   const { theme, setTheme } = useThemeStore();
   const [themeKey, setThemeKey] = useState(0);
   const { canInstall, isInstalled, isIOS, hasNativePrompt, triggerInstall } = usePWAInstall();
+  const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    const checkOnline = () => setIsOffline(!navigator.onLine);
+    checkOnline();
+    window.addEventListener('online', checkOnline);
+    window.addEventListener('offline', checkOnline);
+    return () => {
+      window.removeEventListener('online', checkOnline);
+      window.removeEventListener('offline', checkOnline);
+    };
+  }, []);
 
   const cycleTheme = () => {
     const next = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
@@ -43,6 +55,12 @@ export function Topbar() {
         </div>
       </div>
       <div className="flex items-center gap-2 ml-4">
+        {isOffline && (
+          <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 text-xs">
+            <CloudOff className="h-3 w-3" />
+            <span className="hidden sm:inline">Offline</span>
+          </div>
+        )}
         <LanguageSwitcher />
         {!isInstalled && canInstall && (
           <div className="relative group">

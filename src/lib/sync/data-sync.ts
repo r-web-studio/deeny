@@ -87,49 +87,64 @@ function genId(): string {
 
 // ── Load all data from Supabase ─────────────────────────────────────────────
 
-export async function loadAllData(userId: string): Promise<AllUserData> {
-  const supabase = getSupabase();
-  if (!supabase) {
-    return {
-      prayers: [], dhikr: [], tasks: [], journal: [], conversations: [],
-      messages: [], streak: null, relapses: [], achievements: [], profile: null,
-      dailyCheckins: [],
-    };
+async function safeQuery<T>(promise: Promise<{ data: T | null; error: any }>): Promise<T | null> {
+  try {
+    const { data, error } = await promise;
+    if (error) {
+      console.warn("Supabase query error:", error.message);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.warn("Supabase query failed:", err);
+    return null;
   }
+}
+
+export async function loadAllData(userId: string): Promise<AllUserData> {
+  const empty: AllUserData = {
+    prayers: [], dhikr: [], tasks: [], journal: [], conversations: [],
+    messages: [], streak: null, relapses: [], achievements: [], profile: null,
+    dailyCheckins: [],
+  };
+
+  const supabase = getSupabase();
+  if (!supabase) return empty;
 
   const [prayers, dhikr, tasks, journal, conversations, streakResult, relapses, achievements, profile, checkins] =
     await Promise.all([
-      supabase.from("prayer_logs").select("*").eq("user_id", userId),
-      supabase.from("dhikr_sessions").select("*").eq("user_id", userId),
-      supabase.from("tasks").select("*").eq("user_id", userId),
-      supabase.from("journal_entries").select("*").eq("user_id", userId),
-      supabase.from("ai_conversations").select("*").eq("user_id", userId),
-      supabase.from("no_porn_streaks").select("*").eq("user_id", userId).maybeSingle(),
-      supabase.from("relapses").select("*").eq("user_id", userId),
-      supabase.from("user_achievements").select("*").eq("user_id", userId),
-      supabase.from("users").select("*").eq("id", userId).maybeSingle(),
-      supabase.from("daily_checkins").select("*").eq("user_id", userId),
+      safeQuery(supabase.from("prayer_logs").select("*").eq("user_id", userId)),
+      safeQuery(supabase.from("dhikr_sessions").select("*").eq("user_id", userId)),
+      safeQuery(supabase.from("tasks").select("*").eq("user_id", userId)),
+      safeQuery(supabase.from("journal_entries").select("*").eq("user_id", userId)),
+      safeQuery(supabase.from("ai_conversations").select("*").eq("user_id", userId)),
+      safeQuery(supabase.from("no_porn_streaks").select("*").eq("user_id", userId).maybeSingle()),
+      safeQuery(supabase.from("relapses").select("*").eq("user_id", userId)),
+      safeQuery(supabase.from("user_achievements").select("*").eq("user_id", userId)),
+      safeQuery(supabase.from("users").select("*").eq("id", userId).maybeSingle()),
+      safeQuery(supabase.from("daily_checkins").select("*").eq("user_id", userId)),
     ]);
 
-  const convIds = (conversations.data || []).map((c: AIConversation) => c.id);
+  const convList = Array.isArray(conversations) ? conversations : conversations ? [conversations] : [];
+  const convIds = (convList as AIConversation[]).map((c) => c.id);
   let messages: AIMessage[] = [];
   if (convIds.length > 0) {
-    const msgResult = await supabase.from("ai_messages").select("*").in("conversation_id", convIds);
-    messages = msgResult.data || [];
+    const msgResult = await safeQuery(supabase.from("ai_messages").select("*").in("conversation_id", convIds));
+    messages = (msgResult as AIMessage[] | null) || [];
   }
 
   return {
-    prayers: prayers.data || [],
-    dhikr: dhikr.data || [],
-    tasks: tasks.data || [],
-    journal: journal.data || [],
-    conversations: conversations.data || [],
+    prayers: (prayers as PrayerLog[]) || [],
+    dhikr: (dhikr as DhikrSession[]) || [],
+    tasks: (tasks as Task[]) || [],
+    journal: (journal as JournalEntry[]) || [],
+    conversations: (convList as AIConversation[]) || [],
     messages,
-    streak: streakResult.data || null,
-    relapses: relapses.data || [],
-    achievements: achievements.data || [],
-    profile: profile.data || null,
-    dailyCheckins: checkins.data || [],
+    streak: (streakResult as NoPornStreak | null) || null,
+    relapses: (relapses as any[]) || [],
+    achievements: (achievements as UserAchievement[]) || [],
+    profile: (profile as any) || null,
+    dailyCheckins: (checkins as DailyCheckin[]) || [],
   };
 }
 

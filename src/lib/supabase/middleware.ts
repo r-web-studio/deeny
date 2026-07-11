@@ -16,51 +16,58 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const supabase = createServerClient(
-    supabaseUrl,
-    supabaseKey,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
+  try {
+    const supabase = createServerClient(
+      supabaseUrl,
+      supabaseKey,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              supabaseResponse.cookies.set(name, value, options)
+            );
+          },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
+      }
+    );
 
-  if (pathname.startsWith("/auth/callback")) {
-    const code = request.nextUrl.searchParams.get("code");
-    if (code) {
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error) {
-        console.error("Code exchange error in middleware:", error.message);
-        const url = request.nextUrl.clone();
-        url.pathname = "/login";
-        url.searchParams.set("error", "Authentication failed. Please try again.");
-        return NextResponse.redirect(url);
+    if (pathname.startsWith("/auth/callback")) {
+      const code = request.nextUrl.searchParams.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error("Code exchange error in middleware:", error.message);
+          const url = request.nextUrl.clone();
+          url.pathname = "/login";
+          url.searchParams.set("error", "Authentication failed. Please try again.");
+          return NextResponse.redirect(url);
+        }
       }
     }
-  }
 
-  const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  const publicPaths = ["/login", "/register", "/forgot-password", "/"];
-  const isPublicPath = publicPaths.some(p => pathname === p);
+    const publicPaths = ["/login", "/register", "/forgot-password", "/"];
+    const isPublicPath = publicPaths.some(p => pathname === p);
 
-  if (!user && !isPublicPath && !pathname.startsWith("/auth/callback")) {
+    if (!user && !isPublicPath && !pathname.startsWith("/auth/callback")) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+
+    if (user && isPublicPath) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+  } catch (e) {
+    console.error("Middleware error:", e);
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
-
-  if (user && isPublicPath) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 

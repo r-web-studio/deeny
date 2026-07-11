@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
 import {
   processSyncQueue,
   loadAllData,
@@ -48,6 +49,7 @@ export function useOfflineSync() {
       setPendingSyncCount(remaining);
     } catch (err) {
       console.error('Sync queue failed:', err);
+      // Don't spam toasts for sync failures
     }
   }, []);
 
@@ -71,6 +73,15 @@ export function useOfflineSync() {
 
     try {
       const remote = await loadAllData(user.id);
+
+      // Check if all remote data is empty (Supabase may be suspended)
+      const isAllEmpty = !remote.prayers.length && !remote.dhikr.length && !remote.tasks.length
+        && !remote.journal.length && !remote.conversations.length && !remote.streak
+        && !remote.achievements.length && !remote.profile && !Object.keys(remote.dailyCheckins).length;
+
+      if (isAllEmpty && (localStorage.getItem('deenflow-prayer-history') || localStorage.getItem('deenflow-tasks'))) {
+        toast.error('Cloud sync unavailable. Working with local data.', { duration: 4000 });
+      }
 
       const localPrayers = loadPrayerHistory();
       const mergedPrayers = mergePrayerHistory(localPrayers, remote.prayers);
@@ -162,6 +173,7 @@ export function useOfflineSync() {
       await syncQueue();
     } catch (err) {
       console.error('Load and merge failed:', err);
+      toast.error('Cloud sync unavailable. Working with local data.', { duration: 4000 });
       setSynced(true);
     }
   }, [syncQueue]);
