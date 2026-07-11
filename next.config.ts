@@ -52,7 +52,7 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
-  output: process.env.CAPACITOR_BUILD === "true" ? "export" : "standalone",
+  output: process.env.CAPACITOR_BUILD === "true" ? "export" : undefined,
   turbopack: {},
   images: { remotePatterns: [{ protocol: "https", hostname: "**" }] },
   headers: async () => [
