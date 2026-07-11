@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Loader2 } from "lucide-react";
-import { createClientAsync } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,7 +45,7 @@ export default function RegisterPageClient() {
     }
     setLoading(true);
     setError("");
-    const supabase = await createClientAsync();
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -57,7 +57,7 @@ export default function RegisterPageClient() {
       },
     });
     if (error) {
-      setError(error.message);
+      setError("Google sign-in failed. Please try again.");
       setLoading(false);
     }
   };
@@ -67,7 +67,7 @@ export default function RegisterPageClient() {
     setError("");
 
     try {
-      const supabase = await createClientAsync();
+      const supabase = createClient();
       const { data: result, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -78,11 +78,14 @@ export default function RegisterPageClient() {
       });
 
       if (error) {
-        const msg =
-          (error as any).message ||
-          (typeof error === "string" ? error : JSON.stringify(error)) ||
-          "An unknown error occurred. Please try again.";
-        setError(msg);
+        const rawMsg = (error as any).message || "An unknown error occurred.";
+        if (rawMsg.includes("already registered") || rawMsg.includes("already exists")) {
+          setError("An account with this email already exists.");
+        } else if (rawMsg.includes("valid email")) {
+          setError("Please enter a valid email address.");
+        } else {
+          setError("Registration failed. Please try again.");
+        }
         setLoading(false);
         return;
       }
@@ -106,10 +109,7 @@ export default function RegisterPageClient() {
         router.push("/login?message=Check your email for confirmation link");
       }
     } catch (err: any) {
-      const msg =
-        err?.message ||
-        (typeof err === "string" ? err : "An unexpected error occurred. Please try again.");
-      setError(msg);
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
     }
   };

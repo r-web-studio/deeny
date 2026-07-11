@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClientAsync } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Suspense } from "react";
 import { useUserStore } from "@/lib/stores/user-store";
@@ -13,7 +13,7 @@ function AuthCallbackContent() {
   const authAttempted = useRef(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const saveUserFromSession = useCallback(async (supabase: Awaited<ReturnType<typeof createClientAsync>>) => {
+  const saveUserFromSession = useCallback(async (supabase: ReturnType<typeof createClient>) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       const u = session.user;
@@ -34,12 +34,12 @@ function AuthCallbackContent() {
     authAttempted.current = true;
 
     const handleAuth = async () => {
-      const supabase = await createClientAsync();
+      const supabase = createClient();
       const next = searchParams.get("next") || "/dashboard";
       const urlError = searchParams.get("error");
 
       if (urlError) {
-        setError(urlError);
+        setError("Authentication failed. Please try again.");
         timeoutRef.current = setTimeout(() => router.push("/login"), 2000);
         return;
       }

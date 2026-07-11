@@ -12,7 +12,7 @@ import { useSidebarStore } from "@/lib/stores/sidebar-store";
 import { APP_NAME } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { createClientAsync } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 import { usePWAInstall } from "@/components/pwa/install-context";
@@ -40,7 +40,7 @@ export function Sidebar() {
   ];
 
   const handleLogout = async () => {
-    const supabase = await createClientAsync();
+    const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();

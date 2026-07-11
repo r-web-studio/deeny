@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader2 } from "lucide-react";
-import { createClientAsync } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,20 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+function getLoginErrorMessage(error: { message?: string; code?: string }): string {
+  const msg = error.message || "";
+  if (msg.includes("Invalid login credentials") || msg.includes("invalid_credentials")) {
+    return "Invalid email or password. Please try again.";
+  }
+  if (msg.includes("Email not confirmed")) {
+    return "Please confirm your email before signing in.";
+  }
+  if (msg.includes("Too many")) {
+    return "Too many login attempts. Please wait a moment and try again.";
+  }
+  return "Login failed. Please try again.";
+}
+
 export default function LoginPageClient() {
   const router = useRouter();
   const { t } = useI18n();
@@ -34,13 +48,13 @@ export default function LoginPageClient() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     setError("");
-    const supabase = await createClientAsync();
+    const supabase = createClient();
     const { data: result, error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
     if (error) {
-      setError(error.message);
+      setError(getLoginErrorMessage(error));
       setLoading(false);
     } else {
       if (result.user) {
@@ -62,7 +76,7 @@ export default function LoginPageClient() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError("");
-    const supabase = await createClientAsync();
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -74,7 +88,7 @@ export default function LoginPageClient() {
       },
     });
     if (error) {
-      setError(error.message);
+      setError("Google sign-in failed. Please try again.");
       setLoading(false);
     }
   };

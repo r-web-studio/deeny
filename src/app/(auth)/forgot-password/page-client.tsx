@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { Mail, Loader2, ArrowLeft } from "lucide-react";
-import { createClientAsync } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +24,7 @@ export default function ForgotPasswordPageClient() {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    const supabase = await createClientAsync();
+    const supabase = createClient();
     await supabase.auth.resetPasswordForEmail(data.email, {
       redirectTo: `${window.location.origin}/auth/callback?next=/settings`,
     });
