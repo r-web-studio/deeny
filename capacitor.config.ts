@@ -20,6 +20,13 @@ const config = {
       backgroundColor: "#059669",
       showSpinner: false,
     },
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
+    LocalNotifications: {
+      smallIcon: "ic_stat_icon_config_sample",
+      iconColor: "#059669",
+    },
   },
   android: {
     allowMixedContent: false,

@@ -36,6 +36,16 @@ export default function ServiceWorkerRegister() {
           window.location.reload();
         }
       });
+
+      if ('Notification' in window) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data?.type === 'NOTIFICATION_CLICK') {
+            const url = event.data?.url || '/prayers';
+            window.focus();
+            window.location.href = url;
+          }
+        });
+      }
     }
   }, []);
 

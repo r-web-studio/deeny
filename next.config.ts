@@ -37,6 +37,17 @@ const withPWA = withPWAInit({
         },
       },
       {
+        urlPattern: /^https:\/\/api\.aladhan\.com\/.*/i,
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "prayer-api-cache",
+          expiration: {
+            maxEntries: 10,
+            maxAgeSeconds: 60 * 60 * 24,
+          },
+        },
+      },
+      {
         urlPattern: /^https:\/\/.*\.(?:js|css|woff2|png|jpg|jpeg|gif|webp|svg|ico)$/i,
         handler: "CacheFirst",
         options: {
@@ -44,6 +55,28 @@ const withPWA = withPWAInit({
           expiration: {
             maxEntries: 100,
             maxAgeSeconds: 60 * 60 * 24 * 30,
+          },
+        },
+      },
+      {
+        urlPattern: /\/sounds\/.*/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "notification-sounds",
+          expiration: {
+            maxEntries: 10,
+            maxAgeSeconds: 60 * 60 * 24 * 365,
+          },
+        },
+      },
+      {
+        urlPattern: /^https:\/\/sakinah-dfxm\.onrender\.com\/(?:prayers|dashboard|settings|dhikr|journal|todos|ai|calendar|analytics|streak|achievements|reviews)?$/i,
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "pages-cache",
+          expiration: {
+            maxEntries: 20,
+            maxAgeSeconds: 60 * 60 * 24,
           },
         },
       },
@@ -84,6 +117,13 @@ const nextConfig: NextConfig = {
       source: "/icons/(.*)",
       headers: [
         { key: "Cache-Control", value: "public, max-age=86400, immutable" },
+      ],
+    },
+    {
+      source: "/sounds/(.*)",
+      headers: [
+        { key: "Cache-Control", value: "public, max-age=86400, immutable" },
+        { key: "Content-Type", value: "audio/mpeg" },
       ],
     },
   ],

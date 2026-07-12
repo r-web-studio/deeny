@@ -16,6 +16,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import toast from "react-hot-toast";
 import { saveProfile as syncProfile } from "@/lib/sync/data-sync";
 import { createClient } from "@/lib/supabase/client";
+import { NotificationSettingsComponent } from "@/components/notification-settings";
 
 const TIMEZONES = [
   "UTC", "America/New_York", "America/Chicago", "America/Denver",
@@ -356,6 +357,22 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Notifications */}
+      <NotificationSettingsComponent
+        countryId={(() => {
+          const loc = localStorage.getItem("deenflow-prayer-location");
+          return loc ? JSON.parse(loc).countryId : country ? country.toLowerCase() : undefined;
+        })()}
+        lat={(() => {
+          const loc = localStorage.getItem("deenflow-prayer-location");
+          return loc ? JSON.parse(loc).lat : undefined;
+        })()}
+        lon={(() => {
+          const loc = localStorage.getItem("deenflow-prayer-location");
+          return loc ? JSON.parse(loc).lon : undefined;
+        })()}
+      />
 
       {/* Save */}
       <Button

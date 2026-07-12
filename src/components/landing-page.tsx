@@ -58,6 +58,12 @@ export default function LandingPageClient() {
               Ilovani o&apos;rnatish
             </button>
             <a
+              href="/download"
+              className="px-8 py-3.5 rounded-xl font-semibold text-base border border-white/10 text-white hover:bg-white/5 transition-all"
+            >
+              Download App
+            </a>
+            <a
               href="/register"
               className="px-8 py-3.5 rounded-xl font-semibold text-base border border-white/10 text-white hover:bg-white/5 transition-all"
             >
