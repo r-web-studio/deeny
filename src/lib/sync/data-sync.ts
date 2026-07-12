@@ -571,10 +571,9 @@ export interface DailyCheckinLocal {
 }
 
 export async function saveDailyCheckins(userId: string, checkins: DailyCheckinLocal) {
-  const dbCheckins: DailyCheckin[] = Object.keys(checkins)
+  const dbCheckins: Omit<DailyCheckin, "id">[] = Object.keys(checkins)
     .filter((date) => checkins[date])
     .map((date) => ({
-      id: `${userId}-checkin-${date}`,
       user_id: userId,
       checkin_date: date,
     }));
@@ -692,7 +691,7 @@ export async function processSyncQueue(): Promise<number> {
               await supabase.from("daily_checkins").delete().in("id", ids);
             }
           } else {
-            const data = item.data.items as { checkins: DailyCheckinLocal; dbCheckins: DailyCheckin[] };
+            const data = item.data.items as { checkins: DailyCheckinLocal; dbCheckins: Omit<DailyCheckin, "id">[] };
             if (data.dbCheckins && data.dbCheckins.length > 0) {
               const { error } = await supabase.from("daily_checkins").upsert(data.dbCheckins, { onConflict: "user_id,checkin_date" });
               if (error && error.code !== "23505") console.warn("daily_checkins sync:", error.message);
