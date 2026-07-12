@@ -370,7 +370,7 @@ export default function DashboardPage() {
         syncDailyCheckins(user.id, checkins).catch(() => {});
         syncStreak(user.id, updatedStreak).catch(() => {});
       }
-    });
+    }).catch(() => {});
   };
 
   return (

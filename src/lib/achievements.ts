@@ -22,7 +22,7 @@ export function saveEarned(earned: EarnedAchievement[]) {
   const supabase = createClient();
   supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
     if (user) syncAchievements(user.id, earned).catch(() => {});
-  });
+  }).catch(() => {});
 }
 
 function getPrayerStreak(): number {

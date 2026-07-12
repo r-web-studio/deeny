@@ -54,7 +54,7 @@ export default function TodosPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncTasks(user.id, newTasks).catch(() => {});
-    });
+    }).catch(() => {});
   };
 
   const addTask = () => {

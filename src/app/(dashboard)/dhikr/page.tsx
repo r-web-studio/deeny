@@ -53,7 +53,7 @@ export default function DhikrPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncDhikrSessions(user.id, newSessions).catch(() => {});
-    });
+    }).catch(() => {});
   };
 
   const handleReset = () => {

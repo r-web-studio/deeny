@@ -85,7 +85,7 @@ function syncLanguageToProfile(lang: Locale) {
             prayerLocation: profile.prayerLocation || null,
           }).catch(() => {});
         }
-      });
+      }).catch(() => {});
     });
   } catch {}
 }

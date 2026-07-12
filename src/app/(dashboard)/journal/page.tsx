@@ -75,7 +75,7 @@ export default function JournalPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncJournalEntries(user.id, newEntries).catch(() => {});
-    });
+    }).catch(() => {});
     setTitle("");
     setContent("");
     setMood("");
@@ -90,7 +90,7 @@ export default function JournalPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncJournalEntries(user.id, updated).catch(() => {});
-    });
+    }).catch(() => {});
     toast.success("Entry deleted");
   };
 

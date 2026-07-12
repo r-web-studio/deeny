@@ -55,7 +55,7 @@ function saveHistory(history: PrayerHistory) {
   const supabase = createClient();
   supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
     if (user) syncPrayerHistory(user.id, history).catch(() => {});
-  });
+  }).catch(() => {});
 }
 
 function migrateOldStatuses(history: PrayerHistory): PrayerHistory {
@@ -135,9 +135,9 @@ export default function PrayersPage() {
           colorPreset: profile.colorPreset || "madinah-green",
           fontPreset: profile.fontPreset || "amiri-classic",
           prayerLocation: city ? { countryId, name: city.name, lat: city.lat, lon: city.lon, apiRegion: city.apiRegion } : undefined,
-        }).catch(() => {});
-      }
-    });
+          }).catch(() => {});
+        }
+      }).catch(() => {});
   };
 
   const selectCountry = (countryId: string | null) => {

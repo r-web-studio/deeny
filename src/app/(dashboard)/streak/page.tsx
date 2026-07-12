@@ -62,7 +62,7 @@ export default function StreakPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) syncStreak(user.id, data).catch(() => {});
-    });
+    }).catch(() => {});
   };
 
   const handleRelapse = () => {
@@ -106,7 +106,7 @@ export default function StreakPage() {
       if (user) {
         syncDailyCheckins(user.id, checkins).catch(() => {});
       }
-    });
+    }).catch(() => {});
   };
 
   const weeklyData = Array.from({ length: 7 }, (_, i) => {
