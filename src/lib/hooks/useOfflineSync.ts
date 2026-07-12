@@ -80,7 +80,7 @@ export function useOfflineSync() {
         && !remote.achievements.length && !remote.profile && !Object.keys(remote.dailyCheckins).length;
 
       if (isAllEmpty && (localStorage.getItem('deenflow-prayer-history') || localStorage.getItem('deenflow-tasks'))) {
-        toast.error('Cloud sync unavailable. Working with local data.', { duration: 4000 });
+        toast.error('Our service is temporarily unavailable. Your local data is safe.', { duration: 6000 });
       }
 
       const localPrayers = loadPrayerHistory();
@@ -173,7 +173,12 @@ export function useOfflineSync() {
       await syncQueue();
     } catch (err) {
       console.error('Load and merge failed:', err);
-      toast.error('Cloud sync unavailable. Working with local data.', { duration: 4000 });
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg.includes("suspend") || errMsg.includes("pause") || errMsg.includes("503") || errMsg.includes("Service Unavailable")) {
+        toast.error('Our service is temporarily unavailable. Your local data is safe.', { duration: 6000 });
+      } else {
+        toast.error('Cloud sync unavailable. Working with local data.', { duration: 4000 });
+      }
       setSynced(true);
     }
   }, [syncQueue]);

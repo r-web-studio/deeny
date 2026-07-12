@@ -6,6 +6,9 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  const publicPaths = ["/login", "/register", "/forgot-password", "/"];
+  const isPublicPath = publicPaths.some(p => pathname === p);
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -48,10 +51,22 @@ export async function updateSession(request: NextRequest) {
       }
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: getUserError } = await supabase.auth.getUser();
 
-    const publicPaths = ["/login", "/register", "/forgot-password", "/"];
-    const isPublicPath = publicPaths.some(p => pathname === p);
+    if (getUserError) {
+      const errMsg = getUserError.message || "";
+      console.error("[Middleware] getUser error:", errMsg);
+      if (!isPublicPath && !pathname.startsWith("/auth/callback")) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/login";
+        if (errMsg.includes("suspend") || errMsg.includes("pause") || errMsg.includes("503") || errMsg.includes("Service Unavailable")) {
+          url.searchParams.set("error", "Our service is temporarily unavailable. Please try again later.");
+        } else {
+          url.searchParams.set("error", "Session expired. Please log in again.");
+        }
+        return NextResponse.redirect(url);
+      }
+    }
 
     if (!user && !isPublicPath && !pathname.startsWith("/auth/callback")) {
       const url = request.nextUrl.clone();
@@ -68,6 +83,12 @@ export async function updateSession(request: NextRequest) {
     console.error("Middleware error:", e);
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes("suspend") || msg.includes("pause") || msg.includes("503") || msg.includes("Service Unavailable")) {
+      url.searchParams.set("error", "Our service is temporarily unavailable. Please try again later.");
+    } else if (!isPublicPath && !pathname.startsWith("/auth/callback")) {
+      url.searchParams.set("error", "Session expired. Please log in again.");
+    }
     return NextResponse.redirect(url);
   }
 

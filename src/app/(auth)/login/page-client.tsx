@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,15 +35,26 @@ function getLoginErrorMessage(error: { message?: string; code?: string }): strin
   if (msg.includes("Too many")) {
     return "Too many login attempts. Please wait a moment and try again.";
   }
+  if (msg.includes("suspend") || msg.includes("pause") || msg.includes("Service Unavailable") || msg.includes("503")) {
+    return "Our service is temporarily unavailable. Please try again later.";
+  }
   return "Login failed. Please try again.";
 }
 
 export default function LoginPageClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useI18n();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { register, handleSubmit } = useForm<FormData>({ resolver: zodResolver(schema) });
+
+  useEffect(() => {
+    const urlError = searchParams.get("error");
+    if (urlError) {
+      setError(urlError);
+    }
+  }, [searchParams]);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
