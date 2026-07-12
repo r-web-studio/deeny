@@ -322,6 +322,8 @@ DROP POLICY IF EXISTS "Users can view own checkins" ON public.daily_checkins;
 CREATE POLICY "Users can view own checkins" ON public.daily_checkins FOR SELECT USING (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Users can insert own checkins" ON public.daily_checkins;
 CREATE POLICY "Users can insert own checkins" ON public.daily_checkins FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own checkins" ON public.daily_checkins;
+CREATE POLICY "Users can update own checkins" ON public.daily_checkins FOR UPDATE USING (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Users can delete own checkins" ON public.daily_checkins;
 CREATE POLICY "Users can delete own checkins" ON public.daily_checkins FOR DELETE USING (auth.uid() = user_id);
 
