@@ -38,7 +38,7 @@ async function callOpenRouter(
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://sakinah.app",
+      "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://sakinah-dfxm.onrender.com",
       "X-Title": "Sakinah",
     },
     body: JSON.stringify({

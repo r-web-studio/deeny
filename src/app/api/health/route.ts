@@ -8,5 +8,5 @@ export async function GET() {
 }
 
 // TODO: Set up a free cron job at https://cron-job.org
-// to GET https://deeny-4ty6.onrender.com/api/health every 10 minutes
+// to GET https://sakinah-dfxm.onrender.com/api/health every 10 minutes
 // This prevents Render.com cold starts by keeping the service alive.

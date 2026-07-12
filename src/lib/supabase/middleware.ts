@@ -55,16 +55,10 @@ export async function updateSession(request: NextRequest) {
 
     if (getUserError) {
       const errMsg = getUserError.message || "";
-      console.error("[Middleware] getUser error:", errMsg);
-      if (!isPublicPath && !pathname.startsWith("/auth/callback")) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/login";
-        if (errMsg.includes("suspend") || errMsg.includes("pause") || errMsg.includes("503") || errMsg.includes("Service Unavailable")) {
-          url.searchParams.set("error", "Our service is temporarily unavailable. Please try again later.");
-        } else {
-          url.searchParams.set("error", "Session expired. Please log in again.");
-        }
-        return NextResponse.redirect(url);
+      if (errMsg.includes("Auth session missing")) {
+        // No session — expected for unauthenticated visitors on public paths
+      } else {
+        console.error("[Middleware] getUser error:", errMsg);
       }
     }
 

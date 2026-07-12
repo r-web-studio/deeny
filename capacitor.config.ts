@@ -3,7 +3,7 @@ const config = {
   appName: "Sakinah",
   webDir: "out",
   server: {
-    url: "https://deenflow.onrender.com",
+    url: "https://sakinah-dfxm.onrender.com",
     cleartext: false,
     allowNavigation: ["*"],
   },

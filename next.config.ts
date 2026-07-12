@@ -26,7 +26,7 @@ const withPWA = withPWAInit({
         handler: "NetworkOnly",
       },
       {
-        urlPattern: /^https:\/\/deeny-4ty6\.onrender\.com\/api\/.*/i,
+        urlPattern: /^https:\/\/sakinah-dfxm\.onrender\.com\/api\/.*/i,
         handler: "NetworkFirst",
         options: {
           cacheName: "api-cache",
