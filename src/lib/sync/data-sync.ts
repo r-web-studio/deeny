@@ -69,10 +69,8 @@ export async function savePrayerHistory(userId: string, history: PrayerHistory) 
     }
   }
   if (logs.length > 0) {
-    const { error: delErr } = await supabase.from("prayer_logs").delete().eq("user_id", userId);
-    if (delErr) console.warn("savePrayerHistory delete:", delErr.message);
-    const { error } = await supabase.from("prayer_logs").insert(logs);
-    if (error) console.warn("savePrayerHistory insert:", error.message);
+    const { error } = await supabase.from("prayer_logs").upsert(logs, { onConflict: "user_id,prayer,date" });
+    if (error) console.warn("savePrayerHistory:", error.message);
   }
 }
 
@@ -114,10 +112,8 @@ export async function saveDhikrSessions(userId: string, sessions: DhikrSessionLo
     date: s.date,
   }));
   if (dbSessions.length > 0) {
-    const { error: delErr } = await supabase.from("dhikr_sessions").delete().eq("user_id", userId);
-    if (delErr) console.warn("saveDhikrSessions delete:", delErr.message);
-    const { error } = await supabase.from("dhikr_sessions").insert(dbSessions);
-    if (error) console.warn("saveDhikrSessions insert:", error.message);
+    const { error } = await supabase.from("dhikr_sessions").upsert(dbSessions, { onConflict: "user_id,dhikr_type,date" });
+    if (error) console.warn("saveDhikrSessions:", error.message);
   }
 }
 
@@ -154,7 +150,7 @@ export async function saveTasks(userId: string, tasks: TaskLocal[]) {
   const supabase = getSupabase();
   if (!supabase) return;
   const dbTasks: Task[] = tasks.map((t) => ({
-    id: genId(),
+    id: t.id || genId(),
     user_id: userId,
     title: t.title,
     priority: t.priority,
@@ -162,10 +158,8 @@ export async function saveTasks(userId: string, tasks: TaskLocal[]) {
     completed: t.completed,
   }));
   if (dbTasks.length > 0) {
-    const { error: delErr } = await supabase.from("tasks").delete().eq("user_id", userId);
-    if (delErr) console.warn("saveTasks delete:", delErr.message);
-    const { error } = await supabase.from("tasks").insert(dbTasks);
-    if (error) console.warn("saveTasks insert:", error.message);
+    const { error } = await supabase.from("tasks").upsert(dbTasks, { onConflict: "id" });
+    if (error) console.warn("saveTasks:", error.message);
   }
 }
 
@@ -209,7 +203,7 @@ export async function saveJournalEntries(userId: string, entries: JournalEntryLo
   const supabase = getSupabase();
   if (!supabase) return;
   const dbEntries: JournalEntry[] = entries.map((e) => ({
-    id: genId(),
+    id: e.id || genId(),
     user_id: userId,
     title: e.title,
     content: e.content,
@@ -218,10 +212,8 @@ export async function saveJournalEntries(userId: string, entries: JournalEntryLo
     date: e.date,
   }));
   if (dbEntries.length > 0) {
-    const { error: delErr } = await supabase.from("journal_entries").delete().eq("user_id", userId);
-    if (delErr) console.warn("saveJournalEntries delete:", delErr.message);
-    const { error } = await supabase.from("journal_entries").insert(dbEntries);
-    if (error) console.warn("saveJournalEntries insert:", error.message);
+    const { error } = await supabase.from("journal_entries").upsert(dbEntries, { onConflict: "id" });
+    if (error) console.warn("saveJournalEntries:", error.message);
   }
 }
 
@@ -261,15 +253,8 @@ export interface AIConversationLocal {
 export async function saveAIConversations(userId: string, convos: AIConversationLocal[]) {
   const supabase = getSupabase();
   if (!supabase) return;
-  // Delete existing conversations and their messages
-  const { data: existingConvos } = await supabase.from("ai_conversations").select("id").eq("user_id", userId);
-  const existingIds = (existingConvos as { id: string }[] | null)?.map((c) => c.id) || [];
-  if (existingIds.length > 0) {
-    await supabase.from("ai_messages").delete().in("conversation_id", existingIds);
-    await supabase.from("ai_conversations").delete().eq("user_id", userId);
-  }
   const dbConvos: AIConversation[] = convos.map((c) => ({
-    id: genId(),
+    id: c.id || genId(),
     user_id: userId,
     title: c.title,
   }));
@@ -280,7 +265,7 @@ export async function saveAIConversations(userId: string, convos: AIConversation
     for (let i = 0; i < c.messages.length; i++) {
       const m = c.messages[i];
       dbMessages.push({
-        id: genId(),
+        id: `${convoId}-msg-${i}`,
         conversation_id: convoId,
         role: m.role,
         content: m.content,
@@ -288,11 +273,11 @@ export async function saveAIConversations(userId: string, convos: AIConversation
     }
   }
   if (dbConvos.length > 0) {
-    const { error } = await supabase.from("ai_conversations").insert(dbConvos);
+    const { error } = await supabase.from("ai_conversations").upsert(dbConvos, { onConflict: "id" });
     if (error) console.warn("saveAIConversations convos:", error.message);
   }
   if (dbMessages.length > 0) {
-    const { error } = await supabase.from("ai_messages").insert(dbMessages);
+    const { error } = await supabase.from("ai_messages").upsert(dbMessages, { onConflict: "id" });
     if (error) console.warn("saveAIConversations messages:", error.message);
   }
 }
@@ -355,10 +340,8 @@ export async function saveStreak(userId: string, streak: StreakLocal) {
     start_date: streak.startDate,
     last_check_date: new Date().toISOString().slice(0, 10),
   };
-  const { error: delErr } = await supabase.from("no_porn_streaks").delete().eq("user_id", userId);
-  if (delErr) console.warn("saveStreak delete:", delErr.message);
-  const { error } = await supabase.from("no_porn_streaks").insert(dbStreak);
-  if (error) console.warn("saveStreak insert:", error.message);
+  const { error } = await supabase.from("no_porn_streaks").upsert(dbStreak, { onConflict: "user_id" });
+  if (error) console.warn("saveStreak:", error.message);
 }
 
 export async function loadStreak(userId: string): Promise<StreakLocal | null> {
@@ -394,10 +377,8 @@ export async function saveAchievements(userId: string, earned: AchievementLocal[
       achievement_id: `achievement-${a.index}`,
       earned_at: a.earned_at,
     }));
-    const { error: delErr } = await supabase.from("user_achievements").delete().eq("user_id", userId);
-    if (delErr) console.warn("saveAchievements delete:", delErr.message);
-    const { error } = await supabase.from("user_achievements").insert(rows);
-    if (error) console.warn("saveAchievements insert:", error.message);
+    const { error } = await supabase.from("user_achievements").upsert(rows, { onConflict: "user_id,achievement_id" });
+    if (error) console.warn("saveAchievements:", error.message);
   }
 }
 
@@ -497,10 +478,8 @@ export async function saveDailyCheckins(userId: string, checkins: DailyCheckinLo
       checkin_date: date,
     }));
   if (dbCheckins.length > 0) {
-    const { error: delErr } = await supabase.from("daily_checkins").delete().eq("user_id", userId);
-    if (delErr) console.warn("saveDailyCheckins delete:", delErr.message);
-    const { error } = await supabase.from("daily_checkins").insert(dbCheckins);
-    if (error) console.warn("saveDailyCheckins insert:", error.message);
+    const { error } = await supabase.from("daily_checkins").upsert(dbCheckins, { onConflict: "user_id,checkin_date" });
+    if (error) console.warn("saveDailyCheckins:", error.message);
   }
 }
 
