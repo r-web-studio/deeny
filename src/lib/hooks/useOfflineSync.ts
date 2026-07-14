@@ -91,8 +91,15 @@ export function useOfflineSync() {
         && !remote.journal.length && !remote.conversations.length && !remote.streak
         && !remote.achievements.length && !remote.profile && !Object.keys(remote.dailyCheckins).length;
 
-      if (isAllEmpty && (localStorage.getItem('deenflow-prayer-history') || localStorage.getItem('deenflow-tasks'))) {
-        toast.error('Our service is temporarily unavailable. Your local data is safe.', { duration: 6000 });
+      const hasLocalData = localStorage.getItem('deenflow-prayer-history') || localStorage.getItem('deenflow-tasks');
+
+      // If remote is empty but we have local data, Supabase is likely suspended — skip writes
+      if (isAllEmpty && hasLocalData) {
+        if (!cancelledRef.current) {
+          setSynced(true);
+          toast('Cloud sync unavailable. Working with local data.', { icon: '💾', duration: 4000 });
+        }
+        return;
       }
 
       const localPrayers = loadPrayerHistory();
@@ -195,13 +202,10 @@ export function useOfflineSync() {
     } catch (err) {
       console.error('Load and merge failed:', err);
       if (cancelledRef.current) return;
-      const errMsg = err instanceof Error ? err.message : String(err);
-      if (errMsg.includes("suspend") || errMsg.includes("pause") || errMsg.includes("503") || errMsg.includes("Service Unavailable")) {
-        toast.error('Our service is temporarily unavailable. Your local data is safe.', { duration: 6000 });
-      } else {
-        toast.error('Cloud sync unavailable. Working with local data.', { duration: 4000 });
+      if (!cancelledRef.current) {
+        setSynced(true);
+        toast('Cloud sync unavailable. Working with local data.', { icon: '💾', duration: 4000 });
       }
-      setSynced(true);
     }
   }, [syncQueue]);
 
