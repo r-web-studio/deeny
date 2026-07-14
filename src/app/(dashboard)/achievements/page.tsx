@@ -90,36 +90,44 @@ export default function AchievementsPage() {
   const [filter, setFilter] = useState<string>("all");
   const hasChecked = useRef(false);
 
+  const confettiTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const clearConfettiTimers = useCallback(() => {
+    confettiTimersRef.current.forEach((t) => clearTimeout(t));
+    confettiTimersRef.current = [];
+  }, []);
+
   const loadAchievements = useCallback(() => {
     const { statuses: s, newlyEarned: n } = checkAllAchievements();
     setStatuses(s);
 
     if (n.length > 0 && hasChecked.current) {
       setNewlyEarned(n);
+      clearConfettiTimers();
       // Big celebration confetti
       fireConfetti();
-      setTimeout(() => fireBurst(), 300);
-      setTimeout(() => fireBurst(), 800);
-      setTimeout(() => fireBurst(), 1400);
-      setTimeout(() => {
-        // Extra side bursts
+      confettiTimersRef.current.push(setTimeout(() => fireBurst(), 300));
+      confettiTimersRef.current.push(setTimeout(() => fireBurst(), 800));
+      confettiTimersRef.current.push(setTimeout(() => fireBurst(), 1400));
+      confettiTimersRef.current.push(setTimeout(() => {
         confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors: ["#22c55e", "#eab308", "#a855f7", "#3b82f6"] });
         confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: ["#22c55e", "#eab308", "#a855f7", "#3b82f6"] });
-      }, 2000);
+      }, 2000));
       setCelebrationIndex(n[0].index);
     }
     hasChecked.current = true;
-  }, []);
+  }, [clearConfettiTimers]);
 
   useEffect(() => {
     loadAchievements();
     window.addEventListener("storage", loadAchievements);
     document.addEventListener("visibilitychange", loadAchievements);
     return () => {
+      clearConfettiTimers();
       window.removeEventListener("storage", loadAchievements);
       document.removeEventListener("visibilitychange", loadAchievements);
     };
-  }, [loadAchievements]);
+  }, [loadAchievements, clearConfettiTimers]);
 
   const earnedCount = statuses.filter((s) => s.earned).length;
   const total = ACHIEVEMENTS_LIST.length;

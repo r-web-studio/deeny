@@ -67,11 +67,16 @@ export function usePrayerTimes(regionName?: string, countryId?: string, lat?: nu
     const schoolParam = country.school !== undefined ? `&school=${country.school}` : "";
 
     if (lat !== undefined && lon !== undefined) {
+      let cancelled = false;
+      const controller = new AbortController();
+
       fetch(
-        `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lon}&method=${method}${schoolParam}`
+        `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lon}&method=${method}${schoolParam}`,
+        { signal: controller.signal }
       )
         .then((r) => r.json())
         .then((data: AladhanResponse | null) => {
+          if (cancelled) return;
           if (data?.data?.timings) {
             const t = data.data.timings;
             const newTimes: PrayerTimesData = {
@@ -88,6 +93,7 @@ export function usePrayerTimes(regionName?: string, countryId?: string, lat?: nu
           setLoading(false);
         })
         .catch(() => {
+          if (cancelled) return;
           const cached = countryId ? getCachedTimes(countryId, dateStr) : null;
           if (cached) {
             setTimes(cached);
@@ -97,6 +103,11 @@ export function usePrayerTimes(regionName?: string, countryId?: string, lat?: nu
           }
           setLoading(false);
         });
+
+      return () => {
+        cancelled = true;
+        controller.abort();
+      };
     } else {
       setLoading(false);
     }

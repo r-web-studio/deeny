@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useId } from "react";
 import { useThemeStore } from "@/lib/stores/theme-store";
 
 interface AnalogClockProps {
@@ -11,6 +11,7 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
   const [time, setTime] = useState(new Date());
   const { theme } = useThemeStore();
   const [isDark, setIsDark] = useState(false);
+  const uniqueId = useId();
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
@@ -88,7 +89,7 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
   });
 
   // Colors that adapt to dark/light mode
-  const faceGradient = isDark ? "url(#clockFaceDark)" : "url(#clockFace)";
+  const faceGradient = isDark ? `url(#clockFaceDark${uniqueId})` : `url(#clockFace${uniqueId})`;
   const hourHandColor = isDark ? "oklch(0.96 0.005 100)" : "oklch(0.15 0.02 250)";
   const hourMarkerColor = isDark ? "oklch(0.75 0.15 85)" : "oklch(0.35 0.15 155)";
   const minuteMarkerColor = isDark ? "oklch(0.65 0.02 250)" : "oklch(0.5 0.02 250)";
@@ -100,14 +101,14 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
     <div className={`flex flex-col items-center gap-3 ${className}`}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
-          <filter id="clockShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <filter id={`clockShadow${uniqueId}`} x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor={shadowColor} floodOpacity="0.3" />
           </filter>
-          <radialGradient id="clockFace" cx="50%" cy="50%" r="50%">
+          <radialGradient id={`clockFace${uniqueId}`} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="oklch(0.98 0.002 100)" />
             <stop offset="100%" stopColor="oklch(0.96 0.01 155)" />
           </radialGradient>
-          <radialGradient id="clockFaceDark" cx="50%" cy="50%" r="50%">
+          <radialGradient id={`clockFaceDark${uniqueId}`} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="oklch(0.22 0.02 250)" />
             <stop offset="100%" stopColor="oklch(0.18 0.02 250)" />
           </radialGradient>
@@ -120,7 +121,7 @@ export function AnalogClock({ size = 160, className = "" }: AnalogClockProps) {
           fill={faceGradient}
           stroke="oklch(0.45 0.18 155)"
           strokeWidth="3"
-          filter="url(#clockShadow)"
+          filter={`url(#clockShadow${uniqueId})`}
         />
 
         <circle

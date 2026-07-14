@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { usePWAInstall } from "@/components/pwa/install-context";
 
 export default function LandingPageClient() {
@@ -28,10 +29,10 @@ export default function LandingPageClient() {
               <a href="#features" className="text-gray-400 hover:text-white transition-colors text-sm">Features</a>
               <a href="#how-it-works" className="text-gray-400 hover:text-white transition-colors text-sm">How it Works</a>
               <a href="#pricing" className="text-gray-400 hover:text-white transition-colors text-sm">Pricing</a>
-              <a href="/login" className="text-gray-400 hover:text-white transition-colors text-sm">Kirish</a>
-              <a href="/register" className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ backgroundColor: "#059669" }}>
+              <Link href="/login" className="text-gray-400 hover:text-white transition-colors text-sm">Kirish</Link>
+              <Link href="/register" className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90" style={{ backgroundColor: "#059669" }}>
                 Bepul boshlash
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -57,18 +58,18 @@ export default function LandingPageClient() {
             >
               Ilovani o&apos;rnatish
             </button>
-            <a
-              href="/download"
-              className="px-8 py-3.5 rounded-xl font-semibold text-base border border-white/10 text-white hover:bg-white/5 transition-all"
-            >
-              Download App
-            </a>
-            <a
-              href="/register"
-              className="px-8 py-3.5 rounded-xl font-semibold text-base border border-white/10 text-white hover:bg-white/5 transition-all"
-            >
+              <Link
+                href="/download"
+                className="px-8 py-3.5 rounded-xl font-semibold text-base border border-white/10 text-white hover:bg-white/5 transition-all"
+              >
+                Download App
+              </Link>
+              <Link
+                href="/register"
+                className="px-8 py-3.5 rounded-xl font-semibold text-base border border-white/10 text-white hover:bg-white/5 transition-all"
+              >
               Bepul boshlash
-            </a>
+            </Link>
           </div>
 
           {/* App Screenshot Mockup */}
@@ -200,9 +201,9 @@ export default function LandingPageClient() {
                   1 journal entry per week
                 </li>
               </ul>
-              <a href="/register" className="block w-full py-3 rounded-xl text-center font-medium border border-white/10 text-white hover:bg-white/5 transition-all">
+              <Link href="/register" className="block w-full py-3 rounded-xl text-center font-medium border border-white/10 text-white hover:bg-white/5 transition-all">
                 Boshlash
-              </a>
+              </Link>
             </div>
             {/* Premium Tier */}
             <div className="rounded-2xl p-8 border-2 relative" style={{ borderColor: "#059669", backgroundColor: "#0f1a0f" }}>
@@ -232,9 +233,9 @@ export default function LandingPageClient() {
                   Priority support
                 </li>
               </ul>
-              <a href="/register" className="block w-full py-3 rounded-xl text-center font-medium text-white transition-all hover:opacity-90" style={{ backgroundColor: "#059669" }}>
+              <Link href="/register" className="block w-full py-3 rounded-xl text-center font-medium text-white transition-all hover:opacity-90" style={{ backgroundColor: "#059669" }}>
                 Premium ni sinab ko&apos;ring
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -251,8 +252,8 @@ export default function LandingPageClient() {
               <span className="text-white font-semibold">Sakinah</span>
             </div>
             <div className="flex items-center gap-6">
-              <a href="/login" className="text-gray-400 hover:text-white transition-colors text-sm">Kirish</a>
-              <a href="/register" className="text-gray-400 hover:text-white transition-colors text-sm">Ro&apos;yxat</a>
+              <Link href="/login" className="text-gray-400 hover:text-white transition-colors text-sm">Kirish</Link>
+              <Link href="/register" className="text-gray-400 hover:text-white transition-colors text-sm">Ro&apos;yxat</Link>
               <a href="mailto:support@sakinah.app" className="text-gray-400 hover:text-white transition-colors text-sm">Qo&apos;llab-quvvatlash</a>
             </div>
           </div>

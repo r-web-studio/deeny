@@ -123,8 +123,11 @@ export default function PrayersPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
       if (user) {
-        const profileRaw = localStorage.getItem("deenflow-profile");
-        const profile = profileRaw ? JSON.parse(profileRaw) : {};
+        let profile: Record<string, string> = {};
+        try {
+          const profileRaw = localStorage.getItem("deenflow-profile");
+          if (profileRaw) profile = JSON.parse(profileRaw);
+        } catch {}
         syncProfile(user.id, {
           fullName: profile.fullName || "",
           username: profile.username || "",

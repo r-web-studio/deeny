@@ -41,6 +41,7 @@ export function useOfflineSync() {
   const [pendingSyncCount, setPendingSyncCount] = useState<number>(0);
   const [synced, setSynced] = useState<boolean>(false);
   const hasMergedRef = useRef(false);
+  const cancelledRef = useRef(false);
 
   const syncQueue = useCallback(async () => {
     if (!checkOnline()) return;
@@ -62,17 +63,18 @@ export function useOfflineSync() {
       supabase = createClient();
     } catch (err) {
       console.error('Failed to create Supabase client:', err);
-      setSynced(true);
+      if (!cancelledRef.current) setSynced(true);
       return;
     }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      setSynced(true);
+      if (!cancelledRef.current) setSynced(true);
       return;
     }
 
     try {
       const remote = await loadAllData(user.id);
+      if (cancelledRef.current) return;
 
       // Check if all remote data is empty (Supabase may be suspended)
       const isAllEmpty = !remote.prayers.length && !remote.dhikr.length && !remote.tasks.length
@@ -87,26 +89,31 @@ export function useOfflineSync() {
       const mergedPrayers = mergePrayerHistory(localPrayers, remote.prayers);
       saveToLS('deenflow-prayer-history', mergedPrayers);
       await savePrayerHistory(user.id, mergedPrayers);
+      if (cancelledRef.current) return;
 
       const localDhikr = loadDhikrSessions();
       const mergedDhikr = mergeDhikrSessions(localDhikr, remote.dhikr);
       saveToLS('deenflow-dhikr-sessions', mergedDhikr);
       await saveDhikrSessions(user.id, mergedDhikr);
+      if (cancelledRef.current) return;
 
       const localTasks = loadTasks();
       const mergedTasks = mergeTasks(localTasks, remote.tasks);
       saveToLS('deenflow-tasks', mergedTasks);
       await saveTasks(user.id, mergedTasks);
+      if (cancelledRef.current) return;
 
       const localJournal = loadJournalEntries();
       const mergedJournal = mergeJournalEntries(localJournal, remote.journal);
       saveToLS('deenflow-journal', mergedJournal);
       await saveJournalEntries(user.id, mergedJournal);
+      if (cancelledRef.current) return;
 
       const localConvo = loadAIConversations();
       const mergedConvo = mergeAIConversations(localConvo, remote.conversations, remote.messages);
       saveToLS('deenflow-ai-conversations', mergedConvo);
       await saveAIConversations(user.id, mergedConvo);
+      if (cancelledRef.current) return;
 
       const localStreak = loadStreak();
       const mergedStreak = mergeStreak(localStreak, remote.streak);
@@ -114,11 +121,13 @@ export function useOfflineSync() {
         saveToLS('deenflow-streak', mergedStreak);
         await saveStreak(user.id, mergedStreak);
       }
+      if (cancelledRef.current) return;
 
       const localCheckins = loadDailyCheckins();
       const mergedCheckins = mergeDailyCheckins(localCheckins, remote.dailyCheckins);
       saveToLS('deenflow-daily-checkins', mergedCheckins);
       await saveDailyCheckins(user.id, mergedCheckins);
+      if (cancelledRef.current) return;
 
       const localAchievements = loadAchievements();
       saveToLS('deenflow-achievements', localAchievements);
@@ -169,10 +178,13 @@ export function useOfflineSync() {
         saveProfile(user.id, localProfile);
       }
 
-      setSynced(true);
-      await syncQueue();
+      if (!cancelledRef.current) {
+        setSynced(true);
+        await syncQueue();
+      }
     } catch (err) {
       console.error('Load and merge failed:', err);
+      if (cancelledRef.current) return;
       const errMsg = err instanceof Error ? err.message : String(err);
       if (errMsg.includes("suspend") || errMsg.includes("pause") || errMsg.includes("503") || errMsg.includes("Service Unavailable")) {
         toast.error('Our service is temporarily unavailable. Your local data is safe.', { duration: 6000 });
@@ -184,7 +196,9 @@ export function useOfflineSync() {
   }, [syncQueue]);
 
   useEffect(() => {
+    cancelledRef.current = false;
     loadAndMerge();
+    return () => { cancelledRef.current = true; };
   }, [loadAndMerge]);
 
   useEffect(() => {

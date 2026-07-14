@@ -37,6 +37,10 @@ async function addToSyncQueue(item: SyncQueueItem): Promise<void> {
     const db = await openSyncDB();
     const tx = db.transaction(SYNC_QUEUE_STORE, "readwrite");
     tx.objectStore(SYNC_QUEUE_STORE).put(item);
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
   } catch (err) {
     console.error("Failed to add to sync queue:", err);
   }
@@ -62,6 +66,10 @@ export async function clearSyncQueue(ids: string[]): Promise<void> {
     const tx = db.transaction(SYNC_QUEUE_STORE, "readwrite");
     const store = tx.objectStore(SYNC_QUEUE_STORE);
     await Promise.all(ids.map((id) => store.delete(id)));
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
   } catch (err) {
     console.error("Failed to clear sync queue:", err);
   }

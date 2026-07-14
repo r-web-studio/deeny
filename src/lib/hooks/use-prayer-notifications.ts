@@ -23,10 +23,11 @@ export function getNotificationSettings(): NotificationSettings {
   }
 
   const enabled = localStorage.getItem(NOTIFICATIONS_ENABLED_KEY) !== "false";
-  const prayersRaw = localStorage.getItem(NOTIFICATIONS_PRAYERS_KEY);
-  const prayers: PrayerName[] = prayersRaw
-    ? JSON.parse(prayersRaw)
-    : [...ALL_PRAYERS];
+  let prayers: PrayerName[] = [...ALL_PRAYERS];
+  try {
+    const prayersRaw = localStorage.getItem(NOTIFICATIONS_PRAYERS_KEY);
+    if (prayersRaw) prayers = JSON.parse(prayersRaw);
+  } catch {}
   const sound = (localStorage.getItem(NOTIFICATIONS_SOUND_KEY) as NotificationSettings["sound"]) || "adhan";
 
   return { enabled, prayers, sound };
@@ -71,7 +72,8 @@ function showPrayerNotification(prayerName: string, soundType: "adhan" | "notifi
       playSound(soundType);
     }
 
-    setTimeout(() => notification.close(), 30000);
+    const closeTimer = setTimeout(() => notification.close(), 30000);
+    notification.onclose = () => clearTimeout(closeTimer);
   }
 }
 

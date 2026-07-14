@@ -40,11 +40,20 @@ export default function DhikrPage() {
   const preset = DHIKR_PRESETS[selectedPreset];
   const progress = Math.min((count / preset.target) * 100, 100);
 
+  const rippleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleTap = useCallback(() => {
     setCount((c) => c + 1);
     setRipple(true);
-    setTimeout(() => setRipple(false), 200);
+    if (rippleTimeoutRef.current) clearTimeout(rippleTimeoutRef.current);
+    rippleTimeoutRef.current = setTimeout(() => setRipple(false), 200);
     if (navigator.vibrate) navigator.vibrate(50);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (rippleTimeoutRef.current) clearTimeout(rippleTimeoutRef.current);
+    };
   }, []);
 
   const saveSessions = (newSessions: Session[]) => {

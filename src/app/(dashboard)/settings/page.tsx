@@ -49,15 +49,17 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("deenflow-profile") || localStorage.getItem("deenflow-user");
-    if (saved) {
-      const profile = JSON.parse(saved);
-      setFullName(profile.fullName || profile.full_name || "");
-      setUsername(profile.username || "");
-      setCountry(profile.country || "");
-      setTimezone(profile.timezone || "UTC");
-      setAvatarPreview(profile.avatarUrl || profile.avatar_url || null);
-    }
+    try {
+      const saved = localStorage.getItem("deenflow-profile") || localStorage.getItem("deenflow-user");
+      if (saved) {
+        const profile = JSON.parse(saved);
+        setFullName(profile.fullName || profile.full_name || "");
+        setUsername(profile.username || "");
+        setCountry(profile.country || "");
+        setTimezone(profile.timezone || "UTC");
+        setAvatarPreview(profile.avatarUrl || profile.avatar_url || null);
+      }
+    } catch {}
   }, []);
 
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,19 +73,23 @@ export default function SettingsPage() {
     reader.onload = () => {
       const base64 = reader.result as string;
       setAvatarPreview(base64);
-      // Save to user store
-      const currentProfile = localStorage.getItem("deenflow-profile");
-      const profile = currentProfile ? JSON.parse(currentProfile) : {};
-      profile.avatarUrl = base64;
-      localStorage.setItem("deenflow-profile", JSON.stringify(profile));
-      useUserStore.getState().setUser({
-        fullName: profile.fullName || fullName,
-        email: useUserStore.getState().user?.email || "",
-        username: profile.username || username,
-        avatarUrl: base64,
-        country: profile.country || country,
-        timezone: profile.timezone || timezone,
-      });
+      try {
+        const currentProfile = localStorage.getItem("deenflow-profile");
+        const profile = currentProfile ? JSON.parse(currentProfile) : {};
+        profile.avatarUrl = base64;
+        localStorage.setItem("deenflow-profile", JSON.stringify(profile));
+        useUserStore.getState().setUser({
+          fullName: profile.fullName || fullName,
+          email: useUserStore.getState().user?.email || "",
+          username: profile.username || username,
+          avatarUrl: base64,
+          country: profile.country || country,
+          timezone: profile.timezone || timezone,
+        });
+      } catch {
+        toast.error("Failed to save avatar to local storage");
+        return;
+      }
       toast.success("Avatar updated!");
     };
     reader.readAsDataURL(file);
@@ -91,18 +97,20 @@ export default function SettingsPage() {
 
   const removeAvatar = () => {
     setAvatarPreview(null);
-    const currentProfile = localStorage.getItem("deenflow-profile");
-    const profile = currentProfile ? JSON.parse(currentProfile) : {};
-    profile.avatarUrl = null;
-    localStorage.setItem("deenflow-profile", JSON.stringify(profile));
-    useUserStore.getState().setUser({
-      fullName: profile.fullName || fullName,
-      email: useUserStore.getState().user?.email || "",
-      username: profile.username || username,
-      avatarUrl: null,
-      country: profile.country || country,
-      timezone: profile.timezone || timezone,
-    });
+    try {
+      const currentProfile = localStorage.getItem("deenflow-profile");
+      const profile = currentProfile ? JSON.parse(currentProfile) : {};
+      profile.avatarUrl = null;
+      localStorage.setItem("deenflow-profile", JSON.stringify(profile));
+      useUserStore.getState().setUser({
+        fullName: profile.fullName || fullName,
+        email: useUserStore.getState().user?.email || "",
+        username: profile.username || username,
+        avatarUrl: null,
+        country: profile.country || country,
+        timezone: profile.timezone || timezone,
+      });
+    } catch {}
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -361,16 +369,22 @@ export default function SettingsPage() {
       {/* Notifications */}
       <NotificationSettingsComponent
         countryId={(() => {
-          const loc = localStorage.getItem("deenflow-prayer-location");
-          return loc ? JSON.parse(loc).countryId : country ? country.toLowerCase() : undefined;
+          try {
+            const loc = localStorage.getItem("deenflow-prayer-location");
+            return loc ? JSON.parse(loc).countryId : country ? country.toLowerCase() : undefined;
+          } catch { return country ? country.toLowerCase() : undefined; }
         })()}
         lat={(() => {
-          const loc = localStorage.getItem("deenflow-prayer-location");
-          return loc ? JSON.parse(loc).lat : undefined;
+          try {
+            const loc = localStorage.getItem("deenflow-prayer-location");
+            return loc ? JSON.parse(loc).lat : undefined;
+          } catch { return undefined; }
         })()}
         lon={(() => {
-          const loc = localStorage.getItem("deenflow-prayer-location");
-          return loc ? JSON.parse(loc).lon : undefined;
+          try {
+            const loc = localStorage.getItem("deenflow-prayer-location");
+            return loc ? JSON.parse(loc).lon : undefined;
+          } catch { return undefined; }
         })()}
       />
 

@@ -18,29 +18,47 @@ export function useLocation() {
       setLoading(false);
       return;
     }
+
+    let cancelled = false;
+    const controller = new AbortController();
+
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        if (cancelled) return;
         const { latitude, longitude } = pos.coords;
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+            { signal: controller.signal }
           );
           const data = await res.json();
-          setLocation({
-            latitude,
-            longitude,
-            city: data.address?.city || data.address?.town || data.address?.state || "Unknown",
-          });
+          if (!cancelled) {
+            setLocation({
+              latitude,
+              longitude,
+              city: data.address?.city || data.address?.town || data.address?.state || "Unknown",
+            });
+            setLoading(false);
+          }
         } catch {
-          setLocation({ latitude, longitude, city: "Unknown" });
+          if (!cancelled) {
+            setLocation({ latitude, longitude, city: "Unknown" });
+            setLoading(false);
+          }
         }
-        setLoading(false);
       },
       () => {
-        setError("Location access denied");
-        setLoading(false);
+        if (!cancelled) {
+          setError("Location access denied");
+          setLoading(false);
+        }
       }
     );
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, []);
 
   return { location, loading, error };

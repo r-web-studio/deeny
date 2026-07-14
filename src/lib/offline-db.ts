@@ -233,5 +233,6 @@ export async function clearSyncedItems(ids: string[]): Promise<void> {
 // ─── Utility ────────────────────────────────────────────────────────────────
 
 export function isOnline(): boolean {
+  if (typeof navigator === "undefined") return true;
   return navigator.onLine;
 }

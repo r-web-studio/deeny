@@ -338,24 +338,32 @@ export default function DashboardPage() {
 
   const handleDailyCheckin = () => {
     const today = new Date().toISOString().slice(0, 10);
-    const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
-    const checkins = checkinsRaw ? JSON.parse(checkinsRaw) : {};
+    let checkins: Record<string, boolean> = {};
+    try {
+      const checkinsRaw = localStorage.getItem("deenflow-daily-checkins");
+      if (checkinsRaw) checkins = JSON.parse(checkinsRaw);
+    } catch {}
 
     if (checkins[today]) return;
 
     checkins[today] = true;
     localStorage.setItem("deenflow-daily-checkins", JSON.stringify(checkins));
 
-    const streakRaw = localStorage.getItem("deenflow-streak");
-    const streakData = streakRaw ? JSON.parse(streakRaw) : {};
-    const newStreak = (streakData.currentStreak || 0) + 1;
-    const newLongest = Math.max(newStreak, streakData.longestStreak || 0);
+    let streakData: Record<string, string | number> = {};
+    try {
+      const streakRaw = localStorage.getItem("deenflow-streak");
+      if (streakRaw) streakData = JSON.parse(streakRaw);
+    } catch {}
+    const currentStreakVal = typeof streakData.currentStreak === "number" ? streakData.currentStreak : 0;
+    const longestStreakVal = typeof streakData.longestStreak === "number" ? streakData.longestStreak : 0;
+    const newStreak = currentStreakVal + 1;
+    const newLongest = Math.max(newStreak, longestStreakVal);
 
     const updatedStreak = {
-      ...streakData,
       currentStreak: newStreak,
       longestStreak: newLongest,
-      startDate: streakData.startDate || new Date().toISOString(),
+      startDate: typeof streakData.startDate === "string" ? streakData.startDate : new Date().toISOString(),
+      relapses: Array.isArray(streakData.relapses) ? streakData.relapses : [],
     };
     localStorage.setItem("deenflow-streak", JSON.stringify(updatedStreak));
 
