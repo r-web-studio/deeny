@@ -110,7 +110,7 @@ export function useOfflineSync() {
       try {
         await savePrayerHistory(user.id, mergedPrayers);
       } catch (writeErr) {
-        console.error('[Sync] First write failed, Supabase may be unreachable:', writeErr);
+        console.error('[Sync] First Supabase write failed:', writeErr);
         if (!cancelledRef.current) {
           setSynced(true);
           toast('Cloud sync unavailable. Working with local data.', { icon: '💾', duration: 4000 });
@@ -252,5 +252,9 @@ export function useOfflineSync() {
 
 function saveToLS(key: string, data: unknown) {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(key, JSON.stringify(data));
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (err) {
+    console.warn(`[Sync] Failed to save ${key} to localStorage:`, err);
+  }
 }
