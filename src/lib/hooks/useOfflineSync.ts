@@ -66,7 +66,17 @@ export function useOfflineSync() {
       if (!cancelledRef.current) setSynced(true);
       return;
     }
-    const { data: { user } } = await supabase.auth.getUser();
+
+    let user;
+    try {
+      const { data } = await supabase.auth.getUser();
+      user = data.user;
+    } catch (err) {
+      console.error('Failed to get user:', err);
+      if (!cancelledRef.current) setSynced(true);
+      return;
+    }
+
     if (!user) {
       if (!cancelledRef.current) setSynced(true);
       return;

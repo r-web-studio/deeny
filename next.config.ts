@@ -8,7 +8,6 @@ const withPWA = withPWAInit({
   cacheOnFrontEndNav: false,
   aggressiveFrontEndNavCaching: false,
   workboxOptions: {
-    navigateFallback: "/",
     navigateFallbackDenylist: [
       /^\/manifest\.json$/,
       /^\/api\//,
