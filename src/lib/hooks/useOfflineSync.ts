@@ -86,22 +86,6 @@ export function useOfflineSync() {
       const remote = await loadAllData(user.id);
       if (cancelledRef.current) return;
 
-      // Check if all remote data is empty (Supabase may be suspended)
-      const isAllEmpty = !remote.prayers.length && !remote.dhikr.length && !remote.tasks.length
-        && !remote.journal.length && !remote.conversations.length && !remote.streak
-        && !remote.achievements.length && !remote.profile && !Object.keys(remote.dailyCheckins).length;
-
-      const hasLocalData = localStorage.getItem('deenflow-prayer-history') || localStorage.getItem('deenflow-tasks');
-
-      // If remote is empty but we have local data, Supabase is likely suspended — skip writes
-      if (isAllEmpty && hasLocalData) {
-        if (!cancelledRef.current) {
-          setSynced(true);
-          toast('Cloud sync unavailable. Working with local data.', { icon: '💾', duration: 4000 });
-        }
-        return;
-      }
-
       const localPrayers = loadPrayerHistory();
       const mergedPrayers = mergePrayerHistory(localPrayers, remote.prayers);
       saveToLS('deenflow-prayer-history', mergedPrayers);
