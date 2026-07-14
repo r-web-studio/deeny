@@ -5,14 +5,6 @@ import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 import {
   loadAllData,
-  saveProfile,
-  savePrayerHistory,
-  saveDhikrSessions,
-  saveTasks,
-  saveJournalEntries,
-  saveAIConversations,
-  saveStreak,
-  saveDailyCheckins,
   isOnline as checkOnline,
 } from '@/lib/sync/data-sync';
 import { useUserStore } from '@/lib/stores/user-store';
@@ -67,15 +59,14 @@ export function useOfflineSync() {
         streak: !!remote.streak,
       });
 
-      // Convert remote data to localStorage format so pages can still read it
-      // Pages will be updated to read from Supabase directly, but this provides
-      // backward compatibility during the transition
+      // Only populate localStorage from Supabase if localStorage is empty for that key.
+      // This prevents overwriting fresh local saves with stale Supabase data.
       const prayerHistory: Record<string, Record<string, string | undefined>> = {};
       for (const log of remote.prayers) {
         if (!prayerHistory[log.date]) prayerHistory[log.date] = {};
         prayerHistory[log.date][log.prayer] = log.status;
       }
-      saveToLS('deenflow-prayer-history', prayerHistory);
+      saveToLSIfEmpty('deenflow-prayer-history', prayerHistory);
 
       const dhikrSessions = remote.dhikr.map((s) => ({
         id: s.id,
@@ -85,7 +76,7 @@ export function useOfflineSync() {
         date: s.date,
         timestamp: new Date(s.date).getTime(),
       }));
-      saveToLS('deenflow-dhikr-sessions', dhikrSessions);
+      saveToLSIfEmpty('deenflow-dhikr-sessions', dhikrSessions);
 
       const tasks = remote.tasks.map((t) => ({
         id: t.id,
@@ -96,7 +87,7 @@ export function useOfflineSync() {
         completed: t.completed,
         created_at: new Date().toISOString(),
       }));
-      saveToLS('deenflow-tasks', tasks);
+      saveToLSIfEmpty('deenflow-tasks', tasks);
 
       const journal = remote.journal.map((e) => ({
         id: e.id,
@@ -106,9 +97,8 @@ export function useOfflineSync() {
         tags: e.tags || [],
         date: e.date,
       }));
-      saveToLS('deenflow-journal', journal);
+      saveToLSIfEmpty('deenflow-journal', journal);
 
-      // Rebuild AI conversations with messages
       const convMap = new Map<string, { id: string; title: string; messages: { role: string; content: string }[]; created_at: string }>();
       for (const c of remote.conversations) {
         convMap.set(c.id, { id: c.id, title: c.title, messages: [], created_at: new Date().toISOString() });
@@ -117,10 +107,10 @@ export function useOfflineSync() {
         const convo = convMap.get(m.conversation_id);
         if (convo) convo.messages.push({ role: m.role, content: m.content });
       }
-      saveToLS('deenflow-ai-conversations', Array.from(convMap.values()));
+      saveToLSIfEmpty('deenflow-ai-conversations', Array.from(convMap.values()));
 
       if (remote.streak) {
-        saveToLS('deenflow-streak', {
+        saveToLSIfEmpty('deenflow-streak', {
           currentStreak: remote.streak.current_streak,
           longestStreak: remote.streak.longest_streak,
           relapses: [],
@@ -132,13 +122,13 @@ export function useOfflineSync() {
       for (const c of remote.dailyCheckins) {
         checkins[c.checkin_date] = true;
       }
-      saveToLS('deenflow-daily-checkins', checkins);
+      saveToLSIfEmpty('deenflow-daily-checkins', checkins);
 
       const achievements = remote.achievements.map((a) => {
         const match = a.achievement_id.match(/achievement-(\d+)/);
         return { index: match ? parseInt(match[1]) : 0, earned_at: a.earned_at };
       });
-      saveToLS('deenflow-achievements', achievements);
+      saveToLSIfEmpty('deenflow-achievements', achievements);
 
       if (remote.profile) {
         const profile = {
@@ -148,7 +138,7 @@ export function useOfflineSync() {
           timezone: remote.profile.timezone || 'UTC',
           avatarUrl: remote.profile.avatarUrl || null,
         };
-        saveToLS('deenflow-profile', profile);
+        saveToLSIfEmpty('deenflow-profile', profile);
         useUserStore.getState().setUser({
           fullName: profile.fullName,
           email: user.email || '',
@@ -212,9 +202,11 @@ export function useOfflineSync() {
   return { isOnline: online, synced };
 }
 
-function saveToLS(key: string, data: unknown) {
+function saveToLSIfEmpty(key: string, data: unknown) {
   if (typeof window === 'undefined') return;
   try {
+    const existing = localStorage.getItem(key);
+    if (existing) return; // Don't overwrite fresh local data
     localStorage.setItem(key, JSON.stringify(data));
   } catch (err) {
     console.warn(`[Sync] Failed to save ${key} to localStorage:`, err);
