@@ -62,34 +62,61 @@ export function useOfflineSync() {
     try {
       supabase = createClient();
     } catch (err) {
-      console.error('Failed to create Supabase client:', err);
+      console.error('[Sync] Failed to create Supabase client:', err);
       if (!cancelledRef.current) setSynced(true);
       return;
     }
 
     let user;
     try {
-      const { data } = await supabase.auth.getUser();
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error('[Sync] Auth error:', error.message);
+        if (!cancelledRef.current) setSynced(true);
+        return;
+      }
       user = data.user;
     } catch (err) {
-      console.error('Failed to get user:', err);
+      console.error('[Sync] Failed to get user:', err);
       if (!cancelledRef.current) setSynced(true);
       return;
     }
 
     if (!user) {
+      console.log('[Sync] No user logged in, skipping sync');
       if (!cancelledRef.current) setSynced(true);
       return;
     }
+
+    console.log('[Sync] Starting merge for user:', user.id);
 
     try {
       const remote = await loadAllData(user.id);
       if (cancelledRef.current) return;
 
+      console.log('[Sync] Remote data loaded:', {
+        prayers: remote.prayers.length,
+        dhikr: remote.dhikr.length,
+        tasks: remote.tasks.length,
+        profile: !!remote.profile,
+        streak: !!remote.streak,
+      });
+
       const localPrayers = loadPrayerHistory();
       const mergedPrayers = mergePrayerHistory(localPrayers, remote.prayers);
       saveToLS('deenflow-prayer-history', mergedPrayers);
-      await savePrayerHistory(user.id, mergedPrayers);
+
+      // Test write with first save — if it fails, Supabase is unreachable
+      try {
+        await savePrayerHistory(user.id, mergedPrayers);
+      } catch (writeErr) {
+        console.error('[Sync] First write failed, Supabase may be unreachable:', writeErr);
+        if (!cancelledRef.current) {
+          setSynced(true);
+          toast('Cloud sync unavailable. Working with local data.', { icon: '💾', duration: 4000 });
+        }
+        return;
+      }
       if (cancelledRef.current) return;
 
       const localDhikr = loadDhikrSessions();
@@ -184,7 +211,7 @@ export function useOfflineSync() {
         await syncQueue();
       }
     } catch (err) {
-      console.error('Load and merge failed:', err);
+      console.error('[Sync] Load and merge failed:', err);
       if (cancelledRef.current) return;
       if (!cancelledRef.current) {
         setSynced(true);
